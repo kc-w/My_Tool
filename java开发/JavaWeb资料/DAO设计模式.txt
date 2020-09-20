@@ -1,0 +1,27 @@
+DAO是(DMa Access Object的简称)，主要是对数据的操作对应上面的层级就是数据层。在数据操作过程中，主要是以面向接口编程为主。一般将DAO划分为以下几个部分。
+
+(1) VO (Value Object)也称为POJO一个用于存放网页的一行数据即一条记录的类，比如网页要显示一条用户的信息，则这个类就是用户类。主要有属性、以及属性的set，get
+方法组成，VO类中的成员变量与表中的字段是相对应的。
+(2) DatabaseConnection用于打开和关闭数据库操作的类。
+(3) DAO接口用于声明对于数据库的操作，定义对数据库的原子性操作，例如增加、修改删除、修改等。
+(4) DA0Impl必须实现DA0接口，真实实现DA0接口的类，但是不负责数据库的打开和关闭。
+(5) DAOProxy也是实现DAO接口，主要完成数据库的打开和关闭。
+(6) DAOFactory工厂类，通过getInstance()取得DAO的实例化对象。
+
+DAO命名规则：
+DA0命名为XxxDao，有的开发人员喜欢在前加个I表示是接口类，例如UserDao或者IUserDao.
+DA0Impl命名为XxxDaoImpl，表示是接口实现类，例如UserDaolmpl.
+DA0Proxy命名为XxxDaoproxy或者XxxService，例如UserDaoproxy或者UserService.
+DAOFactory命名为XxxFactory, 例如UserDaoFactory.
+VO的命名与表名一致，VO中的属性与表字段一致。
+
+
+信息系统开发架构：
+客户层》显示层》业务层》数据层》数据库
+
+客尸层：实际上就是客户端浏览器
+显示层：用JSP和Servlet进行页面显示
+业务层：对数据层的原子性DAO操作进行整合
+数据层：对数据库进行原子操作，例如增加、删除、修改等
+数据库：顾名思义就是保存数据库的信息
+

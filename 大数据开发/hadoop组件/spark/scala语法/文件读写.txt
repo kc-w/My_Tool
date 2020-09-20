@@ -1,0 +1,43 @@
+import java.io.RandomAccessFile
+import java.nio.charset.Charset
+import scala.io.Source
+import scala.reflect.io.{File, Path}
+
+object SparkSQLTest4 {
+  //通过StructType来动态生成DataFrame的Schema
+  def main(args: Array[String]): Unit = {
+
+    //读取一个文件
+    val file=Source.fromFile("D:\\tmp\\csv\\sdata.txt")
+    for( line <- file.getLines() ){//遍历每一行内容
+    val num=line.trim.split(",").length;//根据逗号拆分后的数组长度
+      if(num==1){
+        //          println(line);
+      }else{
+        if(line.trim.endsWith(",")){
+          val  data=new StringBuilder(line.trim).deleteCharAt(line.trim.length-1).append("\n").toString().replace("＃","")
+        }
+      }
+    }
+    //读取流关闭
+    file.close();
+
+
+    //生成文件数据路径
+    val file_path="C:\\Users\\Wkc23\\Desktop\\文件夹2\\z1.txt"
+    val path: Path = Path(file_path)
+    //判断文件是否存在(存在则删除)
+    if(path.exists){
+      path.deleteRecursively()//递归删除，无论是目录还是文件
+      println("存在此文件，已经删除!")
+    }else{
+      println("文件不存在,开始生成.....!")
+    }
+    //组合java的流
+    val raf=new RandomAccessFile(file_path,"rw")
+    raf.write(data.getBytes(Charset.forName("UTF-8")))
+    //写入流关闭
+    raf.close();
+
+  }
+}

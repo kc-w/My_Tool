@@ -1,0 +1,72 @@
+Java 层只给 JNI 层传递文件夹路径，在 JNI 中完成文件夹里的文件操作，通常都避免不了需要使用到 文件夹遍历 这个功能。
+NDK 也给我们提供了 <dirent.h> 头文件，通过这个头文件中的相关方法，我们就可以完成这个功能了。
+
+native-lib.cpp代码如下：
+    #include <jni.h>
+    #include <string.h>
+    #include <iostream>
+    #include <dirent.h>
+    #include "log.hpp"
+
+    extern "C" {
+
+    using namespace std;
+
+    void showAllFiles(string dir_name) {
+        // check the parameter
+        if (dir_name.empty()) {
+            LOGE("dir_name is null !");
+            return;
+        }
+        DIR *dir = opendir(dir_name.c_str());
+        // check is dir ?
+        if (NULL == dir) {
+            LOGE("Can not open dir. Check path or permission!");
+            return;
+        }
+        struct dirent *file;
+        // read all the files in dir
+        while ((file = readdir(dir)) != NULL) {
+            // skip "." and ".."
+            if (strcmp(file->d_name, ".") == 0 || strcmp(file->d_name, "..") == 0) {
+                LOGV("ignore . and ..");
+                continue;
+            }
+            if (file->d_type == DT_DIR) {
+                string filePath = dir_name + "/" + file->d_name;
+                showAllFiles(filePath); // 递归执行
+            } else {
+                // 如果需要把路径保存到集合中去，就在这里执行 add 的操作
+                LOGI("filePath: %s/%s", dir_name.c_str(), file->d_name);
+            }
+        }
+        closedir(dir);
+    }
+
+    JNIEXPORT void JNICALL
+    Java_com_afei_jnidemo_MainActivity_showDir(JNIEnv *env, jobject instance, jstring dirPath_) {
+        const char *dirPath = env->GetStringUTFChars(dirPath_, 0);
+        showAllFiles(string(dirPath));
+        env->ReleaseStringUTFChars(dirPath_, dirPath);
+    }
+
+    }
+
+java类中调用
+    public class MainActivity extends AppCompatActivity {
+
+        static {
+            System.loadLibrary("native-lib");
+        }
+
+        @Override
+        protected void
+        onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            showDir("/sdcard/sensetime/detect/batch");
+        }
+
+        public native void showDir(String dirPath);
+
+    }

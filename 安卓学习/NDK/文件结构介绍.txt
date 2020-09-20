@@ -1,0 +1,97 @@
+Java 调用本地方法，是使用 native 关键字。
+本地方法的实现是在一个叫做 “native-lib” 的动态库里（动态库的名称是在 CMakeList.txt 中指定的）
+要想使用这个动态库,就必须先加载这个库,即 System.loadLibrary("native-lib");这些都是 Java 的语法定义。
+
+=====================================================================================
+调用类
+public class MainActivity extends AppCompatActivity {
+
+    //在应用启动时加载"native-lib"库
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Example of a call to a native method
+        TextView tv = (TextView) findViewById(R.id.sample_text);
+        //调用native-lib.cpp中的方法
+        tv.setText(stringFromJNI());
+    }
+
+    //native方法由native-lib实现
+    public native String stringFromJNI();
+}
+
+=========================================================================================
+native-lib.cpp:
+
+#include <jni.h>
+#include <string>
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_example_ndkdemo1_MainActivity_stringFromJNI(
+        JNIEnv* env,
+        jobject /* this */) {
+    std::string hello = "Hello from C++";
+    return env->NewStringUTF(hello.c_str());
+}
+
+activity中的public native String stringFromJNI()方法的实现就是在这里，
+JNI的注册将指定native方法是对应的cpp中的方法
+本例中使用的是静态注册，即 “Java包名类名_方法名” 的形式，其中包名也是用下划线替代点号。
+
+
+========================================================================================
+CMakeList.txt:编译的脚本文件介绍
+
+#文档:https://d.android.com/studio/projects/add-native-code.html
+
+#设置构建本机库所需的CMake的最小版本。
+cmake_minimum_required(VERSION 3.4.1)
+
+#创建并命名一个库，将它设置为静态或共享，并提供到其源代码的相对路径。
+#你可以定义多个库， Gradle会自动用你的APK包共享库。
+add_library( #设置库的名称,将会生成一个命名为 libnative-lib.so的库
+             native-lib
+
+             #指定库的类型,一般为SHARED,即动态库(以.so为后缀),还有一种是静态库STATIC,即静态库(以.a为后缀)
+             SHARED
+
+             #提供到源文件的相对路径
+             native-lib.cpp )
+
+#找到一个NDK的库,并且将这个库的路径存储在一个变量中
+#该例是找到NDK中的log库,并将其路径存储在 “log-lib” 变量中,在后面你就可以通过 “${log-lib}” 命令取出变量中的值了。
+find_library( #设置路径变量的名称
+              log-lib
+
+              # 指定的NDK库的名称
+              #你想让CMake定位。
+              log )
+
+#指定CMake应该链接到目标库的库,可以链接多个库
+target_link_libraries( #指定目标库
+                       native-lib
+
+                       #将目标库链接到日志库
+                       ${log-lib} )
+
+
+
+=========================================================================================
+调用流程为:
+
+Gradle 调用外部构建脚本 CMakeLists.txt。
+CMake 按照构建脚本中的命令将 C++ 源文件 native-lib.cpp 编译到共享的对象库中，并命名为 libnative-lib.so，
+Gradle 随后会将其打包到 APK 中。
+运行时，应用的 MainActivity 会使用 System.loadLibrary() 加载原生库。
+现在，应用可以使用库的原生函数 stringFromJNI()。
+MainActivity.onCreate() 调用 stringFromJNI()，这将返回“Hello from C++”并使用这些文字更新 TextView。
+
+
+
+

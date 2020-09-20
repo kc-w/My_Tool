@@ -1,0 +1,28 @@
+##hadoop命令
+sbin/hadoop-daemon.sh stop datanode ##关闭datanode节点
+sbin/hadoop-daemon.sh stop namenode ##关闭namenode节点
+sbin/stop-dfs.sh ##关闭hdfs相关服务
+sbin/stop-yarn.sh ##关闭yarn相关服务
+sbin/mr-jobhistory-daemon.sh  stop  historyserver ##关闭日志相关服务
+sbin/hadoop-daemon.sh stop journalnode
+sbin/stop-all.sh hadoop1 ##停止hadoop1下的所有进程
+
+sbin/hadoop-daemon.sh start datanode ##开启datanode节点
+sbin/hadoop-daemon.sh start namenode ##开启namenode节点
+sbin/start-dfs.sh ##在hadoop1开启hdfs进程
+sbin/start-yarn.sh ##开启yarn相关服务
+sbin/mr-jobhistory-daemon.sh  start  historyserver ##开启日志相关服务
+sbin/hadoop-daemon.sh start journalnode
+sbin/start-all.sh hadoop1 ##开启hadoop1下的所有进程
+
+操作hdfs命令
+bin/hdfs dfs -mkdir -p /input ##在hdfs文件系统上创建目录
+bin/hdfs dfs -rm /input ##在hdfs文件系统上删除目录
+bin/hdfs dfs -cat /input ##列出目录下的内容
+bin/hdfs dfs -put 1.txt /input/2.txt ##将linux系统文件复制到hdfs文件系统,并重命名
+bin/hdfs dfs -get /input/1.txt 2.txt ##将hdfs文件系统复制到linux系统文件,并重命名
+
+
+##zookeeper命令
+bin/zkServer.sh stop ##开启集群服务
+bin/zkServer.sh start ##关闭集群服务

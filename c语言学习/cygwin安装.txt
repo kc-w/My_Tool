@@ -1,0 +1,2 @@
+设置国内的源:http://mirrors.aliyun.com/cygwin/
+下载以下组件:gcc-core, gcc-g++, make , gdb, binutils

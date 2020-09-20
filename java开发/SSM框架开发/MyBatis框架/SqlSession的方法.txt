@@ -1,0 +1,50 @@
+<T> selectOne ( String statement )
+查询方法。参数statement是在配置文件中定义的<select>元素的id。使用该方法后，会返回执行SQL语句查询结果的一条泛型对象。
+
+<T> selectOne ( String statement,Object parameter )
+查询方法。参数statement是在配置文件中定义的<select>元素的id,parameter是查询所需的参数。使用该方法后，会返回执行SQL语句查询结果的一条泛型对象。
+
+List<E> selectList ( String statement )
+查询方法。参数statement是在配置文件中定义的<select>元素的id。使用该方法后，会返回执行SQL语句查询结果的泛型对象的集合。
+
+List<E> selectList ( String statement,Object parameter )
+查询方法。参数statement是在配置文件中定义的<select>元素的id,parameter最查询所需的参数。使用该方法后，会返回执行SQL语句查询结果的泛型对象的集合。
+
+List<E> selectList ( String statement, Object parameter, RowBounds rowBounds )
+查询方法。参数statement是在配置文件中定义的<select>元素的id,parameter是查询所需的参数，rowBounds是用于分页的参数对象,使用该方法后，会返回执行SQL语句查询结果的泛型对象的集合。
+
+void select ( String statement, Object parameter, ResultHandler handler )
+查询方法。参数staternent是在配置文件中定义的<select>元素的id,parameter是查询所需的参数，handler对象用于处理查询返回的复杂结果集，通常用于多表查询。
+
+int insert ( String statement )
+插入方法。参数statement是在配置文件中定义的<insert>元素的id。使用该方法后，会返回执行SQL语句所影响的行数。
+
+int insert ( String statement,Object parameter )
+插入方法。参数statement是在配置文件中定义的<insert>元素的id,parameter是插入所需的参数。使用该方法后，会返回执行SQL语句所影响的行数。
+
+int update ( String statement )
+更新方法。参数statement是在配置文件中定义的<update>元素的id。使用该方法后，会返回执行SQL语句所影响的行数。
+
+int update ( String statement, Object parameter )
+更新方法。参数statement是在配置文件中定义的<update>元素的id,parameter是更新所需的参数。使用该方法后，会返回执行SQL语句所影响的行数。
+
+int delete ( String statement )
+删除方法。参数statement是在配置文件中定义的<delete>元素的id。使用该方法后，会返回执行SQL语句所影响的行数。
+
+int delete ( String statement, Object parameter )
+删除方法。参数statement是在配置文件中定义的<delete>元素的id,parameter是删除所需的参数。使用该方法后，会返回执行SQL语句所影响的行数。
+
+void commit()
+提交事务的方法
+
+void rollback()
+回滚事务的方法
+
+void close()
+关闭SqlSession对象
+
+<T> getMapper(Class<T> type)
+该方法会返回Mapper接口的代理对象，该对象关联了SqlSession对象，开发人员可以使用该对象直接调用方法操作数据库。参数type是Mapper的接口类型。MyBatis官方推荐通过Mapper对象访问MyBatis.
+
+Connection getConnection()
+获取JDBC数据库连接对象的方法。

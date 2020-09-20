@@ -1,0 +1,48 @@
+【1】什么是XML：
+XML是指可扩展标记语言(Extensible Markup Language)，是一种标记语言与HTML类似，设计的宗旨是传输数据；它没有规定的标签体，需要自定义标签；是一种自我描述的语言，可以储存数据和共享数据。
+
+XML与HTML的主要差异在于HTML用来显示数据，XML是用来传输和存储数据，HTML用来显示信息，XML用来传输信息。
+
+XML最大的特点是它的自我描述和任意扩展，当用其描述数据时，用户可以根据需要，组织符合XML规范形式的任意内容，并且标签的名称也可以由用户指定。下面以例子来说明XML的定义格式，例子如下：
+<?xml version="1.0" encoding="UTF-8"?>
+<user>
+   <name>张三</name>
+   <english_name>zhangsan</english_name>
+   <age>20</age>
+   <sex>男</sex>
+   <address>广东省</address>
+   <description>他是一个程序员</description>
+</user>
+
+它定义的是用户的基本信息包括用户的姓名、英文名称、性别、年龄、住址、描述等信息。同样是上述的内容，可以用另外的自定义形式进行描述，比如：
+
+<?xml version="1.0" encoding="UTF-8"?>
+<user>
+   <property name="name value="张三"/>
+   <property name="english_name" value="zhangsan"/>
+   <property name="age" value="20"/>
+   <property name="sex" value="男"/>
+   <property name="address" value="广东省"/>
+   <property name="description" value="他是一个程序员"/>
+</user>
+
+【2】XML的用途：
+1：传输数据
+通过XML可以在不同的系统之间传输数据，在开发过程中难免会遇到多个系统之间相互通信，且各系统的存储的数据又是多种多样的，对于开发者而言，这些工作量是巨大的，通过转换为XML格式来传输数据可以减少传输数据时的复杂性，并且还可以具备通用性。
+
+比如说，目前流行的SOA协议、Web Service服务、json、Ajax等，其实都是利用XML数据格式，在不同的系统之间交互数据。
+
+2：数据存储
+用XML来存储数据是其最基本的用途，它可以作为数据文件，当需要持久化保存数据时，可以利用XML数据格式进行存储，例如，web.xml、struts.xml、spring.xml等。
+
+【3】XML的技术架构：
+数据定义Schema、DTD： XML数据文件也是要按照一定的协议进行定义的，它有两种可遵循的定义规则DTD和Schema.DTD是早期的语言，Schema是后期发展的语言也是现在用得最多的定义XML语言。
+
+数据风格样式XSLT：XSLT是可扩展样式转换(extensible Stylesheet LanguawTransformMion)使用XSLT可以将XML中存放的内客按照指定的样式转换为HTML页面。
+
+解析XML文件工具：目前比较盛行的工具是使用dom、dom4j、SAX,它们各有特点。
+
+操作XML数据：目前将XML数据作具体操作，实现其功能的，都是由额外的程序实现，一般采用Java比较多，也可以使用Javascript.
+
+
+XML与java类映射JAXB(XML文档转化为java对象，java对象转化为XML文档)

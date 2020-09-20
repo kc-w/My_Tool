@@ -1,0 +1,2 @@
+//打开软件强制横屏
+setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);

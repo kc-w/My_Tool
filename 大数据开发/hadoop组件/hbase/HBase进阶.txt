@@ -1,0 +1,91 @@
+1.客户端无论读写，先去找zookeeper，why？
+	zookeeper存储hbase哪些数据？
+	[zk: localhost:2181(CONNECTED) 1] ls /hbase
+	
+	replication, meta-region-server, rs, splitWAL, backup-masters, table-lock, flush-table-proc, 
+	region-in-transition, online-snapshot, master, running, recovering-regions, draining, namespace, 
+	hbaseid, table
+
+	meta-region-server,标识哪个regionserver管理meta表
+	
+		HBase中list命令是显示用户表，即默认是在default命名空间下的表，
+		使用list_namespace命令，可以显示所有的命名空间
+		
+		HBase自身的表都在hbase命名空间下，有一张meta表，来保存region和regionserver的映射
+			catalog tables下的namespace表中
+		
+		list_namespace_tables 'hbase' 显示hbase的系统表
+		
+		scan 'hbase:meta'
+	
+	1.meta表也是hbase内部的表，它保存在哪里？
+		zookeeper上的ZNode，有一个叫meta-region-server，保存的就是meta表在哪个regionserver
+	2.meta表记录了我们要找的具体table在哪个regionserver
+	
+2.master也要去找zookeeper，why？
+	ls /hbase/rs
+	zookeeper保存了当前的regionserver
+	
+3.hbase数据存储
+	1.hbase的所有文件都存储在HDFS上，主要包括HFile和HLogFile
+	2.HFile：HBase中keyvalue数据的存储格式，HFile是Hadoop二进制格式文件，
+		实际上是storefile对hfile做了轻量级包装
+	3.HLogFile，HBase中WAL的存储格式，物理上是Hadoop的sequence file
+	
+4.memstore和storefile
+	client写入，存入memstore，知道memstore满就会flush成一个storefile，
+	storefile的数量增长到一定的阈值会出发compact合并操作，合并为一个storefile，
+	会有版本合并和数据删除(真实删除，原先的删除操作只是打标签)，当storefile越来越大到达一定的阈值，
+	会触发split操作，即把当前的region分成2个region，此时region会下线，
+	新生成的两个region会被hmaster分配到对应的regionserver上。
+	
+	HBase只是增加数据，更新和删除操作都是在compact阶段做，
+	所以，用户写操作只需要进入内存即可立即返回，保证了IO高性能
+	
+5.HLog文件结构
+	WAL类似MySQL的binlog，用来做灾难恢复
+	老版本中，每个regionserver维护一个HLog，而不是每个region一个。
+	不同的region日志会混在一起，这样做的目的是不断追加单个文件相对于写多个文件来说，
+	可以减少磁盘寻址次数，可以提高table的写性能。
+	缺点是，如果一台regionserver下线，为了恢复其上的region，需要将该regionserver上的log进行拆分，
+	分发到其他的regionserver进行恢复。
+	
+	新版本可以设置每个region维护一个log
+	
+	
+6.HBase架构
+	1.Client
+		HBase集群访问入口
+		使用HBase RPC机制与HMaster和Hregionserver进行通信
+		与hmaster进行通信进行管理类操作
+		与hregionserver进行数据读写类操作
+		包含访问HBase的接口，维护cache来加快HBase的访问
+			hdfs的块缓存
+	2.zookeeper
+		保证任何时候，集群只有一个Hmaster backup-master
+		存储所有hregion的寻址入口
+		实时监控regionserver的上线和下线信息，实时通知给hmaster
+		存储hbase的schema和table元数据
+		存储meta表的地址和hmaster的地址
+		
+	3.hmaster *
+		没有单点故障问题，hbase中可以启动多个hmaster，通过zk的master election机制
+		保证总有一个master在运行主要负责table和region的管理工作
+		管理用户对table的增删改查操作
+		管理regionserver的负载均衡，调整region分布
+		region split之后，负责新的region分布
+		regionserver停机之后，负责失效的regionserver上region迁移工作
+		
+	4.hregionserver
+		维护regionserver，处理对这些region的IO请求，向HDFS文件系统中读入数据
+		负责切分在运行过程中变得过大的region
+		client访问hbase上数据的过程并不需要master的参与
+			寻址访问zk和rs，数据读写访问rs，hmaster仅仅维护table和region的元数据信息，负载很低
+	
+	5.hbase和zk
+		hbase强依赖zk
+		默认情况下，hbase管理zk实例，如启动/停止zk
+			实际上，一般是使用我们自己安装管理的zk
+		hmaster与hregionserver启动时会向zk注册
+		zk的引入使得hmaster不再单点故障
+	

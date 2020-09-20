@@ -1,0 +1,23 @@
+Spark SQL(用于离线处理数据):
+Apache以hive为主体进行开发准实时sql查询框架(Apache Shark),但由于底层机制研发失败,又于2014年重新开启Spark SQL的研发计划
+因为对于非研发人员，也希望能够使用大数据平台强劲的海量数据处理能力，因为产生以SQL语句的方法来对数据进行分析。
+
+Spark SQL的组成部分
+        1.DataFrame基于列名的数据结构(类似于表结构,分布式数据集合)
+            1.Row(行操作)
+                每一个Row对象，表示DataFrame中的一行数据
+            2.Column(列操作)
+                每一个Column对象，表示DataFrame中的某一列数据
+            3.可以由数据文件,Hive中的表,外部数据库或现有RDD来进行构建
+                将RDD转换为DataFrame的两种方式
+                    1.基于反射机制(在已知数据结构的情况下)
+                    2.动态转换(未知数据结构的情况下)
+
+spark功能入口:
+    Spark SQL中所有功能的入口点是 SQLContext,创建基本的SQLContext，需要一个SparkContext,再import sqlContext.implicits._
+    将$"字段"隐式转换为df("字段"),Spark1.x中默认不支持csv类型的数据读写
+    除了基本的SQLContext，你还可以创建一个HiveContext，它提供了基本提供的功能的超集SQLContext。
+    其他功能包括使用更完整的HiveQL解析器编写查询，访问Hive UDF以及从Hive表读取数据的功能。
+
+
+在进行编程前先导入spark-assembly-1.6.3-hadoop2.6.0.jar

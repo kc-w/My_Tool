@@ -1,0 +1,107 @@
+EventBus能够简化各组件间的通信,能有效的分离事件发送方和接收方,能避免复杂和容易出错的依赖性和生命周期问题
+
+添加依赖implementation 'org.greenrobot:eventbus:3.1.1'
+
+三个角色
+1:
+    Event：事件，它可以是任意类型，EventBus会根据事件类型进行全局的通知。
+2:
+    Subscriber：事件订阅者，在EventBus 3.0之前我们必须定义以onEvent开头的那几个方法，
+    分别是onEvent、onEventMainThread、onEventBackgroundThread和onEventAsync，而在3.0之后事件处理的方法名可以随意取，
+    不过需要加上注解@subscribe，并且指定线程模型，默认是POSTING。
+3:
+    Publisher：事件的发布者，可以在任意线程里发布事件。
+    一般情况下，使用EventBus.getDefault()就可以得到一个EventBus对象，然后再调用post(Object)方法即可。
+
+四种线程模型
+EventBus3.0有四种线程模型，分别是：
+    POSTING (默认) 表示事件处理函数的线程跟发布事件的线程在同一个线程。
+    MAIN 表示事件处理函数的线程在主线程(UI)线程，因此在这里不能进行耗时操作。
+    BACKGROUND 表示事件处理函数的线程在后台线程，因此不能进行UI操作。如果发布事件的线程是主线程(UI线程)，那么事件处理函数将会开启一个后台线程，如果果发布事件的线程是在后台线程，那么事件处理函数就使用该线程。
+    ASYNC 表示无论事件发布的线程是哪一个，事件处理函数始终会新建一个子线程运行，同样不能进行UI操作。
+
+
+
+
+基本用法
+
+自定义一个事件类
+    public class MessageEvent{
+        private String message;
+        public  MessageEvent(String message){
+            this.message=message;
+        }
+        public String getMessage() {
+            return message;
+        }
+        public void setMessage(String message) {
+            this.message = message;
+        }
+    }
+
+
+注册事件
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.activity_main)；
+         //注册事件
+         EventBus.getDefault().register(this)；
+}
+
+当我们需要在Activity或者Fragment里订阅事件时，我们需要注册EventBus。
+我们一般选择在Activity的onCreate()方法里去注册EventBus，在onDestory()方法里，去解除注册。
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+发送事件
+    EventBus.getDefault().post(messageEvent);
+
+处理事件,方法名可随意填写
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void XXX(MessageEvent messageEvent) {
+        ...
+    }
+
+
+
+粘性事件
+    何为黏性事件呢？简单讲，就是在发送事件之后再订阅该事件也能收到该事件。
+    Android中就有这样的实例，也就是Sticky Broadcast，即粘性广播。
+    正常情况下如果发送者发送了某个广播，而接收者在这个广播发送后才注册自己的Receiver，
+    这时接收者便无法接收到 刚才的广播，为此Android引入了StickyBroadcast，在广播发送结束后会保存刚刚发送的广播（Intent），
+    这样当接收者注册完 Receiver后就可以接收到刚才已经发布的广播。
+    这就使得我们可以预先处理一些事件，让有消费者时再把这些事件投递给消费者.
+    EventBus也提供了这样的功能，有所不同是EventBus会存储所有的Sticky事件，如果某个事件在不需要再存储则需要手动进行移除。
+    用户通过Sticky的形式发布事件，而消费者也需要通过Sticky的形式进行注册，
+    当然这种注册除了可以接收 Sticky事件之外和常规的注册功能是一样的，其他类型的事件也会被正常处理。
+
+粘性事件的发布:
+    EventBus.getDefault().postSticky("RECOGNIZE_SONG");
+
+粘性事件的接收:
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void receiveSoundRecongnizedmsg(String insType) {
+        if ("RECOGNIZE_SONG".equals(insType)) {
+            soundRecognizeCtrl();
+        }
+    }
+
+手动获取和移除粘性事件:
+    MessageEvent stickyEvent = EventBus.getDefault().getStickyEvent(MessageEvent.class);
+    if(stickyEvent != null) {
+        EventBus.getDefault().removeStickyEvent(stickyEvent);
+    }
+
+removeStickyEvent会返回之前持有的粘性事件
+    MessageEvent stickyEvent = EventBus.getDefault().removeStickyEvent(MessageEvent.class);
+    if(stickyEvent != null) {
+    }
+
+
+使用场景
+我们要把一个Event发送到一个还没有初始化的Activity/Fragment，即尚未订阅事件。那么如果只是简单的post一个事件，
+那么是无法收到的，这时候，你需要用到粘性事件,它可以帮你解决这类问题.

@@ -1,0 +1,62 @@
+
+##各个服务器关闭防火墙,安装python和gunicorn
+
+setenforce 0
+systemctl stop firewalld
+systemctl disable firewalld.service
+
+yum -y install libffi-devel zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
+tar -zxvf /home/Python-3.7.0.tgz -C /home
+mkdir /usr/local/python3
+cd /home/Python-3.7.0
+./configure --prefix=/usr/local/python3
+make && make install
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+
+
+pip3 install gunicorn
+
+
+
+##主服务器安装nginx
+
+yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel pcre pcre-devel wget
+cd /home
+tar -zxvf nginx-*.gz
+cd /home/nginx*
+./configure && make && make install
+
+
+vi /usr/local/nginx/conf/nginx.conf
+
+upstream flask_server{
+	server 192.168.2.116:5000 weight=10;  ##设置转发的地址和权重
+	server 192.168.2.117:5000 weight=20;
+	}
+server {
+	listen       80;
+	server_name  localhost;
+
+	location / {
+	proxy_pass http://flask_server;
+		root   html;
+		index  index.html index.htm;
+	}
+
+
+cd /usr/local/nginx/sbin/
+./nginx  ##启动nginx
+./nginx -s reload  ##重启
+./nginx -s stop  ##关闭
+
+
+##nginx开机自启
+vi /etc/rc.local
+/usr/local/nginx/sbin/nginx
+
+cd /etc
+chmod 755 rc.local
+
+
+gunicorn -w 4 -b 0.0.0.0:5000 入口文件名:app

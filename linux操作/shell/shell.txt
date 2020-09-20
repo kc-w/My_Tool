@@ -1,0 +1,143 @@
+1.pstree可以看到，sshd下可以有多个窗口，然后会有多个bash
+	如果直接形如./test.sh运行的话，实际上是在别的bash里面运行的，所以定义的变量实在当前bash看不到的
+		test.sh：
+			#!/bin/bash
+			aa="hello"
+	执行命令为. ./test.sh就表示是在当前bash执行这个sh文件
+2.set命令可以查看当前环境里面的所有变量
+	也可以查看指定的环境变量，$HOME、$USER等
+3.定义变量值的时候，双引号只会把空白字符脱义，但是单引号是把所有特殊字符都脱义，
+	就是单引号里面包含什么字符，他的结果里面就是什么字符
+4.unset A，撤销变量A，如果改变了是readonly A=2，则不能用unset撤销
+5.export 变量名，会把该变量提升为全局环境变量，可供其他shell程序使用
+6.将一条命令的结果赋值给一个变量
+	wc -c test.sh | cut -d ' ' -f1
+	拿到这个文件的字节数
+	wordcount=`wc -c test.sh | cut -d ' ' -f1`
+	或者wordcount=$(wc -c test.sh | cut -d ' ' -f1)
+7.特殊变量
+	$? 表示上一条命令的执行返回值（不是输出内容），是由命令决定的，一般为0表示上一条命令成功执行了
+	$$ 表示当前的进程编号
+	$0 表示当前脚本名称
+	$n 表示n位置的输入参数
+	$# 表示参数的个数常用于循环
+	$*或$@ 表示参数列表
+		用双引号包围时，就有区别了
+		"$*"的输出为"$1$2$3$4..."
+		"$@"的输出为"$1""$2""$3"...
+8.运算符
+	shell里面做运算需要在运算的式子前面加上expr
+	如计算(2+3)*4
+	1.分布计算
+		s=`expr 2 + 3`
+		expr $s\*4 *需要转义
+	2.一步完成计算
+		expr `expr 2 + 3`\*4
+		echo `expr \`expr 2 + 3\`\*4`
+		或
+		$(((2+3)*4))
+
+9.循环
+	for循环
+		1.类似python的写法
+			for n in 1 2 3 
+			do
+			echo $n
+			done
+			或
+			for n in 1 2 3 ;do echo $n;done
+			或
+			for n in {1..3};do echo $n;done
+		2.类似C/C++/JAVA的写法
+			for((i=0;i<=5;i++))
+			do
+			echo "welcome $i times"
+			done
+			或
+			for((i=0;i<=5;i++));do echo "welcome $i times";done
+	while循环
+		1.
+		while expression	expression为bool表达式
+		do
+		command
+		...
+		done
+		2.
+		int=1
+		while((int<=3))
+		do
+		echo $int
+		let int++
+		done
+10.case语句
+		case $1 in
+		strat)
+		echo "starting"
+		;;
+		stop)
+		echo "stoping"
+		;;
+		*)
+		echo "Usage:{start|stop}"
+		esac
+11.read
+	终端输入参数，并且赋值给变量名
+	read -p(提示语句)-n(字符个数)-t(等待时间) 变量名
+	read -p "input your name:" NAME
+12.if
+	if condition --->condition语句放在一个[]中，两边都有空格
+	then
+	statements
+	elif condition
+	then statements
+	else
+	statements
+	fi
+	
+	[ condition ]&& echo OK||echo not
+		condition满足的时候就输出OK，不满足就输出not
+		
+	比较运算符
+	=、-gt、-lt、-ge、-le、-eq
+	判断文件是否有什么权限
+	-r 有读的权限
+	-f 是否存在
+	-s 存在且不为空
+	-d 存在且是一个目录
+	
+13.自定义函数
+	三种方式定义函数，function和后面的()只需要写一个就行，不能定义参数
+	如：function start()/function start/start()
+	
+	[function] funname[()]
+	{
+		action;
+		[return int;]
+	}
+	
+14.脚本调试
+	sh -vx test.sh
+	
+15.高级命令行文本工具
+	1.cut/sort
+		去重命令 uniq，只能去除排序之后的文件内容
+	2.sed
+	3.awk
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

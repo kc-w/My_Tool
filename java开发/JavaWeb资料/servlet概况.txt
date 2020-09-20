@@ -1,0 +1,137 @@
+servlet的来历：jsp页面在服务器端被被编译为servlet。
+
+servlet的本质：servlet本质是一个java类。
+
+servlet的作用与功能：1……servlet接受到客户端的请求后，会调用相关方法获取请求参数来判断是否可以接受请求(如：检查访问权限，设定程序的字符集，检查用户角色等，当servlet具备以上功能时，一般称为拦截器)；
+                     2……servlet通过对request，response修改实现特定的功能（请求数据字符编码，ip地址过滤，异常过滤，用户身份认证等）称为过滤器；
+                     3……servlet监听web程序中正在执行的程序，根据发生的事件做出特定的相应称为监听器。
+
+servlet的生命周期：1、初始化阶段（可以分为装载和初始化阶段，装载就是由servlet容器装载一个servlet类，把它装载到java内存中，servlet容器就可以创建一个servlet对象并与web.xml中的配置对应起来；初始化阶段是调用servlet的init()方法，在整个servlet周期中init()只会被调用一次）；
+                   2、运行阶段（在这个阶段是响应客户请求。当有请求时，servlet会创建HttpServletRequest和HttpServletResponse对象然后调用service(HttpServletRequest,HttpServletResponse)方法，把获得的请求对象的信息进行处理再给客户端做出响应）；
+                   3、消亡阶段（当servlet应用被终止后，servlet容器会调用destory()方法对servlet对象进行销毁动作。在消亡过程中，servlet容器会释放它所占用的资源，在整个servlet周期中destory()方法只会被调用一次）。
+
+
+
+
+servlet编写：
+
+(1)在完成servlet类编译后还要配置web.xml：
+<servlet>
+   <servlet-name>自定义servlet名</servlet-name>
+   <servlet-class>包的路径</servlet-class>
+</servlet>
+<servlet-mapping>
+   <servlet-name>自定义servlet名</servlet-name>
+   <url-pattern>/servlet类名</url-pattern>
+</servlet-mapping>
+
+除了在web.xml配置servlet还可以在servlet3.0中通过直接注入的方式进行配置：
+在import下添加   @WebServlet(
+                         urlPatterns={"/servlet类名"},
+                         loadOnStatup=1,
+                         name ="自定义servlet名"
+                         dispalyNmae="",
+                         initParams={
+                               @WeblnitParam(name="",value=""),
+                          }
+                     )
+@WebServlet主要属性列表：
+name:指定servlet的name属性，等价于<servlet-name>标签;若没有指定，则该servlet的取值即为类的全名
+urlPatterns：指定servlet的URL匹配模式；等价于<url-pattern>标签
+value：与urlPatterns属性相同，但不能同时使用
+loadOnStatup：指定servlet的加载顺序，等价于<load-on-startup>标签。当值为0或大于0时，表示容器在应用启动时就加载并初始化这个Servlet；当值小于0或者没有指定时，则表示容器在该Servlet被选择时才会去加载；正数的值越小，该Servlet的优先级越高，应用启动时就越先加载，当值相同时，容器就会自己选择顺序来加载
+initParams：指定Servlet初始化参数，等价于<init-param>标签
+asyncSupported：声明Servlet是否支持异步操作模式，等价于<async-supported>标签，该属性在servlet3.0才有
+
+@WeblnitParam主要属性列表：
+name：指定参数名字，等价于<param-name>
+value：指定参数的值，等价于<param-value>
+description：参数的描述，等价于<description>
+
+
+
+(2)引入相应的包，例如java.servlet包或者java.servlet.http包，这两个包的区别在于于是与协议无关的，后者是与HTTP协议相关的。在平时开发的过程中，一般都是继承
+HttpServlet类，因为它封装了很多基于HTTP协议下的Servlet功能，基本够用，当然要想自开发一个协议还可以继承Genericservlet类。servlet_1.jsp中有两个处理请求的方法，一个是doGet()方法，一个是doPost()方法，doGet()方法响应http Get请求，doPost()方法响应http Post请求。
+
+
+(3)重写一个doGet()方法或者doPost()方法。servlet_1.jsp重构了doGet()方法，在该方法中完成处理请求，并输出到HTML页面中。
+
+
+
+在Web容器启动后，通过加载web.xml文件读取Servlet的配置信息，并实例化Servlet类，并且为每个Servlet配置信息产生唯一一个ServletConfig对象将初始化参数传给ServletConfig对象。在运行Servlet时，调用Servlte接口的init()方法，将生产的ServletConfig作为参数传入Servlet中.
+
+
+初始化方法只会被调用一次，即容器在启动时，实例化Servlet和创建Servletconfig对象，且Servlet与ServletConfig是一一对应关系，之后就直接执行service()方法。
+GenericServlet类是同时实现了Servlet、ServletConfig两个接口
+
+
+GenericServlet类的源码：
+
+package javax.servlet;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+public abstract class GenericServlet implements Servlet , ServletConfig , java.io.Serializable{
+      private transient ServletConfig config;
+      //GenericServlet类默认的构造方法
+      public GenericServlet(){}
+      //GenericServlet类默认的销毁方法
+      public void destroy(){
+         log("destroy");
+      }
+      //获得初始化参数方法
+      public String getInitParameter(String name){
+         return getServletConfig().getInitParameter(name);
+      }
+      //获得参数名称，并返回枚举类型
+      public Enumeration getInitParameterNames(){
+         return getServletConfig().getInitParameterNames();
+      }
+      //获得ServletConfig对象
+      public ServletConfig getServletConfig(){
+         return config;
+      }
+      //获得ServletContext对象
+      pnulic ServletContext getServletContext(){
+         return getServletConfig().getServletContext();
+      }
+      public String getServletInfo(){
+         return "";
+      }
+      //GenericServlet初始方法
+      public void init(ServletConfig config) throws ServletException{
+         this.config=config;
+         log("init");
+         this.init();
+      }
+      //GenericServlet的空初始方法
+      public void init() throws ServletException{}
+      public void log(String msg){
+         getServletConfig().log(getServletName()+":"+msg);
+      }
+      public void log(String message , Throwable t){
+         getServletConfig().log(getServletName()+":"+message,t);
+      }
+      public abstract void service(ServletRequest req , ServletResponse res) throws ServletException , IOException;
+      //GenericServlet获得Servlet名称
+      public String getServletName(){
+         return config.getServletName();
+      }
+}
+
+ServletConfig接口方法：
+getServletName()【返回一个servlet实例名称】
+getServletContext()【返回一个ServletContext对象的引用】
+getInitParameter(String name)【返回一个由传入参数决定的初始化变量的值，如果该变量不存在，返回null】
+getInitParameterNames()【返回一个存储所有初始化变量的枚举类型。如果Servlet没有初始化变量，返回一个空枚举类型】
+
+
+ServletContext类方法：
+getRealPath(String 1)【获取给定的虚拟路径所对应的绝对路径名】
+getResource(String 1)【返回由1指定的资源路径对应的一个URL对象】
+getResourceAsStreem(String 1)【返回一个指定位置资源的InputStream。返回的InputStream可以是任意类型和长度的。使用时指定路径必须以“/”开头，表示web根目录】
+getRequestDispatcher(String 1)【返回一个特定URL的RequestDispatcher对象，否则就返回一个空值】
+getResourcePaths(String 1)【返回一个存储web-app中所指资源路径的Set集合（会返回这个文件夹下的文件和文件夹），如果是目录信息，会以“/”作结尾】
+getServerInfo【获取服务器的名字和版本号】
+ServletContext对象是Servlet中全局的存储信息，当服务器启动时，web容器为web应用创建唯一的ServletContext对象，应用内的Servlet共享同一个ServletContext。可以认为在ServletContext中存放着共享数据，应用内的Servlet可以通过ServletContext对象提供的方法获取共享数据。ServletContext对象只有在web应用被关闭才销毁。ServletContext接口定义运行Servlet应用程序环境信息，可以用来获取请求资源的URL、设置与存储全局属性、web应用程序初始化参数。

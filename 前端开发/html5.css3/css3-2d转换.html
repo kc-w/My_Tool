@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style type="text/css">
+   div{
+	   width:200px;
+	   height:200px;
+	   background:red;
+	   margin:200px;
+   }
+   /*使其旋转45度*/
+   #div1{
+	   transform:rotate(45deg);
+	   -ms-transform:rotate(45deg);
+	   -webkit-transform:rotate(45deg);
+	   -moz-transform:rotate(45deg);
+	   -o-transform:rotate(45deg);
+   }
+   /*以x轴y轴进行移动*/
+   #div2{
+	   transform:translate(100px,10px);
+	   -ms-transform:translate(100px,10px);
+	   -webkit-transform:translate(100px,10px);
+	   -moz-transform:translate(100px,10px);
+	   -o-transform:translate(100px,10px);
+   }
+   /*以x轴y轴进行缩放，缩放为倍数*/
+   #div3{
+	   transform:scale(2,2);
+	   -ms-transform:scale(2,2);
+	   -webkit-transform:scale(2,2);
+	   -moz-transform:scale(2,2);
+	   -o-transform:scale(2,2);
+   }
+   /*使其沿x轴y轴进行倾斜45度*/
+   #div4{
+	   transform:skew(10deg,10deg);
+	   -ms-transform:skew(10deg,10deg);
+	   -webkit-transform:skew(10deg,10deg);
+	   -moz-transform:skew(10deg,10deg);
+	   -o-transform:skew(10deg,10deg);
+   }
+   
+   /*将2d效果综合*/
+   /*(缩放,倾斜,倾斜,缩放,移动,移动)*/
+   #div5{
+	   transform:matrix(2,0,0,2,0,0);
+	   -ms-transform:matrix(2,0,0,2,0,0);
+	   -webkit-transform:matrix(2,0,0.5,2,0,0);
+	   -moz-transform:matrix(2,0,0,2,0,0);
+	   -o-transform:matrix(2,0,0,2,0,0);
+   }
+</style>
+</head>
+<body>
+<div id="div1">1</div>
+<div id="div2">2</div>
+<div id="div3">3</div>
+<div id="div4">4</div>
+<div id="div5">5</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+为了实现浏览器与控制器类(Controller)之间的数据交互，Spring提供了一个HttpMessageConverter<T>接口来完成此项工作。该接口主要用于将请求信息中的数据转换为一个类型为T的对象，并将类型为T的对象绑定到请求方法的参数中，或者将对象转换为响应信息传递给浏览器显示。
+
+Spring为HttpMessageConverter<T>接口提供了很多实现类，这些实现类可以对不同类型的数据进行信息转换。其中MappingJackson2HttpMessageConverter是Spring MVC默认处理JSON格式请求响应的实现类。该实现类利用Jackson开源包读写JSON数据，将Java对象转换为JSON对象和XML文档，同时也可以将JSON对象和XML文档转换为Java对象。
+
+@RequestBody:用于将请求体中的数据绑定到方法的形参中.该注解用在方法的形参上.
+@ResponseBody:用于返回对象,该注解用在方法上.

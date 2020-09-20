@@ -1,0 +1,69 @@
+//十六进制转二进制
+function HextoBin(Hex:string):string;
+const
+  BOX: array [0..15] of string =
+  ('0000','0001','0010','0011',
+  '0100','0101','0110','0111',
+  '1000','1001','1010','1011',
+  '1100','1101','1110','1111');
+var
+  i: integer;
+  temphex: string;
+begin
+  for i := Length(Hex) downto 1 do
+    begin
+      temphex:=BOX[StrToInt('$'+Hex[i])]+temphex;
+    end;
+  Result := temphex;
+end;
+
+
+//十六进制转十进制
+function HexToInt(HexValue: String) : Integer;
+begin
+   Val('$'+HexValue, Result, Result);
+end;
+
+
+//十进制转十六进制
+IntToHex(Value :Integer)
+
+
+//二进制转十进制
+Function binToint(Value :string) : string;
+var
+  str : String;
+  Int : Integer;
+  i : integer;
+begin
+    Str := UpperCase(Value);
+    Int := 0;
+    for i := 1 to Length(str) do
+      begin
+        Int := Int * 2+ ORD(str[i]) - 48;
+      end;
+    Result := inttostr(Int);
+end;
+
+
+//十进制转二进制
+function IntToBin(Value: LongInt;Size: Integer): String;
+var
+  i: Integer;
+begin
+  Result:='';
+  for i:=Size-1 downto 0 do
+    begin
+      if Value and (1 shl i)<>0 then
+        begin
+          Result:=Result+'1';
+        end
+      else
+        begin
+          Result:=Result+'0';
+        end;
+    end;
+end;
+
+
+

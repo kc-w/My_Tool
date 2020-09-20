@@ -1,0 +1,41 @@
+##为分布式应用提供协调服务
+zookeeper
+
+tar -zxvf /home/zookeeper-3.4.5.tar.gz -C /opt/program
+cd /opt/program/zookeeper-3.4.5
+
+将conf/zoo_sample.cfg修改为zoo.cfg
+
+单机模式：
+修改conf/zoo.cfg下的datadir即可，表示的是存放数据的路径。
+		dataDir=/opt/program/zookeeper-3.4.5/data
+启动
+	bin/zkServer.sh start
+出现进程名为QuorumPeerMain即启动成功
+	bin/zkServer.sh status，此时查看状态为standalone
+客户端
+	bin/zkCli.sh
+	客户端可以做一些类似linux文件系统的操作，
+	如：create /test "test"，创建的时候必须给每个节点一个内容
+		查看节点信息，get /test即可
+		删除节点，rmr /test即可
+停止服务：bin/zkServer.sh stop
+
+集群模式：
+vi zoo.cfg
+##表明集群有几台机器，并且指定和leader的端口号和参与投票的端口号
+server.1=hadoop1:2888:3888
+server.2=hadoop2:2888:3888
+server.3=hadoop3:2888:3888
+
+##在data/下创建文件myid，加入一个编号如hadoop1就为1,传输到别的节点上，并修改myid为对应的编号
+mkdir data
+vi data/myid
+
+
+##分别启动每个节点
+bin/zkServer.sh start
+
+##每个节点启动了之后，可以查看各节点的角色，
+bin/zkServer.sh status
+	

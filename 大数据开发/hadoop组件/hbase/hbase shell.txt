@@ -1,0 +1,40 @@
+列出表
+list
+
+创建表
+create '表名','列族一', '列族二'
+
+查看表
+describe '表名'
+
+删除表(先停止表的可使用性，然后执行删除命令)
+disable '表名'
+drop '表名'
+
+删除表中的所有单元格
+deleteall '表名','row'
+
+修改表添加一个列族(先停止表的可使用性，然后执行修改命令)
+disable '表名'
+alter '表名',NAME=>'info'
+enable '表名'
+
+
+清空表：truncate '表名'
+
+删除表中的数据：
+delete '表名','rowkey','列族一'
+delete '表名','rowkey'
+
+向单元格插入值(列族一有子列,列族二没有子列)
+put '表名','rowkey','列族一:子列','子列值'
+put '表名','rowkey','列族二:','列值'
+
+
+查询数据
+get '表名','rowkey'
+get '表名','rowkey','列族一'
+
+
+count统计表中记录数(每100条显示一次，缓存区为500)
+count 'scores', {INTERVAL => 100, CACHE => 500}

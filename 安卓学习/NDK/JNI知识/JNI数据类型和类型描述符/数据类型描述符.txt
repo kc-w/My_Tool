@@ -1,0 +1,37 @@
+在JVM虚拟机中，存储数据类型的名称时，是使用指定的描述符来存储，而不是我们习惯的 int，float 等
+
+
+Java类型   类型描述符
+int             I
+long            J
+byte            B
+short           S
+char            C
+float           F
+double          D
+boolean         Z
+void            V
+其他引用类型     L+类全名+;
+数组            [
+方法            (参数)返回值
+
+
+示例:
+我们要表示一个 String 类
+    Java 类型：java.lang.String
+    JNI 描述符：Ljava/lang/String;
+    即一个 Java 类对应的描述符，就是 L 加上类的全名，其中 . 要换成 / ，最后 不要忘掉末尾的分号。
+
+假如我们想要表示数组的话
+    Java 类型：String[]
+    JNI 描述符：[Ljava/lang/String;
+    Java 类型：int[][]
+    JNI 描述符：[[I
+    数组就是简单的在类型描述符前加 [ 即可，二维数组就是两个 [ ，以此类推。
+
+方法
+    Java 方法：long f (int n, String s, int[] arr);
+    JNI 描述符：(ILjava/lang/String;[I)J
+    Java 方法：void f ();
+    JNI 描述符：()V
+    括号内是每个参数的类型符，括号外就是返回值的类型符。

@@ -1,0 +1,43 @@
+program ConsoleDemo1;
+
+{$APPTYPE CONSOLE}//声明程序类型
+
+{$R *.res}//Windows 的资源文件, 可以定义光标, 位图, 图标资源
+
+//在程序主文件中使用到的所有.pas 文件的名称必需列在 uses 从句中
+uses
+  System.SysUtils;
+
+
+
+//定义一个静态指针
+var P: ^integer;
+
+//定义一个无类型指针
+var v: pointer;
+
+
+
+begin
+
+
+	{*静态指针*}
+	p :=@Num1;//将变量地址赋值给指针
+	p^  :=22;//修改指针指向变量的值
+	Writeln(p^);//打印指针指向的值
+	
+	{*无类型指针*}
+	v :=@Num1;//将变量地址赋值给指针
+	pinteger(p)^  :=  78;//修改指针指向变量的值
+	Writeln(pinteger(v)^);//打印指针指向的值
+
+
+	//定义动态指针的两种方法
+	New(p1);//创建动态指针
+	Dispose(p1);//销毁动态指针
+
+	GetMem(p2, 40);//创建动态指针,替 P2 分配 40 个字节的内存
+	FreeMem(p2);//销毁动态指针
+
+
+end.

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--当应用程序构建它的界面时被引用,这个文件用来改变应用程序的布局-->
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <ListView
+            android:id="@+id/ListView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+</LinearLayout>

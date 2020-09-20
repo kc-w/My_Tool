@@ -1,0 +1,57 @@
+--查询
+--语法：select 列名 from 表名 【where条件】
+--1.查询所有列
+select * from studentinfo
+--2.查询某列
+select stuname from studentinfo
+select stuname,stusex from studentinfo
+--3.查询前N笔记录
+select * from studentinfo where rownum < 3
+--4.过滤数据
+select stusex from studentinfo
+select distinct stusex from studentinfo
+--5.别名
+select stuname as 姓名,stusex as 性别 from studentinfo
+select stuname 姓名,stusex 性别 from studentinfo
+--6.拼接
+--a.字符串
+select stuname||stusex 姓名_性别 from studentinfo
+select concat(stuname,stusex) 姓名_性别 from studentinfo
+--b.数字
+select stuid||stuage 学号_年龄 from studentinfo
+select concat(stuid,stuage) 学号_年龄 from studentinfo
+select stuid+stuage 学号_年龄 from studentinfo
+--7.条件
+select * from studentinfo where stuid = 1001
+select stuname from studentinfo where  stusex ='男'
+select * from studentscore where stucourse ='sql' and stuscore >= 90
+--8.范围
+select * from studentscore where stuscore>=80 and stuscore<=90
+select * from studentscore where stuscore between 80 and 90
+--9.列表运算符in
+select * from studentinfo where stuid in (1001,1003,1005)
+select * from studentinfo where stuid  = 1 or stuid  = 3 or stuid  = 5
+--10.模糊查询
+select * from studentinfo where stuname like '曾%'
+select * from studentinfo where stuname like '%怪'
+select * from studentinfo where stuname like '%奇%'
+select * from studentinfo where stuname like '%曾%'
+--11.排序
+select * from studentscore order by stuscore asc --默认升序，可省略asc
+select * from studentscore where stucourse='sql' order by stuscore desc,stuid desc
+select * from studentscore where stucourse='sql' order by stuscore desc,stuid asc
+
+--12.聚合函数
+select sum(stuscore) from studentscore where stucourse = 'sql'
+select avg(stuscore) from studentscore where stucourse = 'sql'
+select max(stuscore) from studentscore where stucourse = 'sql'
+select min(stuscore) from studentscore where stucourse = 'sql'
+select count(*) from studentscore
+
+--13.分组
+select * from studentinfo
+select stusex 性别,count(*) 人数 from studentinfo group by stusex
+
+select * from studentscore
+select stucourse 课程,avg(stuscore) from studentscore group by stucourse having avg(stuscore) >= 90
+select stucourse 课程,avg(stuscore) from studentscore group by stucourse order by avg(stuscore) desc

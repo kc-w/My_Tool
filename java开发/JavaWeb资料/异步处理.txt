@@ -1,0 +1,229 @@
+Servlet中最耗时的是在第二步的业务处理，因为它会做些数据库操作或者其他的跨网络调用等，在处理业务的过程中，该线程占用的资源不会被释放，这有可能造成性能的瓶颈、异步处理是Servlet 3.0中新增的一个特性，它可以先释放容器被占用的资源，将请求交给另一个异步线程来执行，业务方法执行完成后再生成响应数据。
+
+AsyncContext startAsync()
+AsyncContext startAsync(ServletRequest request,ServletResponse response)
+上述两个方法都能得到Asynccontext接口实现对象。当一个Servlet调用了startAsync()方法之后，该Servlet的响应就会被延迟，并释放容器分配的线程.
+Asynccontext接口方法：
+(1)void addListener(AsyncListener listener)添加AsyncListener监听器
+(2)complete()响应完成
+(3)dispatch()指定URL进行响应完成
+(4)getRequest()获取servlet请求对象
+(5)getResponse()获取servlet响应对象
+(6)setTimeout()设置超时时间
+(7)start(java.lang.Runnable run)异步启动线程
+
+
+编写一个支持异步通信的Servlet类，对于每个请求，该Servlet会取得异步信息Asynccontext，同时释放占用的内存，延迟响应。然后启动AsyncRequest对象定义的线程，在这线程中做业务处理，等业务处理完成，输出页面信息并调用Asynccnntext的complete()方法表示异步完成。异步处理Servlet的源代码如下:
+@WebServlet(
+      //表示支持异步处理
+      asyncSupported=true,
+      urlPatterns={"/asyncdemo.do"},
+      name="myAsyncServlet"
+)
+public class myAsyncServlet extends HttpServlet{
+   //格式化时间
+   SimpleDateFormat sdf=new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+   public void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException , IOException{
+      doPost(request , response);
+   }
+   public void doPost(HttpServletRequest request,HttpServletResponse response) throws ServletException , IOException{
+      response.setContentType("text/html;charset=utf-8");
+      PrintWrier out=response.getWriter();
+      out.println("开始时间："+sdf.format(new Date())+"");
+      out.flush();
+      //在子线程中执行业务调用，并由其负责输出响应，主线程退出
+      AsyncContext asyncContext=request.startAsync(request,response);
+      //设置最大超时时间
+      asyncContext.setTimeout(90000000000);
+      new Thread(new Executor(asyncContext)).start();
+      out.println("结束时间："+sdf.format(new Date()));
+      out.flush();
+   }
+   //内部类
+   public class Executor implements Runnable{
+      private AsyncContext ctx=null;
+      public Executor(AsyncContext ctx){
+         this.ctx=ctx;
+      }
+      public void run(){
+         try{
+            //等待20秒，模拟业务方法执行
+            Thread.sleep(2000);
+            PrintWriter out=ctx.getResponse().getWriter();
+            out.println("业务处理完毕时间："+sdf.format(new Date()));
+            out.flush();
+            ctx.complete();
+         }catch{
+            e.printStackTrece();
+         }
+      }
+   }
+}
+
+模拟服务器推送是指模拟服务器端向客户端推送消息。在HTTP协议中，服务器端是无法直接向客户端传输消息的必须要客户端发出请求给服务器端，服务器端才能够响应，可以利用Servlet3.0的异步处理技术，做到类似服务器主动投送消息给客户端，下面用一个例子说明，这种技术的实现过程。
+
+模拟服务器推送
+首先，编写一个负责存储消息的队列类ClientService，该类的作用是用Queue添加异步所有的Asynccontext对象，用BlockingQueue阻塞队列存储页面请求的消息队列，当Queue队列中有数据时，启动一线程，将BlockingQueue阻塞的内容输出到页面中。ClientService的源代码如下：
+
+
+public class ClientService{
+   //异步Servlet上下文队列
+   private final Queue<AsyncContext> ASYNC_QUEUE=new ConcurrentLinkedQueue<AsyncContext>();
+   //消息队列
+   private final BlockingQueue<String> INFO_QUEUE=new LinkedBlockingQueue<String>;
+   private static ClientService instace=new ClientService();
+   //构造方法，启动线程
+   private ClientService(){
+      //启动一个线程，将内容输出到页面中
+      new Thread(this.notifyRunnable).start();
+   }
+   //获得ClientService单例
+   public static ClientService getInstance(){
+      return instance;
+   }
+   public void addAsyncContext(final AsyncContext asyncContext){
+      //添加异步Servlet上下文
+      ASYNC_QUEUE.add(asyncContext);
+   }
+   public void removeAsyncContext(final AsyncContext asyncContext){
+      //删除异步Servlet上下文
+      ASYNC_QUEUE.remove(asyncContext);
+   }
+   /*发送消息到异步线程，最终输出到http response流*/
+   /*@param str 发送给客户端的消息*/
+   public void callClient(final String str){
+      try{
+         INFO_QUEUE.put(str);
+      }catch(Exception ex){
+         throw new RuntimeException(ex);
+      }
+   }
+   //将数据发送到response流上
+   private Runnable notifyRunnable=new Runnable(){
+      public void run(){
+         boolean done=false;
+         while(!done){
+            try{
+               //当消息队列中有数据，则调用take()方法
+               final String script=INFO_QUEUE.take();
+               //遍历所有的异步队列，将内容输出到页面中
+               for(AsyncContect ac:ASYNC_QUEUE){
+                  try{
+                     //调用响应中的getWriter方法
+                     PrintWriter writer=ac.getResponse(),getWriter();
+                     writer.println(escapeHTML(script));
+                     writer.flush;
+                  }catch(IOException ex){
+                     ASYNC_QUEUE.remove(ac);
+                        throw new RuntimeException(ex);
+                  }
+               }
+             }catch(InterruptedException e){
+             //抛出异常，开关为true
+             done=true;
+             e.printlnStackTrace();
+            }
+         }
+     }
+   }；
+   //删除多余的空格
+   private String escapeHTML(String str){
+      return "<script type='text/javascript'>\n"+str.replaceAll("\n","").replaceAll("\r","")+"</script>\n";
+   }
+}
+
+
+
+其次，编写异步的Servlet类，该类的作用是将客户端注册到发送消息的监听队列中，当产生超时、错误等事件时，将异步上下文对象从队列中移除。同时当访问该Servlet的客户端时，在ASYNC_QUEUE中注册一个AsyncContext对象，这样当服务端需要调用客户端时，就会输出AsyncContext内容到客户端。其源代码如下：
+
+
+@WebServlet(
+      urlPattern={"/AsyncContextServlet"},
+      asyncSupported=true
+      )
+public class AsyncContextServlet extends HttpServlet{
+      private static final long seriaVersionUID=1L;
+
+      @Override
+      protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException , IOException{
+         //设置字符集
+         request.setCharacterEncoding("utf-8");
+         response.setContentType("text/html;charset=utf-8");
+         //设置响应类型和字符集
+         final AsyncContext asyncContext=request.startAsync();
+         //注册AsyncContext对象超时时间
+         asyncContext.setTimeout(1000000);
+         //添加异步监听器
+         asyncContext.addListener(new AsyncListener()){
+            public void onComplete(AsyncEvent event) throws IOException{
+               ClientService.getInstance().removeAsyncContext(asyncContext);
+            }
+            public void onTimeout(AsyncEvent event)throws IOException {
+               ClientService.getInstance().removeAsyncContext(asyncContext);
+            }
+            public void onError(AsyncEvent event)throws IOException {
+               ClientService.getInstance().removeAsyncContext(asyncContext);
+            }
+            public void onStartAsync(AsyncEvent event)throws IOException {
+
+            }
+         });
+         //添加异步线程asyncContext对象
+         ClientService.getInstance().addAsyncContext(asyncContext);
+     }
+}
+
+
+
+为了显示，通过一个隐藏的frame去读取这个异步Servlet发出的信息，其代码如下：
+<html>
+   <head>
+      <script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery-1.8.1.js"></script>
+      <style>
+         .text{
+                width:100%;
+                height:100%;
+                border:0;
+         }
+      </style>
+      <script type="text/javascript">
+         function update(date){
+            var result=$('#result')[0];
+            result.value=result.value+date;
+         }
+      </script>
+   </head>
+   <body>
+      <table>
+         <tr>
+            <td colspan="2">
+               <textarea name="result" id="result" readonly="true" wrap="off" class="text"></textarea>
+            </td>
+         </tr>
+      </table>
+      //iframe的src写死为支持异步的Servlet路径
+      <iframe id="autoFrame" style="display:none" src="/ch07/AsyncContextServlet"></iframe>
+   </body>
+</html>
+
+
+写一个测试的Servlet，每隔2s调用一次客户端方法
+@WebServlet("/test.action")
+public class TestServlet extends HttpServlet{
+   public void doGet(HttpServletRequest request,HttpServletResponse response)throws ServletException , IOException{
+      try{
+         //每隔2s调用一次客户端方法
+         for(int i=0;i<20;i++){
+            final String str="window.parent.update(\""+String.valueOf(i)+"\");";
+            ClientService.getInstance().callClient(str);
+            //线程暂停2s
+            Thread.sleep(2*1000)；
+            if(i==10){
+               break;
+            }
+         }
+      }catch(InterruptedException e){
+         e.printStackTrace();
+      }
+   }
+}

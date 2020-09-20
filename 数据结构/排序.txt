@@ -1,0 +1,90 @@
+import random
+
+Range = 1000000
+Length = 10000
+list1=random.sample(range(Range),Length)
+list2=random.sample(range(Range),Length)
+list3=random.sample(range(Range),Length)
+list4=random.sample(range(Range),Length)
+
+
+#冒泡排序
+def bubble_sort(list1):
+    for j in range(1,len(list1)):
+        for i in range(len(list1)-j):
+            if list1[i]>list1[i+1]:
+                temp=list1[i]
+                list1[i]=list1[i+1]
+                list1[i+1]=temp
+    return list1
+
+print(bubble_sort(list1))
+
+
+#快速排序
+def quick_sort(list2):
+    if len(list2) >= 2:  # 递归入口及出口
+        mid = list2[len(list2) // 2]  # 选取基准值，也可以选取第一个或最后一个元素
+        left, right = [], []  # 定义基准值左右两侧的列表
+        list2.remove(mid)  # 从原始数组中移除基准值
+        for num in list2:
+            if num >= mid:
+                right.append(num)
+            else:
+                left.append(num)
+        return quick_sort(left) + [mid] + quick_sort(right)
+    else:
+        return list2
+
+print(quick_sort(list2))
+
+
+#插入排序
+def insertion_sort(list3):
+    for i in range(1,Length):                   #默认第一个元素已经在有序序列中，从后面元素开始插入
+        for j in range(i,0,-1):                 #逆向遍历比较，交换位置实现插入
+            if list3[j] < list3[j-1]:
+                list3[j],list3[j-1] = list3[j-1],list3[j]
+    return list3
+
+print(insertion_sort(list3))
+
+
+#希尔排序
+def shell_sort(list4):
+    n = len(list4)
+    gap = n // 2
+    while gap >= 1:
+        # j是需要比较的次数
+        for j in range(gap, n):
+            i = j
+            while (i - gap) >= 0:
+                if list4[i] < list4[i - gap]:
+                    list4[i], list4[i - gap] = list4[i - gap], list4[i]
+                    i=i- gap
+                else:
+                    break
+        gap //= 2
+    return list4
+
+print(shell_sort(list4))
+
+
+#使用递归来进行冒泡排序
+i=0
+j=1
+def digui(list1,i,j):
+    if i == len(list1)-j:
+        i=0
+        j=j+1
+        if j==len(list1)-1:
+            return list1
+        return digui(list1,i,j)
+    if list1[i]>list1[i+1]:
+        tmp=list1[i+1]
+        list1[i+1]=list1[i]
+        list1[i]=tmp
+        return digui(list1,i+1,j)
+    else:
+        return digui(list1, i + 1,j)
+print(digui(list1,i,j))

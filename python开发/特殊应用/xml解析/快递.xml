@@ -1,0 +1,57 @@
+<root>
+	<resultcode>200</resultcode>
+	<reason>查询成功!</reason>
+	<result>
+		<company>顺丰</company>
+		<com>sf</com>
+		<no>575677355677</no>
+		<list>
+			<item>
+				<datetime>2013-06-25 10:44:05</datetime>
+				<remark>已收件</remark>
+				<zone>台州市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-25 11:05:21</datetime>
+				<remark>快件在 台州 ,准备送往下一站 台州集散中心</remark>
+				<zone>台州市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-25 20:36:02</datetime>
+				<remark>快件在 台州集散中心 ,准备送往下一站 台州集散中心</remark>
+				<zone>台州市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-25 21:17:36</datetime>
+				<remark>快件在 台州集散中心 ,准备送往下一站 杭州集散中心</remark>
+				<zone>台州市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-26 12:20:00</datetime>
+				<remark>快件在 杭州集散中心 ,准备送往下一站 西安集散中心</remark>
+				<zone>杭州市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-27 05:48:42</datetime>
+				<remark>快件在 西安集散中心 ,准备送往下一站 西安</remark>
+				<zone>西安市/咸阳市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-27 08:03:03</datetime>
+				<remark>正在派件..</remark>
+				<zone>西安市/咸阳市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-27 08:51:33</datetime>
+				<remark>派件已签收</remark>
+				<zone>西安市/咸阳市</zone>
+			</item>
+			<item>
+				<datetime>2013-06-27 08:51</datetime>
+				<remark>签收人是：已签收</remark>
+				<zone>西安市/咸阳市</zone>
+			</item>
+		</list>
+		<status>1</status>
+	</result>
+</root>

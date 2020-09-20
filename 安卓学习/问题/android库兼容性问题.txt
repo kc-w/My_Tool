@@ -1,0 +1,7 @@
+使用android studio3.6创建了一个项目android9.0的项目
+在build.gradle导入support包,在类里import support包后无效
+在代码上使用快捷键alt enter后默认导入的时androidx包
+原因是在创建项目时没有选中Use legacy android.support libraries
+
+使用support包的老项目将项目中的support包替换成androidx包后可能会有bug出现
+sdk29(包含)以后只支持androidx包,support包被废弃无法使用

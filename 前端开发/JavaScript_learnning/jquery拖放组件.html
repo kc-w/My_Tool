@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<link href="js/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+		<style>
+			div{
+				width:200px;
+				height:200px;
+				background-color:green;
+			}
+		</style>
+		<script>
+			$().ready(function(){
+				//可以朝任意方向拖动
+				$("#a").draggable();
+				//只能横向移动
+				$("#b").draggable({axis:"x"});
+				//只能纵向移动
+				$("#c").draggable({axis:"y"});
+				//当鼠标单击图标一秒后才可以进行拖动
+				$("#d").draggable({delay:1000});
+				//当该函数返回true时将复原,当返回false时不复原
+				$("#e").draggable({revert:function(){return true}});
+				
+				$("#f").draggable();
+				$("#f1").click(function(){
+					//启用拖动
+					$("#f").draggable("enable");
+				});
+				$("#f2").click(function(){
+					//禁用拖动
+					$("#f").draggable("disable");
+				});
+				$("#f3").click(function(){
+					//完全移除拖动功能
+					$("#f").draggable("destroy");
+				});
+			})
+		</script>
+
+		<script>
+			$().ready(function(){
+				var counts=[0,0,0];
+				
+				$("#draggable").draggable({
+					start:function(){
+						counts[0]++;
+						updateCounterStatus($("#count1"),counts[0]);
+					},
+					drag:function(){
+						counts[1]++;
+						updateCounterStatus($("#count2"),counts[1]);
+					},
+					stop:function(){
+						counts[2]++;
+						updateCounterStatus($("#count3"),counts[2]);
+					}
+				});
+				
+				function updateCounterStatus(even,count){
+					$(even).text(count);
+				};
+			});
+		</script>
+	</head>
+	<body>
+		<div id="a">
+			<p>拖它a</p>
+		</div>
+		<div id="b">
+			<p>拖它b</p>
+		</div>
+		<div id="c">
+			<p>拖它c</p>
+		</div>
+		<div id="d">
+			<p>拖它d</p>
+		</div>
+		<div id="e">
+			<p>拖它e</p>
+		</div>
+		<div id="f">
+			<p></p>
+			<input id="f1" type="button" value="启用拖动" />
+			<input id="f2" type="button" value="禁用拖动" />
+			<input id="f3" type="button" value="完全移除拖动功能" />
+		</div>
+		
+		<div id="draggable">
+			<p>拖它触发事件</p>
+			<ul>
+				<li >
+					<span>start被调用</span>
+					<span id="count1">0</span>
+				</li>
+				<li>
+					<span>drag被调用</span>
+					<span id="count2">0</span>
+				</li>
+				<li>
+					<span>stop被调用</span>
+					<span id="count3">0</span>
+				</li>
+			</ul>
+		</div>
+		
+	</body>
+</html>

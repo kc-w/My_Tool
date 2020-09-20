@@ -1,0 +1,46 @@
+﻿hive日志文件所在的目录,默认在/tmp/root/hive.log
+dfs -rm -R /hive/warehouse/test1.db/log_out; ##使用hive命令操作hdfs
+dfs -cp /hive/log/t.txt /hive/warehouse/test1.db/log_out;
+truncate table log; ##删除所有表数据
+drop database if exists test cascade; ##数据库中有表，使用cascade强制删除
+alter table dept_like rename to dept_like_rename; ##修改表名
+create table new_table as select * from old_table ##创建一个新表,并将查询到的数据放到这个新表中
+create table if not exists test.new_dept like test.old_dept; ##新建和旧表schema一致的新表
+
+
+t.txt
+1,大米,book-TV-code,beijing:chaoyang-shagnhai:pudong
+2,小米,book-code,nanjing:jiangning-taiwan:taibei
+3,糯米,music-book,heilongjiang:haerbin
+
+-----------------创建内部表-------------------
+create table if not exists test1.log(
+id int,
+name string,
+hobby array<string>,
+add map<String,string>
+)
+row format delimited fields terminated by ','   #字段分割符
+collection items terminated by '-'
+map keys terminated by ':';
+
+
+-----------------建外部表----------------------external为外部表标识
+create external table if not exists test1.log_out(
+id int,
+name string,
+hobby array<string>,
+add map<String,string>
+)
+row format delimited fields terminated by ',' ##指定字段分隔符
+collection items terminated by '-'
+map keys terminated by ':'
+location '/hive/warehouse/test1.db/log_out'; ##指定外部表在hffs上的位置
+
+
+-----------------文件导入操作------------------
+load data inpath '/input/t.txt' into table test1.log; ##从hdfs把文本数据导入表中
+load data local inpath '/t.txt' into table test1.log; ##从linux系统把文本数据导入表中
+load data [local] inpath '/t.txt' overwrite into table test1.log; ##从hdfs/linux系统导入并覆盖表文件
+insert overwrite local directory '/opt/datas/test.txt' select * from emp;  ##导出文件到本地linux
+hive -e "select * from emp" > /opt/datas/xx.txt   ##查询文件到文本

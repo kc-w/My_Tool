@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<query xmlns:yahoo="http://www.yahooapis.com/v1/base.rng" yahoo:count="1" yahoo:created="2018-08-22T08:42:46Z" yahoo:lang="zh-cn">
+    <results>
+        <channel>
+            <yweather:units xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" distance="mi" pressure="in" speed="mph" temperature="F" />
+            <title>Yahoo! Weather - Beijing, Beijing, CN</title>
+            <link>http://us.rd.yahoo.com/dailynews/rss/weather/Country__Country/*https://weather.yahoo.com/country/state/city-2151330/</link>
+            <description>Yahoo! Weather for Beijing, Beijing, CN</description>
+            <language>en-us</language>
+            <lastBuildDate>Wed, 22 Aug 2018 04:42 PM CST</lastBuildDate>
+            <ttl>60</ttl>
+            <yweather:location xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" city="Beijing" country="China" region=" Beijing" />
+            <yweather:wind xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" chill="82" direction="215" speed="11" />
+            <yweather:atmosphere xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" humidity="55" pressure="1004.0" rising="0" visibility="16.1" />
+            <yweather:astronomy xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" sunrise="5:33 am" sunset="7:1 pm" />
+            <image>
+                <title>Yahoo! Weather</title>
+                <width>142</width>
+                <height>18</height>
+                <link>http://weather.yahoo.com</link>
+                <url>http://l.yimg.com/a/i/brand/purplelogo//uh/us/news-wea.gif</url>
+            </image>
+            <item>
+                <title>Conditions for Beijing, Beijing, CN at 04:00 PM CST</title>
+                <geo:lat xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">39.90601</geo:lat>
+                <geo:long xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">116.387909</geo:long>
+                <link>http://us.rd.yahoo.com/dailynews/rss/weather/Country__Country/*https://weather.yahoo.com/country/state/city-2151330/</link>
+                <pubDate>Wed, 22 Aug 2018 04:00 PM CST</pubDate>
+                <yweather:condition xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="28" date="Wed, 22 Aug 2018 04:00 PM CST" temp="82" text="Mostly Cloudy" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="12" date="22 Aug 2018" day="Wed" high="84" low="73" text="Rain" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="32" date="23 Aug 2018" day="Thu" high="90" low="68" text="Sunny" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="32" date="24 Aug 2018" day="Fri" high="90" low="70" text="Sunny" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="34" date="25 Aug 2018" day="Sat" high="91" low="70" text="Mostly Sunny" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="34" date="26 Aug 2018" day="Sun" high="91" low="70" text="Mostly Sunny" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="30" date="27 Aug 2018" day="Mon" high="91" low="72" text="Partly Cloudy" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="30" date="28 Aug 2018" day="Tue" high="89" low="73" text="Partly Cloudy" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="30" date="29 Aug 2018" day="Wed" high="88" low="73" text="Partly Cloudy" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="30" date="30 Aug 2018" day="Thu" high="89" low="73" text="Partly Cloudy" />
+                <yweather:forecast xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" code="30" date="31 Aug 2018" day="Fri" high="89" low="73" text="Partly Cloudy" />
+                <description>
+                    <![CDATA[<img src="http://l.yimg.com/a/i/us/we/52/28.gif"/> <BR /> <b>Current Conditions:</b> <BR />Mostly Cloudy <BR /> <BR /> <b>Forecast:</b> <BR /> Wed - Rain. High: 84Low: 73 <BR /> Thu - Sunny. High: 90Low: 68 <BR /> Fri - Sunny. High: 90Low: 70 <BR /> Sat - Mostly Sunny. High: 91Low: 70 <BR /> Sun - Mostly Sunny. High: 91Low: 70 <BR /> <BR /> <a href="http://us.rd.yahoo.com/dailynews/rss/weather/Country__Country/*https://weather.yahoo.com/country/state/city-2151330/">Full Forecast at Yahoo! Weather</a> <BR /> <BR /> <BR /> ]]></description>
+                <guid isPermaLink="false" />
+            </item>
+        </channel>
+    </results>
+</query>

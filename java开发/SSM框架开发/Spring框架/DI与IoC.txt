@@ -1,0 +1,131 @@
+依赖注入(Dependency Injection，简称Dl)与控制反转(loc)的含义相同，只不过这两个称呼是从两个角度描述的同一个概念。
+
+当某个Java对象(调用者)需要调用另一个Java对象(被调用者，即被依赖对象)时，在传统模式下，调用者通常会采用new来创建对象，这种方式会导致调用者与被调用者之间的耦合性增加，不利于后期项目的升级和维护.
+在使用Spring框架之后，对象的实例不再由调用者来创建，而是由Spring容器来创建，Spring容器会负责控制程序之间的关系，而不是由调用者的程序代码直接控制。这样，控制权由应用代码转移到了Spring容器，控制权发生了反转，这就是Spring的控制反转(loc)。
+从Spring容器的角度来看，Spring容器负责将被依赖对象赋值给调用者的成员变量，这相当于为调用者注入了它依赖的实例，这就是Spring的依赖注入(Dl)。
+
+依赖注入的作用就是在使用Spring框架创建对象时，动态地将其所依赖的对象注入Bean组件中，其实现方式通常有两种，一种是属性set方法注入，另一种是构造方法注入，具体介绍如下。
+1,属性set方法注入:指Spring容器使用set方法注入被依赖的实例。通过调用无参构造器或无参静态工厂方法实例化Bean后，调用该Bean的set方法，即可实现基于set方法的依赖注入。
+
+2,构造方法注入指Spring容器使用构造方法注入被依赖的实例。基于构造方法的依赖注入通过调用带参数的构造方法来实现，每个参数代表着一个依赖。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+<bean>元素的常用属性及其子元素
+属性           描述
+id               是一个Bean的唯一标识符，Spring容器对Bean的配置、管理都通过该属性来完成
+name         Spring容器同样可以通过此属性对容器中的Bean进行配置和管理，name属性中可以为Bean指定多个名称，每个名称之间用逗号或分号隔开
+class           该属性指定了Bean的具体实现类，它必须是一个完整的类名，使用类的全限定名
+property    <bean>元素的子元素，用于调用Bean中的set方法完成属性赋值，从而完成依赖注入。该元素的name属性指定Bean实例中的相应属性名，ref属性或value属性用于指定参数值
+ref              <property>、<constructor-arg>等元素的属性或子元素，可以用于指定对Bean工厂中某个Bean实例的引用
+value          <property>、<constructor-arg>等元素的属性或子元素，可以用于直接指定一个常量值
+list              用于封装List或数组类型的依赖注入
+set              用于封装Set类型属性的依赖注入
+map           用于封装Map类型属性的依赖注入
+entry         <map>元素的子元素，用于设置一个键值对。其key属性指定字符串类型的键值，ref或value子元素指定其值，也可以通过value-ref或value属性指定其值
+scope        用来设定Bean实例的作用域，其属性值有singleton(单例)、prototype(原型)、request、session、global Session、application 和 websocket. 其默认值为 singleton
+constructor-arg       <bean>元素的子元素，可以使用此元素传入构造参数进行实例化。该元素的index属性指定构造参数的序号(从0开始)，type属性指定构造参数的类型，参数值可以通过                                 ref属性或value属性直接指定，也可以通过ref或value子元素指定
+
+Bean的作用域:
+singleton:使用singleton定义的Bean在spring容器中将只有一个实例，也就是说，无论有多少个Bean引用它,始终指向同一个对象
+prototype:每次通过Spnng容器获取的prototype定义的Bean时，容器都将创建一个新的Bean实例
+
+Bean的生命周期:
+Spring容器可以管理singleton作用域的Bean的生命周期，在此作用域下，Spring能够精确地知道该Bean何时被创建，何时初始化完成以及何时被销毁，对于prototype作用域的Bean,Spring只负责创建，当容器创建了Bean实例后，Bean的实例就交给客户端代码来管理，Spring容器将不再跟踪其生命周期，，每次客户端请求prottype作用域的Bean时，Spring容器都会创建一个新的实例，并且不会管那些被配置成prototype作用域的Bean的生命周期。
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+使用xml对Bean进行实例化:
+
+Bean类:
+public class User {
+    private String username;
+    private Integer password;
+    private List<String> list;
+
+    //使用构造注入，提供所有参数的有参构造方法
+    public User(String username,Integer password,List<String> list){
+        super();
+        this.username=username;
+        this.password=password;
+        this.list=list;
+    }
+
+    //使用设值注入，提供默认空构造方法，为所有属性提供get(),set()方法
+    public User(){
+        super();
+    }
+
+    public void setUsername(String username){
+        this.username=username;
+    }
+    public void setPassword(Integer password){
+        this.password=password;
+    }
+    public void setList(List<String> list){
+        this.list=list;
+    }
+
+    public String toString() {
+        return "User [username="+username+",password="+password+",list="+list+"]";
+    }
+}
+
+
+1,构造器实例化(必须要把所有属性都赋值)(applicationContext.xml中添加如下)
+    <bean id="user1" class="com.wan.demo.User">
+        <constructor-arg index="0" value="tom"/>
+        <!--字符串会自动处理为整型数据-->
+        <constructor-arg index="1" value="123456"/>
+        <constructor-arg index="2">
+            <list>
+                <value>"哩哩啦啦哩哩啦啦哩哩啦啦ll"</value>
+                <value>"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+
+2,使用设值注入方式装配User实例(applicationContext.xml中添加如下)
+    <bean id="user2" class="com.wan.demo.User">
+        <property name="username" value="张三"></property>
+        <property name="password" value="9999999"></property>
+        <!--注入list集合-->
+        <property name="list">
+            <list>
+                <value>"KAJDJAJDAJFJLKF"</value>
+                <value>"AIUYRFIWFIUSOIUHV"</value>
+            </list>
+        </property>
+    </bean>
+
+得到实例化后的bean对象
+ApplicationContext applicationContext=new ClassPathXmlApplicationContext("applicationContext.xml");
+User user=(User) applicationContext.getBean()
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+使用注解对Bean进行实例化:
+@Component: 可以使用此注解描述Spring中的Bean，但它是一个泛化的概念，仅仅表示一个组件(Bean)，并且可以作用在任何层次。使用时只需将该注解标注在相应类上即可。
+@Repository: 用于将数据访问层(DAO层)的类标识为Spring中的Bean，其功能与@Component 相同.
+@Service: 通常作用在业务层(Service层)，用于将业务层的类标识为Spring中的Bean,其功能与@Component相同。
+@Controller: 通常作用在控制层(如Spring MVC的Controller)，用于将控制层的类标识为Spring中的Bean，其功能与@Component相同。
+@Autowired: 用于对Bean的属性变量、属性的setter方法及构造方法进行标注，配合对应的注解处理器完成Bean的自动配置工作。默认按照Bean的类型进行装配。
+@Resource: 其作用与@Autowired一样。其区别在于@Autowired默认按照Bean类型装配，而@Resource默认按照Bean实例名称进行装配。@Resource中有两个重要属性name
+和type。spring将name属性解析为Bean实例名称,type解析为Bean实例类型。如果指定name属性，则按实例名称进行装配；如果指定type属性，则按Bean类型进行装配；如果都不指定，则先按Bean实例名称装配，如果不能匹配，再按照Bean类型进行装配；如果都无法匹配，则抛出Nosuch Bean DefinitionException异常。
+@Qualifier: 与@Autowired注解配合使用，会将默认的按Bean类型装配修改为按Bean的实例名称装配，Bean的实例名称由@Qualifier注解的参数指定。
+
+在上面几个注解中，虽然@Repository、@Service与@Controller功能与回Component注解的功能相同，但为了使标注类本身用途更加清晰，建议在实际开发中使用@Repository@Service与@Controller分别对实现类进行标注。
+
+
+在applicationContext.xml中添加如下:
+<context:component-scan base-package="所要扫描的包名"/>
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+自动装配对Bean进行实例化(需要添加get和set方法):
+
+<bean id="userController" class="com.wan.demo1.UserController" autowire="byName"/>
+
+
+

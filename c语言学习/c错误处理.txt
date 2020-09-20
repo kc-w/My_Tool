@@ -1,0 +1,29 @@
+C 语言不提供对错误处理的直接支持，但是作为一种系统编程语言，它以返回值的形式允许您访问底层数据。
+在发生错误时，大多数的 C 或 UNIX 函数调用返回 1 或 NULL，同时会设置一个错误代码 errno，该错误代码是全局变量，
+表示在函数调用期间发生了错误。您可以在 errno.h 头文件中找到各种各样的错误代码。
+
+//在此处声明一个整型变量
+extern int errno ;
+
+int main (){
+    FILE * pf;
+    int errnum;
+    pf = fopen ("test1.txt", "rb");
+    if (pf == NULL){
+        errnum = errno;
+        fprintf(stderr, "错误号: %d\n", errno);
+        //perror() 函数显示您传给它的字符串，后跟一个冒号、一个空格和当前 errno 值的文本表示形式。
+        perror("通过 perror 输出错误");
+        //strerror() 函数，返回一个指针，指针指向当前 errno 值的文本表示形式。
+        fprintf(stderr, "打开文件错误: %s\n", strerror( errnum ));
+    }else{
+        fclose (pf);
+    }
+    return 0;
+}
+
+以上程序输出的结果为:
+
+错误号: 2
+通过 perror 输出错误: Invalid or incomplete multibyte or wide character
+打开文件错误: No such file or directory

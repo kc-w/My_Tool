@@ -1,0 +1,148 @@
+上传hadoop-2.6.0.tar.gz到主机,解压到/opt/program下
+mkdir /opt/program
+tar -zxvf /home/hadoop-2.6.0.tar.gz -C /opt/program
+
+
+1.配置jdk的地址hadoop-env.sh文件
+vi /opt/program/hadoop-2.6.0/etc/hadoop/hadoop-env.sh
+	export JAVA_HOME=/usr/local/jdk1.8.0_181
+
+
+2.core-site.xml,这个是Hadoop的核心配置文件,fs.defaultFS配置了Hadoop的HDFS系统的命名,位置为主机的8020端口
+<configuration>
+<property>
+	<!--指定了namenode所在机器的主机名-->
+	<name>fs.defaultFS</name>
+	<value>hdfs://hadoop1:9000</value>
+</property>
+<property>
+<!--指定hadoop临时目录数据存放位置-->
+	<name>hadoop.tmp.dir</name>
+	<value>/opt/program/hadoop-2.6.0/data/tmp</value>
+</property>
+</configuration>
+		
+hdfs-site.xml，这个是HDFS相关的配置文件
+<configuration>
+<property>
+	<!--配置的是SecondaryNameNode的地址，注意修改“hadoop1”为实际Secondary-NameNode地址-->
+    <name>dfs.namenode.secondary.http-address</name>
+    <value>hadoop1:50090</value>
+</property>
+<property>
+	<!--配置了文件块的副本数，默认就是3个，所以这里也可以不配置-->
+	<name>dfs.replication</name>
+	<value>1</value>
+</property>
+</configuration>
+
+
+mapred-site.xml.template，这个是MapReduce相关的配置,由于Hadoop2.x使用了YARN框架，所以必须在mapreduce.framework.name属性下配置yarn
+<configuration>
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+</property>
+<!-- 与JobHistoryServer相关的配置,即运行MapReduce任务的日志相关服务,注意修改“master”为实际服务所在机器的机器名-->
+<property>
+    <name>mapreduce.jobhistory.address</name>
+    <value>hadoop1:10020</value>
+</property>
+<property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value>hadoop1:19888</value>
+</property>
+</configuration>
+
+
+yarn-site.xml,该文件为YARN框架的配置,先定义一个yarn.resourcemanager.hostname的变量,在后面YARN的相关配置中直接引用该变量。
+<configuration>
+<!-- Site specific YARN configuration properties -->
+<property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>hadoop1</value>
+</property>
+<property>
+	<name>yarn.nodemanager.aux-services</name>
+	<value>mapreduce_shuffle</value>
+</property>
+<!--日志聚集功能开启-->
+<property>
+	<name>yarn.log-aggregation-enable</name>
+	<value>true</value>
+</property>
+<!--日志文件保存的时间，以秒为单位-->
+<property>
+	<name>yarn.log-aggregation.retain-seconds</name>
+	<value>640800</value>
+</property>
+</configuration>
+
+
+
+3.首次启动namenode需要格式化,再开启hadoop进程
+cd /opt/program/hadoop-2.6.0
+bin/hdfs namenode -format
+
+开启hadoop进程
+sbin/start-dfs.sh ##启动hdfs相关服务
+sbin/start-yarn.sh ##启动yarn相关服务
+sbin/mr-jobhistory-daemon.sh  start  historyserver ##启动日志相关服务
+
+输入jps,查看相关7个进程是否开启。
+
+cd /opt/program/hadoop-2.6.0
+mkdir input
+cp etc/hadoop/*.xml input
+bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep /input /output 'd[a-z.]+'
+cat output/*
+
+
+关闭hadoop进程
+sbin/stop-dfs.sh ##关闭hdfs相关服务
+sbin/stop-yarn.sh ##关闭yarn相关服务
+sbin/mr-jobhistory-daemon.sh  stop  historyserver ##关闭日志相关服务
+
+
+
+hdfs的web监控端口是50070
+historyserver的web监控端口是19888
+resourcemanager的web监控端口是8088
+
+
+
+
+
+hadoop完全分布式搭建
+
+编辑core-site.xml的namenode为hadoop1
+编辑hdfs-site.xml的secondarynamenode为hadoop3
+编辑mapred-site.xml.template将rejobhistory设置为hadoop2,并把mapred-site.xml.template改为mapred-site.xml
+编辑yarn-site.xml,将resourcemanager设置为hadoop2
+
+slaves指定有哪些datanode节点
+vi etc/hadoop/slaves
+	hadoop1
+	hadoop2
+	hadoop3
+
+##格式化hadoop1的namenode节点
+bin/hdfs namenode -format hadoop1
+##清除临时数据
+rm -rf hadoop-2.6.0/data/tmp/*
+
+##移动hadoop到其他主机节点
+scp -r /opt/program/hadoop2.6.0 hadoop2:/opt/program/hadoop2.6.0
+scp -r /opt/program/hadoop2.6.0 hadoop2:/opt/program/hadoop2.6.0
+
+##停止hadoop1下的所有进程
+sbin/stop-all.sh hadoop1
+##在hadoop1开启hdfs进程
+sbin/start-dfs.sh
+
+在hadoop2,启动yarn相关服务和日志相关服务
+sbin/start-yarn.sh
+sbin/mr-jobhistory-daemon.sh  start  historyserver
+
+
+

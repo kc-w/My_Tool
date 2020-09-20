@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wan.Dao.adminDao">
+    
+    <select id="login" parameterType="String" resultType="admin" >
+        select * from admin where admin_number=#{number} and admin_password=#{admin_password}
+    </select>
+    
+    
+    <update id="change" parameterType="user">
+        update user
+        <set><!--使之可以更新需要更新的字段,自动去掉最后一个逗号-->
+            <if test="user_level!=null and user_level!=''">
+                user_level=#{user_level}
+            </if>
+            <if test="user_password!=null and user_password!=''">
+                user_password=#{user_password},
+            </if>
+            <if test="user_email!=null and user_email!=''">
+                user_email=#{user_email},
+            </if>
+        </set>
+        where user_id=#{user_id}
+    </update>
+    
+    
+    <select id="selectUserList" resultType="user">
+        select * from user
+    </select>
+    
+    
+    <select id="selectComList" resultType="comment">
+        select * from comment
+    </select>
+    
+    
+    <delete id="deleteComment" parameterType="Integer">
+        delete from comment where comment_id=#{commnet_id}
+    </delete>
+
+
+    <select id="selectBlogList" resultType="blog">
+        select * from blog
+    </select>
+
+
+    <delete id="deleteBlog" parameterType="Integer">
+        delete from blog where blob_id=#{blog_id}
+    </delete>
+
+
+    <select id="selectActiveList" resultType="active">
+        select * from active
+    </select>
+
+
+    <insert id="addActive" parameterType="a_active">
+        insert into a_active(admin_id,a_active_time,a_active_ip) values(#{admin_id},#{a_active_time},#{a_active_ip})
+    </insert>
+
+
+    <select id="selectManagement" resultType="management">
+        select * from management
+    </select>
+
+
+    <insert id="addManagement" parameterType="management">
+        insert into management(admin_id,user_id,m_body,m_time) values(#{admin_id},#{user_id},#{m_body},#{m_time})
+    </insert>
+
+</mapper>

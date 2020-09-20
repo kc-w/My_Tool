@@ -1,0 +1,39 @@
+RDD宽依赖与窄依赖
+    RDD也是一个DAG的任务集合，一个DAG代表了一个RDD的计算过程。
+    每个DAG都会记住创建该数据集需要哪些操作，跟踪记录RDD的继承关系。
+
+    根据父RDD分区是对应一个还是多个子RDD分区，将依赖分为两种：
+
+    窄依赖(父分区对应一个子分区)
+        对于窄依赖，只需通过重新计算丢失的那一块数据来恢复，容错成本较小。
+    宽依赖(父分区对应多个子分区)
+        对于宽依赖，会对父分区进行重新计算，造成冗余计算。
+
+窄依赖方法
+    map
+    mapValues
+    flatMap
+    filter
+    mapPartitions
+    mapPartitionsWithIndex
+
+宽依赖方法(可能导致shuffle)
+    cogroup
+    groupWith
+    join
+    leftOuterJoin
+    rightOuterJoin
+    groupByKey
+    reduceByKey
+    combineByKey
+    distinct
+    intersection
+    repartition
+    coalesce
+
+RDD持久化
+如何选择持久化策略?
+    1.	优先使用MEMORY_ONLY
+    2.	内存放不下就使用MEMORY_ONLY_SER，但会额外消耗CPU资源
+    3.	容错恢复使用MEMORY_ONLY_2
+    4.	尽量不适用DISK相关策略

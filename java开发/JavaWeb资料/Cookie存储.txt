@@ -1,0 +1,33 @@
+//将一个名为name的cookie保存到客户端
+public class Setcookie extends HttpServlet{
+   public void doGet(HttpServletRequest rt,HttpServletResponse re)throws ServletException,IOException Exception{
+      re.setContentType("text/html");
+      PrintWrite pw=re.getWrite();
+      pw.println("cookie存储");
+      pw.plush();
+      pw.close();
+      	String value="存储在cookie中的值";
+        Cookie c=new Cookie("name",value);//在Cookie对象中存入键和值
+        re.addCookie(c);//将Cookie对象交给服务器响应对象
+      }
+      public void doPost(HttpServletRequest rt,HttpServletResponse re)throws ServletException,IOException Exception{
+         doGet(rt,re);
+      }
+
+//将存入客户端的Cookie取出,并进行显示
+public class Getcookie extends HttpServlet{
+   public void doGet(HttpServletRequest rt,HttpServletResponse re)throws ServletException,IOException Exception{
+      re.setContentType("text/html");
+      PrintWrite pw=re.getWrite();
+      Cookie[] alls=rt.getCookie();
+      for(int i=0;i<alls.length;i++){
+         if("name".equals(alls[i].getName())){
+            pw.print(alls[i].getValue());
+         }
+      }
+      pw.plush();
+      pw.close();
+   }
+   public void doPost(HttpServletRequest rt,HttpServletResponse re)throws ServletException,IOException Exception{
+         doGet(rt,re);
+   }

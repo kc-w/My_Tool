@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+      http://www.springframework.org/schema/mvc
+      http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+    <!--定义组建扫描器,指定需要扫描的包-->
+    <context:component-scan base-package="com.wan.controller"/>
+    <!--配置注解驱动自动注册,提供读写XML和JSON功能的支持-->
+    <mvc:annotation-driven/>
+    <!--由于在web.xml配置了拦截所有文件,拦截后的页面中将找不到这些静态资源文件,配置静态资源的访问映射,此配置中的文件,将不会被前端控制器拦截-->
+    <!--mapping:匹配静态资源全路径,其中"/**"表示文件夹及其子文件夹下的某个具体文件,location:用于定位需要访问的源文件路径-->
+    <mvc:resources location="/js/" mapping="/js/**"/>
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+
+
+
+
+</beans>

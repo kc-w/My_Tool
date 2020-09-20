@@ -1,0 +1,90 @@
+当执行一个 Java 的 native 方法时，虚拟机是怎么知道该调用 so 中的哪个方法
+这就需要用到注册的概念了，通过注册，将指定的 native 方法和 so 中对应的方法绑定起来（函数映射表），
+注册分为 静态注册 和 动态注册 两种。默认的实现方式即静态注册。
+
+
+静态注册
+1. 定义
+    通过 JNIEXPORT 和 JNICALL 两个宏定义声明,在虚拟机加载so时发现上面两个宏定义的函数时就会链接到对应的native方法。
+
+2. 对应规则
+    Java + 包名 + 类名 + 方法名
+    其中使用下划线将每部分隔开，包名也使用下划线隔开，如果名称中本来就包含下划线，将使用下划线加数字替换。
+    示例（包名：com.afei.jnidemo，类名：MainActivity）：
+    //java中的方法
+    public native String stringFromJNI();
+    #jni中的方法
+    JNIEXPORT jstring JNICALL
+    Java_com_afei_jnidemo_MainActivity_stringFromJNI( JNIEnv *env, jobject instance);
+
+    //java中的方法
+    public native String stringFrom_JNI();
+    #jni中的方法
+    JNIEXPORT jstring JNICALL
+    Java_com_afei_jnidemo_MainActivity_stringFrom_1JNI(JNIEnv *env, jobject instance);
+
+动态注册
+1. 定义
+    通过RegisterNatives方法手动完成native方法so中的方法的绑定,虚拟机就可以通过这个函数映射表直接找到相应的方法了。
+2. 注册过程示例
+    a. 假设有两个 native 方法如下：
+        public native String stringFromJNI();
+        public static native int add(int a, int b);
+    b. 通常我们在 JNI_OnLoad 方法中完成动态注册，native-lib.cpp 如下：
+        #include <jni.h>
+        #include <string>
+        #include "log.hpp"
+
+        extern "C" {
+        jstring stringFromJNI(JNIEnv *env, jobject instance) {
+            std::string hello = "Hello from C++";
+            return env->NewStringUTF(hello.c_str());
+        }
+        jint add(JNIEnv *env, jclass clazz, jint a, jint b) {
+            return a + b;
+        }
+        jint RegisterNatives(JNIEnv *env) {
+            jclass clazz = env->FindClass("com/afei/jnidemo/MainActivity");
+            if (clazz == NULL) {
+                LOGE("con't find class: com/afei/jnidemo/MainActivity");
+                return JNI_ERR;
+            }
+            JNINativeMethod methods_MainActivity[] = {
+                    {"stringFromJNI", "()Ljava/lang/String;", (void *) stringFromJNI},
+                    {"add",           "(II)I",                (void *) add}
+            };
+            // int len = sizeof(methods_MainActivity) / sizeof(methods_MainActivity[0]);
+            return env->RegisterNatives(clazz, methods_MainActivity,
+                                        sizeof(methods_MainActivity) / sizeof(methods_MainActivity[0]));
+        }
+        jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+            JNIEnv *env = NULL;
+            if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+                return JNI_ERR;
+            }
+            jint result = RegisterNatives(env);
+            LOGD("RegisterNatives result: %d", result);
+            return JNI_VERSION_1_6;
+        }
+
+        }
+
+    c. 分析
+        如上，我们不再使用 JNIEXPORT 和 JNICALL 两个宏定义声明指定的方法，
+        也不用依照固定的命名规则命名方法（不过通常 jni 里的方法名还是保持和 native 方法的方法名一致，见名思义），
+        而是通过了一个 RegisterNatives 方法完成了动态注册。
+
+3. RegisterNatives 方法解析
+定义： jint RegisterNatives(jclass clazz, const JNINativeMethod* methods, jint nMethods)
+参数：
+    clazz：指定的类，即 native 方法所属的类
+    methods：方法数组，这里需要了解一下 JNINativeMethod 结构体
+    nMethods：方法数组的长度
+JNINativeMethod：
+    typedef struct {
+        const char* name; // native 的方法名
+        const char* signature; // 方法签名，例如 ()Ljava/lang/String;
+        void*       fnPtr; // 函数指针
+    } JNINativeMethod;
+返回值：
+    成功则返回 JNI_OK (0)，失败则返回一个负值。

@@ -1,0 +1,30 @@
+有时，可能会碰到这样的情况，希望函数带有可变数量的参数，而不是预定义数量的参数。
+C 语言为这种情况提供了一个解决方案，它允许您定义一个函数，能根据具体的需求接受可变数量的参数。
+
+定义一个函数，最后一个参数为省略号，省略号前面可以设置自定义参数。
+在函数定义中创建一个 va_list 类型变量，该类型是在 stdarg.h 头文件中定义的。
+#include <stdio.h>
+#include <stdarg.h>
+
+double average(int num,...){
+
+    va_list valist;
+    double sum = 0.0;
+    int i;
+
+    //num和va_start宏来初始化 va_list 变量为一个参数列表
+    va_start(valist, num);
+    //使用 va_arg 宏和 va_list 变量来访问参数列表中的每个项。
+    for (i = 0; i < num; i++){
+        sum = sum + va_arg(valist, int);
+    }
+    //使用宏va_end清理valist保留的内存
+    va_end(valist);
+
+    return sum/num;
+}
+
+int main(){
+    printf("%f\n", average(4, 2,3,4,5));
+    printf("%f\n", average(3, 5,10,15));
+}

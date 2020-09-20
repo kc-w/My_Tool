@@ -1,0 +1,16 @@
+方法一:打开res下的style.xml文件将DarkActionBar修改为NoActionBar
+<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- Customize your theme here. -->
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="colorAccent">@color/colorAccent</item>
+</style>
+
+方法二:在activity中的onCreate方法里的setContentView(R.layout.activity_main)之前添加
+//去掉顶部标题
+ActionBar actionbar = getSupportActionBar();
+if (actionbar != null) {
+    actionbar.hide();
+}
+//去掉最上面时间、电量等
+getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);

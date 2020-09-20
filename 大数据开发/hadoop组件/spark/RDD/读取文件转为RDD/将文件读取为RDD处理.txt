@@ -1,0 +1,56 @@
+import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
+
+//编写本地的RDD需要导入spark-assembly-1.6.3-hadoop2.6.0.jar此jar包
+object RDDtest {
+
+  def main(args: Array[String]): Unit = {
+  //主函数调用方法
+    test1()
+  }
+
+  def test1(): Unit ={
+    //setAppName:设置RDD名称,setMaster设置是否在本地执行
+    val conf = new SparkConf ().setAppName ("spark-rdd").setMaster ("local")
+
+    val sc = new SparkContext (conf)
+    //设置日志级别,可不设置,默认为INFO
+    sc.setLogLevel ("WARN")
+    //读取文件
+    val textFileRDD = sc.textFile ("D:\\数据\\agg_match_stats_1.csv")
+
+    //对读取的数据以","进行切分
+    val mapRDD = textFileRDD.map (_.split (",") )
+    //把索引的第15个字段等于1的记录过滤出来,把过滤出来的记录选取第12个字段和1组成一个(key,value)结构
+    val filterRDD = mapRDD.filter(_ (14) == "1").map (x => (x (11), 1) )
+    //将(key,value)结构的数据把相同的key对应的value进行累加,去除重复的key
+    val reuduceByKeyRDD = filterRDD.reduceByKey(_+ _)
+    //将(key,value)中的key,value位置调换,并以value进行降序排列,再调换回来
+    val sortByKeyRDD = reuduceByKeyRDD.map(x => (x._2, x._1) ).sortByKey(false).map(x => (x._2, x._1))
+    //将(key,value)中的第一个值不等于""的过滤出来,取前10个记录进行遍历打印输出
+    sortByKeyRDD.filter(_._1 != "").take(10).foreach (println)
+  }
+
+  //打jar包到集群运行的方法
+    def test1(): Unit ={
+      val conf = new SparkConf ().setAppName ("spark-rdd").setMaster ("spark://192.168.1.121:7077")
+
+      val sc = new SparkContext (conf)
+      //读取文件
+      val textFileRDD = sc.textFile ("hdfs://192.168.1.121:8020/agg_match_stats_1.csv")
+    }
+
+}
+
+//------------------------打jar包到集群运行的shell
+//最好不要notepad++写,可能报错,直接在终端窗口写
+#!/bin/bash
+
+spark-submit \
+--class  RDDtest \
+--master spark://192.168.2.121:7077 \
+--executor-memory 1G \
+--total-exexutor-cores 1 \
+/RDD.jar
+
+

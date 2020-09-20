@@ -1,0 +1,20 @@
+https://www.lfd.uci.edu/~gohlke/pythonlibs/#bitarray
+
+安装模块
+bitarray (通过上述网址下载)
+thirft-sasl 通过thirft-sasl官网下载）
+thirft
+sasl
+pure-sasl
+impyla
+
+
+##python连接impala
+from impala.dbapi import connect
+
+conn = connect(host='192.168.2.144',port=21050,timeout=3600)
+
+cur = conn.cursor()
+cur.execute("select * from emp")
+infos = cur.fetchall()
+print(infos)

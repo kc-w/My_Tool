@@ -1,0 +1,71 @@
+use db
+go
+
+if(select count(*) from book)=0--if...else条件判断语句
+   print'1'--打印1
+else
+   print'2'--打印2
+go
+
+if exists(select * from book where id=1)
+begin
+   print'记录存在'
+   select * from book where id=1
+end
+else
+   print'记录不存在'
+go
+
+select--case简单语句
+     case '1'
+	      when'1'then'2'
+		  when'3'then'4'
+		  when'6'then'7'
+		  else'8'
+end as 结果
+from book
+go
+
+select--case选择语句
+     case
+	      when id is null then'无任何记录'
+		  when id<3 then'符合'
+		  when id<9 then'不符合'
+		  else'符合'
+end as 结果
+from book
+where id<4
+go
+
+declare @i smallint,@sum smallint--while循环语句
+ set @i=0
+ set @sum=0
+while @i>=0
+   begin
+       set @i=@i+1
+	   if @i<=10
+	        if(@i%2)=0
+			    continue
+			else
+			    set @sum=@sum+@i
+		else
+		    begin
+			    print'sum='+str(@sum)--str(@sum)中将smallint数据类型的@sum转换为varchar数据类型再进行连接打印
+				break
+			end
+   end
+go
+
+--goto label--goto语句：将执行语句无条件跳转到标签处，并从标签位置继续处理
+go
+
+--return 1--return语句可以在任何位置使用，无条件从过程或批处理或语句块中退出，并返回一个整型值，1也可以改成表达式
+go
+
+waitfor delay '00:00:05'--5秒后打印hhh
+print'hhh'
+/*
+waitfor time '22:00:00'--当天夜里10点打印123
+print'123'
+*/
+go

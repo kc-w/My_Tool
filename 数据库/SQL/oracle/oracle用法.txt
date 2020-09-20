@@ -1,0 +1,80 @@
+--创建表空间(学生管理数据库) datafile数据文件  size大小
+create tablespace studentDB
+datafile 'C:\Users\Wkc23\Desktop\sql\studentDB_data.dbf' size 5M;
+
+--修改表空间名称
+alter tablespace studentDB
+rename to studentDB2;
+
+--添加数据文件
+alter tablespace studentDB2
+add datafile 'C:\Users\Wkc23\Desktop\sql\studentDB_data2.dbf' size 10M;
+
+--修改表空间下的数据文件
+alter database
+datafile 'C:\Users\Wkc23\Desktop\sql\studentDB_data.dbf' resize 20M;
+
+--修改表空间下的数据文件,允许自动拓展,每次增长5M,最大容量50M
+alter database
+datafile 'C:\Users\Wkc23\Desktop\sql\studentDB_data2.dbf' autoextend on next 5M Maxsize 50M;
+
+--删除表空间
+drop tablespace studentDB2;
+
+
+//设置主键自动增长
+create table 表名(
+id int primary key
+)
+
+--自定义一个序列
+ create sequence 序列名
+       increment by 1 --每次增加几个，我这里是每次增加1
+       start with 1   --从1开始计数
+       nomaxvalue      --不设置最大值
+       nocycle         --一直累加，不循环
+       nocache;        --不建缓冲区
+--创建一个触发器
+create trigger 触发器名
+   before insert on 表名
+   for each row
+   when (new.字段名 is null) --只有在tid为空时，启动该触发器生成tid号
+begin
+   select 序列名.nextval into :new.字段名 from sys.dual;
+end;
+
+
+//查询前N笔记录
+select * from studentinfo where rownum < 3
+
+//分页查询
+--15.使用分页写法列出表中该查询的第1和第2页数据（每页10条）
+--rownum <=page * size   rn>(page-1)*size
+select * from (select a1.*,rownum rn from  (select * from 表名)a1 where rownum <=10) where rn > 0
+
+select * from (select a1.*,rownum rn from  (select * from 表名)a1 where rownum <=20) where rn > 10
+
+//子查询
+//1.作为条件
+select stuname from studentinfo where stuid = (select stuid from studentscore where stucourse='java' and stuscore>=90)
+select stuname from studentinfo where stuid in (select stuid from studentscore where stucourse='java')
+
+//2.作为列出现
+select stuname,(select stuscore from studentscore where studentinfo.stuid = studentscore.stuid and stucourse ='java') score from studentinfo
+
+//3.作为临时表出现
+select stuname,stucourse,stuscore from studentinfo,(select * from studentscore where stuscore>=90) s where studentinfo.stuid = s.stuid
+
+//集合
+select * from studentscore where stuid = 1001
+union
+select * from studentscore where stuscore >85
+
+select * from studentscore where stuid = 1001
+union all
+select * from studentscore where stuscore >85
+
+//交集
+select * from studentscore where stuid = 1001
+intersect
+select * from studentscore where stuscore >85

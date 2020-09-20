@@ -1,0 +1,91 @@
+Spark程序必须做的第一件事是创建一个SparkContext对象，它告诉Spark如何访问集群。
+要创建SparkContext您首先需要构建一个包含有关应用程序信息的SparkConf对象。
+
+Spark围绕弹性分布式数据集（RDD:并行化处理数据集的工具）的概念展开，RDD是可以并行操作的容错的容错集合。
+创建RDD有两种方法:
+    1:在程序中创建数据集。
+    2:引用外部存储系统中的数据集，例如共享文件系统，HDFS，HBase或提供Hadoop InputFormat的任何数据源。
+
+RDD特性:
+	1.不可变
+	2.只能读取
+	3.具备自动容错恢复机制(DAG，有向无环图):如果数据丢失可以再通过上一个RDD计算找回
+	4.具备优先选择数据处理节点位置的机制(计算本地化)
+	5.本身并不是一个数据集合，而是一种并行化处理数据集的工具
+
+
+RDD的两种操作
+    1.Transformation(将数据转换为RDD)
+        主要是用于多个RDD之间的数据转换
+    2.Action(得到计算结果)
+        主要是用于最终的RDD的数据聚合
+
+    只有在执行到Action操作时，才会触发Spark的任务调度与计算,Transformation是一种Lazy(懒)操作
+    整个计划流程根据具体的流程划分为不同的stage(不同的执行部分).优先使用reduceByKey来代替groupByKey
+
+    当每次新调用一个Action操作时，每一个RDD都会重新被计算。
+    可以通过将RDD持久化到内存中的方式，来避免RDD被重复计算。
+    可以使用persist或者cache方法
+    Spark中的持久化方式，具有不同的持久化机制
+
+		缓存的使用场景?
+    1.	获取大量数据之后，比如来自外部数据源
+    2.	进行一个非常长的计算链条
+    3.	某个计算非常耗时
+    4.	进行checkpoint之前
+
+        如何选择持久化策略?
+    1.	优先使用MEMORY_ONLY
+    2.	内存放不下就使用MEMORY_ONLY_SER，但会额外消耗CPU资源
+    3.	容错恢复使用MEMORY_ONLY_2
+    4.	尽量不适用DISK相关策略
+
+    Shuffle operations
+        在Spark中的某些RDD操作，会触发Shuffle事件。
+        Shuffle事件一旦产生，就把我们所操作的数据集进行重新分布。
+        一旦涉及到重新分布，将会耗费大量的IO与网络资源。
+
+        在进行Shuffle操作前，尽可能的减少每个分区即将进行Shuffle的数据量。
+
+    groupByKey与reduceByKey有什么区别？
+        reduceByKey操作产生的数据量比groupByKey操作产生的数据量要少
+
+    我现在有上亿条的数据需要进行分组求和、求平均，该如何操作？
+        1.选择具有Combiner函数的RDD操作
+        2.对业务数据进行数据变换。
+            (100,"xxxx",2500)
+            (100,(1,2500))
+            (2500,(1,100))
+
+    如何判断该操作是否为suffer操作?
+        val reduceByKey=wordCountRDD.reduceByKey(_+_)
+        //如果输出的结果带有shuffer字段则为suffer操作
+        reduceByKey.dependencies
+        //查看执行阶段(stage)
+        reduceByKey.toDebugString
+
+
+
+
+在程序中创建数据集(并行化集合):
+    并行集合通过调用创建SparkContext的parallelize方法，在你的驱动程序复制集合的元素以形成可以并行操作的分布式数据集。
+    例如，以下是如何创建包含数字1到5的并行化集合：
+        val data = Array(1, 2, 3, 4, 5)
+        val distData = sc.parallelize(data)
+    并行集合的一个重要参数是将数据集切割的分区数。Spark将为集群的每个分区运行一个任务。
+    通常，Spark会自动设置分区数。也可以通过将其作为第二个参数传递给parallelize（例如sc.parallelize(data, 10)）来手动设置。
+
+引用外部存储系统中的数据集:
+    文本文件RDD可以使用创建SparkContext的textFile方法。
+        val distFile = sc.textFile("data.txt")
+
+分区
+    所谓分区，就是把一个大文件，分割成n个独立的部分，然后通过RDD进行并行化计算。
+    默认情况下，Hadoop中的datanode，即是存储节点，也是计算节点
+    默认情况下，HDFS上文件对应的block数量有多少，spark就要有多少个partition
+    可以大于当前block数量的partition，但最低不能低于HDFS上的block数量
+
+
+
+
+

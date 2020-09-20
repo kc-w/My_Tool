@@ -1,0 +1,157 @@
+Android.mk 是一种脚本语言，是将 C/C++ 源文件粘合至 NDK 的构建文件。
+
+-------------------------------------------------------------------------
+
+(基本的语法)示例:
+# 注释内容使用 "#" 号
+
+# call 是调用一个系统提供的宏函数，此处是 my-dir
+# $() 是取值
+# := 是赋值
+LOCAL_PATH := $(call my-dir)
+
+# 我们也可以使用 ifeq 和 ifneq 进行条件判断
+ifeq ($(HOST_OS, linux)
+    ...(省略)
+else
+    ...(省略)
+endif
+
+# 使用 := 是赋值，当某一行很长时，可以使用反斜杠 \ 换行
+LOCAL_SRC_FILES := adb.c \
+                   utils.c
+
+# 使用 += 是附加
+LOCAL_SRC_FILES += $(USB_SRCS)
+
+-------------------------------------------------------------------------
+
+常用变量名
+
+变量名	                            说明
+LOCAL_PATH                          用来指定当前源码所在的目录,它不会被 CLEAR_VARS 清除,
+                                    一般第一步就是定义该变量,写法也很固定，即：
+                                    LOCAL_PATH := $(call my-dir)
+
+CLEAR_VARS                          清除很多除 LOCAL_PATH 外的变量。因为所有的 Makefile 都是在同一个编译环境在执行的，
+                                    变量的定义理论上都是全局的，所以每个模块编译开始前进行清理工作是非常必要的。
+                                    写法也很固定，即：
+                                    include $(CLEAR_VARS)
+
+LOCAL_MODULE                        模块名，整个编译系统中唯一存在，命名时中间不能有空格，
+                                    且系统会帮你添加诸如 “lib” 前缀和 “.a” 或 “.so” 后缀等
+
+LOCAL_MODULE_PATH                   模块的输出路径
+
+LOCAL_MODULE_TAGS                   模块的一些标签，标签之间使用空格隔开
+
+LOCAL_SRC_FILES                     此变量包含构建系统用于生成模块的源文件列表，可使用相对路径或绝对路径，
+                                    但为了移植性应尽量选择使用相对路径
+
+LOCAL_CC	                        指定 C 编译器
+
+LOCAL_CXX	                        指定 C++ 编译器
+
+LOCAL_CPP_EXTENSION	                可以使用此可选变量为 C++ 源文件指明 .cpp 以外的文件扩展名，如：
+                                    LOCAL_CPP_EXTENSION := .cxx .cpp .cc
+
+LOCAL_CFLAGS	                    此可选变量为构建系统设置在构建 C 和 C++ 源文件时要传递的编译器标志。
+                                    此功能对于指定额外的宏定义或编译选项可能很有用
+
+LOCAL_CPPFLAGS（LOCAL_CXXFLAGS）	仅当构建 C++ 源文件时才会传递一组可选的编译器标志。
+                                    它们将出现在编译器命令行中的 LOCAL_CFLAGS 后面
+
+LOCAL_C_INCLUDES	                编译所需的额外头文件，可以使用此可选变量指定相对于 NDK root 目录的路径列表
+
+LOCAL_STATIC_LIBRARIES	            编译所需的静态库列表
+
+LOCAL_SHARED_LIBRARIES	            编译所需的动态库列表
+
+LOCAL_JAVA_LIBRARIES	            编译所需的 Java 类库
+
+LOCAL_LDLIBS	                    编译所需的其他链接器标志列表。它可让您使用 -l 前缀传递特定系统库的名称。
+                                    例如，以下示例指示链接器生成在加载时链接到 /system/lib/libz.so 的模块：
+                                    LOCAL_LDLIBS := -lz
+
+LOCAL_LDFLAGS	                    构建共享库或可执行文件时供构建系统使用的其他链接器标志列表
+
+
+BUILD_HOST_STATIC_LIBRARY
+BUILD_HOST_SHARED_LIBRARY
+BUILD_HOST_EXECUTABLE
+BUILD_STATIC_LIBRARY                各种形式的编译模板，生成指定形式的文件
+BUILD_SHARED_LIBRARY
+BUILD_EXECUTABLE
+BUILD_RAW_STATIC_LIBRARY
+BUILD_RAW_EXECUTABLE
+…
+
+示例:
+#指定当前源码所在的目录,它不会被 CLEAR_VARS 清除
+LOCAL_PATH := $(call my-dir)
+LOCAL_PREBUILT_DIR := prebuilt
+
+# 预编译模块1
+include $(CLEAR_VARS)  #清除很多除 LOCAL_PATH 外的变量
+LOCAL_MODULE := fastcv_android  #模块名
+LOCAL_SRC_FILES := $(LOCAL_PREBUILT_DIR)/lib/$(TARGET_ARCH_ABI)/libfastcv_android.a  #用于生成模块的源文件列表
+include $(PREBUILT_STATIC_LIBRARY)
+
+# 预编译模块2
+include $(CLEAR_VARS)
+LOCAL_MODULE := api_fastcv
+LOCAL_SRC_FILES := $(LOCAL_PREBUILT_DIR)/lib/$(TARGET_ARCH_ABI)/libapi_fastcv.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+# 预编译模块3
+include $(CLEAR_VARS)
+LOCAL_MODULE := fmath_android_armv7
+LOCAL_SRC_FILES := $(LOCAL_PREBUILT_DIR)/lib/$(TARGET_ARCH_ABI)/libfmath_android.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+# 预编译模块4
+include $(CLEAR_VARS)
+LOCAL_MODULE := api_fmath
+LOCAL_SRC_FILES := $(LOCAL_PREBUILT_DIR)/lib/$(TARGET_ARCH_ABI)/libapi_fmath.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+# 目标模块
+include $(CLEAR_VARS)
+LOCAL_MODULE := demo
+# 源文件
+LOCAL_SRC_FILES := hello.cpp \
+                   world.cpp \
+
+# 额外的头文件
+LOCAL_C_INCLUDES += $(LOCAL_PATH) $(LOCAL_PATH)/$(LOCAL_PREBUILT_DIR)/include
+# 需要链接的系统库
+LOCAL_LDLIBS := -llog -lz -L$(SYSROOT)/usr/lib/$(TARGET_ARCH_ABI) -ljnigraphics
+# 一些宏定义和编译选项
+LOCAL_CFLAGS := -DFASTCV_USE_ARM -DUSE_ARM
+LOCAL_CFLAGS += -std=c++11
+# 链接上面预编译的静态库
+LOCAL_STATIC_LIBRARIES := -L$(LOCAL_PATH)/lib api_fastcv fastcv_android fmath_android api_fmath
+# 编译所需要动态库
+LOCAL_SHARED_LIBRARIES := face_api
+# 指定生成动态库
+include $(BUILD_SHARED_LIBRARY)
+
+
+
+注意到，一个模块总是以 include $(CLEAR_VARS) 开始，
+以 include $(BUILD_SHARED_LIBRARY) 结束（这里也可以是其它的编译模板，如 BUILD_STATIC_LIBRARY）。
+
+-------------------------------------------------------------------------
+
+NDK 提供的函数宏
+
+使用 $(call <function>) 来调用函数
+
+函数	                说明
+my-dir	                此宏返回最后包含的 makefile 的路径，通常是当前 Android.mk 的目录
+all-subdir-makefiles	返回位于当前 my-dir 路径所有子目录中的 Android.mk 文件列表
+this-makefile	        返回当前 makefile（构建系统从中调用函数）的路径
+parent-makefile	        返回包含树中父 makefile 的路径（包含当前 makefile 的 makefile 路径）
+grand-parent-makefile	返回包含树中祖父 makefile 的路径（包含当前父 makefile 的 makefile 路径）
+import-module	        用于按模块的名称查找和包含模块的 Android.mk 文件的函数。 典型的示例如下所示：
+                        $(call import-module,<name>)

@@ -1,0 +1,18 @@
+##python运行mapreduce任务命令
+
+hadoop jar /opt/cloudera/parcels/CDH-5.15.1-1.cdh5.15.1.p0.4/jars/hadoop-streaming-2.6.0-cdh5.15.1.jar -mapper "python3 map.py" -reducer "python3 reduce.py" -file /map.py -file /reduce.py -input /input -output /output
+
+##编写python运行mapreduce任务脚本
+
+#!/bin/bash
+#mapper函数和reducer函数文件地址
+export CURRENT=/opt/program/hadoop-2.6.0
+#先删除输出目录
+$HADOOP_HOME/bin/hdfs dfs -rm -r /output1
+$HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.6.0.jar \
+-mapper "python map.py" \
+-reducer "python reduce.py" \
+-file "$CURRENT/map.py" \
+-file "$CURRENT/reduce.py" \
+-input "/input" \
+-output "output1" 

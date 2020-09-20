@@ -1,0 +1,35 @@
+注释：<%--jsp注释-->（还可以引入html中的注释和java中的注释）
+
+jsp声明：<%!变量定义/方法定义/类%>（在<head>标签末尾和<body>标签开头之间）
+
+jsp表达式：<%=变量或者表达式%>
+
+jsp指令：【1】页面属性相关的page指令：<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>（language属性设置语言，                            import属性进行导入类文件，pageEncoding属性定义编码方式）
+         【2】引入文件的include指令：<%@include file="需要引入文件的路径"%>
+         【3】与标签相关的taglib指令：<%@taglib uri="tagliburl" prefix="tagpre"%>(用户可以自定义新的标签在页面中执行，uri属性表示自定                          义标签库的存放位置，prefix属性是为了区分不同标签库的标签名)
+
+jsp动作：【1】<jsp:forward>：（<jsp:forward>动作的作用是转发请求到另一个页面，在请求过程中会连同请求的参数数据一起转发到目标页面中，目标页面由                              request.getParameter("参数名称")方法接受参数值）
+          语法为：<jsp:forward page="需要跳转的文件路径"/>（只有page这一个属性）
+          #注意：1：虽然会跳转到另一个页面，但是地址栏处的地址并不会更新，还是上一个页面的地址，所以该指令具有隐蔽性。
+                 2：跳转的文件只能是该web应用中的文件，不能是以外的文件。
+
+         【2】<jsp:include>：（<jsp:include>动作与include指令相似，他们的作用都是引入文件到目标页面）
+          语法为：<jsp:include page="需要引入文件的路径" flush="true"/>(其中page属性为该jsp动作的必要属性，flush属性用于指定输出缓存是                             否转移到被导入文件中，如果为true则包含在被导入文件中，如果为false则包含在原文件中)
+          #注意：1：page属性所指的绝对路径不是文件系统的绝对路径，而是以应用系统目录为根目录的绝对路静，通常web应用下的WEB-INF目录就是根目录。
+                 2：<jsp:include>动作与include指令结果虽然相同，但还是有不同的地方，<jsp:include>动作是在页面被访问时导入的，导入文件和主页面是                    两个相对独立的文件，在编译时会被编译成两个Servlet类文件；而include指令是有jsp引擎编译时导入的，导入的文件和主页面会一块编译                      成一个Servlet类文件，所以include指令效率更高一些。
+         【3】<jsp:param>：（jsp:param动作用来传递参数信息，经常和<jsp:forward>和<jsp:include>一起使用传递参数到目标页面）
+          语法为：<jsp:pare name="参数名称" value="参数值"/>
+          #注意：所有页面编码格式要统一，否则在传递中文时会出现乱码问题。request.setCharacterEncoding方法是设定传递参数的编码格式，在传递中文时          要特别注意。在URL中包含参数传递时，可能会出现中文乱码或特殊字符问题，需要对这些参数进行编码处理。在javascript中，通过调用encodeURI函数          或者encodeURIComponent实现编码，在jsp脚本中，通过方法URLEncoder.encode实现转码
+
+
+         【4】<jsp:plugin>
+         【5】<jsp:useBeen>
+         【6】<jsp:getProperty>
+         【7】<jsp:setProperty>
+         【8】<jsp:output>
+         【9】<jsp:attribute>
+         【10】<jsp:element>
+         【11】<jsp:body>
+         【12】<jsp:params>
+         【13】<jsp:fallback>
+

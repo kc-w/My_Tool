@@ -1,0 +1,23 @@
+直接将apk拉到Androidkiller完成反编译,把smali文件夹复制出来重命名为src,重新创建一个项目名将src文件夹放入(记住完整路径中不能有中文,不然后面使用Android studio打不开)
+
+把自己要调试的APK安装到手机中 并用数据线连接手机 打开USB调试模式
+
+找到要调试APK的包名和入口的Activity
+注意一下 在AndroidManifest.xml的application标签里面要有 android:debuggable="true" 没有是不能调试apk的,有的apk中没有这句代码要自行添加上
+
+输入  netstat -ano|findstr “8700”  查看8700端口是否被占用 如果被占用就根据显示的pid关闭对应的进程
+
+(完整的包名/完整的入口activity名)
+打开命令行 输入命令 adb shell am start -D -n hfdcxy.com.myapplication/hfdcxy.com.myapplication.MainActivity  手机弹出等待调试界面
+(完整的包名)
+再输入 adb shell ps|findstr  hfdcxy.com.myapplication  得到出现的进程号
+
+输入命令 adb forward tcp:8700 jdwp:27524    ( 转发8700 端口,jdwp是要调试app的进程号值 )
+
+
+打开android studio在setting的plugins中装上smalidea插件,导入重命名的项目(具体操作看图)
+
+
+导入项目下好断点后就可以按Shfit+F9开始调试
+
+

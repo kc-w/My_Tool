@@ -1,0 +1,2 @@
+1:根据AndroidDemo4\app\build\generated\source\r\debug\com\example\androiddemo4目录找到R.java文件进行修改
+2:AndroidManifest.xml中的manifest标签中的package包路径不正确

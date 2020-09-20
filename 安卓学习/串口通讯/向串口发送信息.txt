@@ -1,0 +1,122 @@
+先把jni文件夹移动到app目录下,再把在gradle的defaultConfig同级中添加
+sourceSets {
+    main {
+        jniLibs.srcDirs = ['libs']
+    }
+}
+
+public class SerialPort {
+
+    private static final String TAG = "SerialPort";
+    private FileDescriptor mFd;
+    private FileInputStream mFileInputStream;
+    private FileOutputStream mFileOutputStream;
+
+    public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+
+        //检查访问权限，如果没有读写权限，进行文件操作，修改文件访问权限
+        if (!device.canRead() || !device.canWrite()) {
+            try {
+                //通过挂在到linux的方式，修改文件的操作权限
+                Process process = Runtime.getRuntime().exec("/system/xbin/su");
+                String cmd = "chmod 666 " + device.getAbsolutePath() + "\n" + "exit \n";
+                //向安卓写入cmd命令
+                OutputStream outputStream = process.getOutputStream();
+                outputStream.write(cmd.getBytes());
+                //释放输出流
+                outputStream.flush();
+                outputStream.close();
+
+                if ((process.waitFor() != 0)) {
+                    throw new SecurityException();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new SecurityException();
+            }
+        }
+
+        mFd = open(device.getAbsolutePath(), baudrate, flags);
+
+        if (mFd == null) {
+            Log.e(TAG, "native open returns null");
+            throw new IOException();
+        }
+
+        mFileInputStream = new FileInputStream(mFd);
+        mFileOutputStream = new FileOutputStream(mFd);
+    }
+
+    // Getters and setters
+    public InputStream getInputStream() {
+        return mFileInputStream;
+    }
+
+    public OutputStream getOutputStream() {
+        return mFileOutputStream;
+    }
+
+
+    // JNI(调用java本地接口，实现串口的打开和关闭)
+/**串口有五个重要的参数：串口设备名，波特率，检验位，数据位，停止位
+ 其中检验位一般默认位NONE,数据位一般默认为8，停止位默认为1*/
+    /**
+     * @param path     串口设备的据对路径
+     * @param baudrate 波特率
+     * @param flags    校验位
+     */
+    private native static FileDescriptor open(String path, int baudrate, int flags);
+
+    public native void close();
+
+    static {//加载jni下的C文件库
+        System.loadLibrary("serial_port");
+    }
+}
+
+
+
+public class SerialTest {
+    protected SerialPort mSerialPort;
+    protected OutputStream mOutputStream;
+    private static String prot = "ttysWK0";
+    private static int baudrate = 9600;
+
+    public void openDoor() {new Thread() {
+            @Override
+            public void run() {
+                try {
+                    mSerialPort=new SerialPort(new File("/dev/" + prot), baudrate,0);
+                    mOutputStream = mSerialPort.getOutputStream();
+                    //mInputStream = mSerialPort.getInputStream();
+                    //mOutputStream = mSerialPort.getOutputStream();
+                    byte [] bytes1=HexStrToBytes.hexToByteArray("01050000FF008C3A");
+                    mOutputStream.write(bytes1,0,bytes1.length);
+                    Thread.sleep(1000*2);
+                    byte [] bytes2=HexStrToBytes.hexToByteArray("010500000000CDCA");
+                    mOutputStream.write(bytes2,0,bytes2.length);
+                    Log.i("test", "发送成功");
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.i("test", "打开失败");
+                    e.printStackTrace();
+                }catch (Exception e){
+                    Log.i("test", "发送失败");
+                }
+                finally {
+                    if (mSerialPort != null) {
+                        mSerialPort.close();
+                    }
+                    if (mOutputStream != null) {
+                        try {
+                            mOutputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }.start();
+    }
+}

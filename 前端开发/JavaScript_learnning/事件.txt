@@ -1,0 +1,52 @@
+元素:
+onclick[鼠标单击]
+ondbclick[鼠标双击]
+onmousedown[鼠标在元素的位置按下]
+onmouseup[鼠标在元素的位置放开]
+onmouseover[鼠标经过元素所在位置]
+onmouseout[鼠标移出所在元素位置]
+onblur[当前元素失去焦点]
+onfocus[当前元素获得焦点]
+
+图片:
+onerror[加载图片出现错误时触发]
+onload[图片加载时触发]
+
+窗口:
+onblur[当前窗口失去焦点]
+onfocus[当前窗口获得焦点]
+onerror[装入窗口发生错误]
+onload[载入窗口触发]
+onunload[关闭窗口]
+onresize[窗口尺寸发生变化]
+
+
+无侵入事件:
+
+事件绑定:
+元素对象.事件=function(){
+
+}
+
+事件监听器:
+元素对象.addEventListener("事件(前面不加on)",需要执行的函数(不需要带括号),true/false(表示是否启动事件捕捉));
+//该监听器只适用于处IE8及以前的所有浏览器,兼容性不高
+
+事件监听器(兼容性加强版):
+window.onload=function(){
+	if(元素对象.addEventListener){
+		元素对象.addEventListener("事件(前面不加on)",需要执行的函数(不需要带括号),true/false);
+	}else if(元素对象.attachEvent){
+		元素对象.attachEvent("事件",需要执行的函数);
+	}
+}
+
+取消事件默认行为(取消链接跳转,表单提交等):
+function 函数名(e){
+   if(e.preventDefault){
+      //判断该浏览器是否有preventDefault属性,有就返回true,没有就返回false
+        e.preventDefault();//取消元素对象的默认行为
+    }else{
+        e.returnValue=false;//IE没有preventDefault属性,兼容IE
+    }
+}

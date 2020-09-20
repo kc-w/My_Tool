@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"> 
+	  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link href="css/jquery-ui.min.css" rel="stylesheet"/>
+		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/style.css" rel="stylesheet"/>
+		<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+		<script src="js/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="js/popper.min.js" type="text/javascript"></script>
+		<script src="js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
+  </head>
+  <body>
+	  <div class="container">
+		  
+		  <!--基础表格,通过 .table 类来设置基础表格的样式-->
+		<table class="table">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		  
+		  
+		  <!--条纹表格,通过添加 .table-striped 类，您将在 <tbody> 内的行上看到条纹-->
+		<table class="table table-striped">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+		  
+		  <!--带边框表格,通过添加 .table-striped 类，您将在 <tbody> 内的行上看到条纹-->
+		<table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		  
+		  <!--鼠标悬停状态表格,.table-hover 类可以为表格的每一行添加鼠标悬停效果（灰色背景）：-->
+		<table class="table table-hover">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+		<!--黑色背景表格,.table-dark 类可以为表格添加黑色背景：-->
+		<table class="table table-dark">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+		<!--黑色条纹表格,联合使用 .table-dark 和 .table-striped 类可以创建黑色的条纹表格：-->
+		<table class="table table-dark table-striped">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+		<!--鼠标悬停效果 - 黑色背景表格,联合使用 .table-dark 和 .table-hover 类可以设置黑色背景表格的鼠标悬停效果：-->
+		<table class="table table-dark table-hover">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr>
+				<td>Mary</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr>
+				<td>July</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+		
+		<!--指定意义的颜色类-->
+		<table class="table">
+			<thead>
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>Default</td>
+				<td>Defaultson</td>
+				<td>def@somemail.com</td>
+			  </tr>      
+			  <tr class="table-primary">
+				<td>Primary</td>
+				<td>Joe</td>
+				<td>joe@example.com</td>
+			  </tr>
+			  <tr class="table-success">
+				<td>Success</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			  <tr class="table-danger">
+				<td>Danger</td>
+				<td>Moe</td>
+				<td>mary@example.com</td>
+			  </tr>
+			  <tr class="table-info">
+				<td>Info</td>
+				<td>Dooley</td>
+				<td>july@example.com</td>
+			  </tr>
+			  <tr class="table-warning">
+				<td>Warning</td>
+				<td>Refs</td>
+				<td>bo@example.com</td>
+			  </tr>
+			  <tr class="table-active">
+				<td>Active</td>
+				<td>Activeson</td>
+				<td>act@example.com</td>
+			  </tr>
+			  <tr class="table-secondary">
+				<td>Secondary</td>
+				<td>Secondson</td>
+				<td>sec@example.com</td>
+			  </tr>
+			  <tr class="table-light">
+				<td>Light</td>
+				<td>Angie</td>
+				<td>angie@example.com</td>
+			  </tr>
+			  <tr class="table-dark text-dark">
+				<td>Dark</td>
+				<td>Bo</td>
+				<td>bo@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		
+.table-primary	蓝色: 指定这是一个重要的操作
+.table-success	绿色: 指定这是一个允许执行的操作
+.table-danger	红色: 指定这是可以危险的操作
+.table-info	浅蓝色: 表示内容已变更
+.table-warning	橘色: 表示需要注意的操作
+.table-active	灰色: 用于鼠标悬停效果
+.table-secondary	灰色: 表示内容不怎么重要
+.table-light	浅灰色，可以是表格行的背景
+.table-dark	深灰色，可以是表格行的背景
+
+
+
+		<!--表头颜色,.thead-dark 类用于给表头添加黑色背景， .thead-light 类用于给表头添加灰色背景:-->
+		<table class="table">
+			<thead class="thead-dark">
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			</tbody>
+		  </table>
+		  
+		  <table class="table">
+			<thead class="thead-light">
+			  <tr>
+				<th>Firstname</th>
+				<th>Lastname</th>
+				<th>Email</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr>
+				<td>John</td>
+				<td>Doe</td>
+				<td>john@example.com</td>
+			  </tr>
+			</tbody>
+		</table>
+		  
+		  
+		  
+	  </div>
+  </body>
+</html>

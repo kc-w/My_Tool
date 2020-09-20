@@ -1,0 +1,189 @@
+github术语解释
+标注 1：Repository name，仓库名称；
+标注 2：Description，可选描述，也就是写不写都可以；
+标注 3：Public，默认的仓库类型；
+标注 4：Initialize this repository with a README，初始化仓库的信息文件，建议勾选。
+标注 1：Popular repositories，受欢迎的仓库，以Star数为依据，依次展示个人项目中Star数前 6 的项目；
+标注 2：Contribution，贡献标记，贡献越多，小方块的颜色越深；
+标注 3：Contribution activity，贡献活动记录，展示了我们的活动记录。
+
+Repository：简称Repo，可以理解为“仓库”，我们的项目就存放在仓库之中，也就是说，如果我们想要建立项目，就得先建立仓库，有多个项目，就建立多个仓库。
+Issues：可以理解为“问题”，举一个简单的例子，如果我们开源一个项目，如果别人看了我们的项目，并且发现了 bug，或者感觉那个地方有待改进，他就可以给我们提出 Issue，等我们把这些 Issues 被解决之后，就可以把这些 Issues 关闭啦；反之，我们也可以给他人提出 Issue.
+Star：可以理解为“点赞”，当我们感觉某一个项目做的比较好之后，就可以为这个项目点赞，而且我们点赞过的项目，都会保存到我们的Star之中，方便我们随时查看。在 GitHub 之中，如果一个项目的点星数能够超百，那么说明这个项目已经很不错了。
+Fork：可以理解为“拉分支”，如果我们对某一个项目比较感兴趣，并且想在此基础之上开发新的功能，这时我们就可以Fork这个项目，这表示复制一个完成相同的项目到我们的 GitHub 账号之中，而且独立于原项目。之后，我们就可以在自己复制的项目中进行开发啦！
+Pull Request：可以理解为“提交请求”，此功能是建立在Fork之上的，如果我们Fork了一个项目，对其进行了修改，而且感觉修改的还不错，我们就可以对原项目的拥有者提出一个Pull请求，等其对我们的请求审核，并且通过审核之后，就可以把我们修改过的内容合并到原项目之中。
+Merge：可以理解为“合并”，如果别人Fork了我们的项目，对其进行了修改，并且提出了Pull请求，这时我们就可以对这个Pull请求进行审核。如果这个Pull请求的内容满足我们的要求，并且跟我们原有的项目没有冲突的话，就可以将其合并到我们的项目之中啦！当然，是否进行合并，由我们决定。
+Watch：可以理解为“观察”，如果我们Watch了一个项目，之后，如果这个项目有了任何更新，我们都会在第一时候收到该项目的更新通知。
+Gist：如果我们没有项目可以开源或者只是单纯的想分享一些代码片段的话，我们就可以选择 Gist 啦！不过，如果不翻墙的话，Gist 并不好用，囧。
+
+-----------------------------------------------------------------------------------------------------
+
+github搜索技巧:
+
+1可以根据仓库的标题，仓库的描述，README:
+in:name 关键词
+
+2根据查找所需要的描述搜索:
+in:descripton 关键词
+
+3根据stars、fork数量大小查询:
+stars:> 数字 关键词
+fork:> 3000 spring could
+
+4根据仓库是否在更新的搜索:
+pushed:>2019-01-03 spring cloud
+
+5根据某个人或组织，或者编程语言搜索
+user:GitSuperDrew languages:java
+
+-----------------------------------------------------------------------------------------------------
+
+利用 SSH 完成 Git 与 GitHub 的绑定:
+如果要 Git 向 GitHub 提交代码，我们需要先了解 SSH（安全外壳协议），因为在 GitHub 上，一般都是通过 SSH 来授权的，
+而且大多数 Git 服务器也会选择使用 SSH 公钥来进行授权，所以想要向 GitHub 提交代码，首先就得在 GitHub 上添加 SSH key配置。
+
+第 1 步：生成 SSH key
+我们要想生成SSH key，首先就得先安装 SSH，对于 Linux 和 Mac 系统，默认是安装 SSH 的
+而对于 Windows 系统，其默认是不安装 SSH 的，不过由于我们安装了 Git Bash，其也应该自带了 SSH. 可以通过在 Git Bash 中输入ssh命令，查看本机是否安装 SSH：
+
+如果结果正确,表示我们已经安装 SSH 啦！接下来，输入ssh-keygen -t rsa命令，表示我们指定 RSA 算法生成密钥，然后敲三次回车键，期间不需要输入密码，之后就就会生成两个文件，分别为id_rsa和id_rsa.pub，即密钥id_rsa和公钥id_rsa.pub. 对于这两个文件，其都为隐藏文件，默认生成在以下目录：
+
+Linux 系统：~/.ssh
+Mac 系统：~/.ssh
+Windows 系统：C:\Documents and Settings\username\\.ssh
+Windows 10 ThinkPad：C:\Users\think\.ssh
+
+密钥和公钥生成之后，我们要做的事情就是把公钥id_rsa.pub的内容添加到 GitHub，这样我们本地的密钥id_rsa和 GitHub 上的公钥id_rsa.pub才可以进行匹配，授权成功后，就可以向 GitHub 提交代码啦！
+
+第 2 步：添加 SSH key
+
+进入我们的 GitHub 主页，点击我们的头像直接进入设置页面：
+进入Settings页面后，再点击SSH and GPG Keys进入此子界面，然后点击New SSH key按钮：
+我们只需要将公钥id_rsa.pub的内容粘贴到Key处的位置（Titles的内容不填写也没事），然后点击Add SSH key 即可。
+
+第 3 步：验证绑定是否成功
+
+在我们添加完SSH key之后，也没有明确的通知告诉我们绑定成功啊！不过我们可以通过在 Git Bash 中输入ssh -T git@github.com进行测试：
+显示成功即可
+
+-------------------------------------------------------------------------------------------------------------------
+通过 Git 将代码提交到 GitHub（上）
+push：该单词直译过来就是“推”的意思，如果我们本地的代码有了更新，为了保持本地与远程的代码同步，我们就需要把本地的代码推到远程的仓库：
+git push origin master
+
+pull：该单词直译过来就是“拉”的意思，如果我们远程仓库的代码有了更新，同样为了保持本地与远程的代码同步，我们就需要把远程的代码拉到本地：
+git pull origin master
+
+一般情况下，我们在push操作之前都会先进行pull操作，这样不容易造成冲突。
+
+-------------------------------------------------------------------------------------------------------------------
+git命令:
+usage: git [--version][--版本] [--help][--帮助]
+           [-C <path>][- C <路径>]
+           [-c <name>=<value>][- c <名称> = <值>]
+           [--exec-path[=<path>][——exec-path[= <路径>]
+           [--html-path]
+           [--man-path]
+           [--info-path]
+           [-p | --paginate | -P | --no-pager]
+           [--no-replace-objects]
+           [--bare]
+           [--git-dir=<path>]
+           [--work-tree=<path>]
+           [--namespace=<name>]
+
+
+
+These are common Git commands used in various situations:
+这些都是常见的Git命令中使用的:
+
+start a working area (开始一个工作区域)
+   clone      Clone a repository into a new directory(把库复制到一个新的目录)
+   init       Create an empty Git repository or reinitialize an existing one(创建一个空库或重新引导现有的一个)
+
+work on the current change (工作流程的变化)
+   add        Add file contents to the index(添加文件的内容添加到索引)
+   mv         Move or rename a file, a directory, or a symlink(移动或重命名一个文件、目录或符号链接)
+   reset      Reset current HEAD to the specified state(重置当前前往指定的状态)
+   rm         Remove files from the working tree and from the index(从工作树和索引中删除文件)
+
+examine the history and state (检查历史和状态)
+   bisect     Use binary search to find the commit that introduced a bug(使用二进制搜索找到错误)
+   grep       Print lines matching a pattern(打印模式匹配的行)
+   log        Show commit logs(显示提交日志)
+   show       Show various types of objects(显示各种类型的对象)
+   status     Show the working tree status(显示树型工作状态)
+
+grow, mark and tweak your common history(成长,标记和调整你的共同历史)
+   branch     List, create, or delete branches(列出、创建或删除分支)
+   checkout   Switch branches or restore working tree files(开关或恢复工作树型文件)
+   commit     Record changes to the repository(更改记录到存储库)
+   diff       Show changes between commits, commit and working tree, etc(显示之间的更改提交,提交和工作树,等等)
+   merge      Join two or more development histories together(加入两个或两个以上的发展历史)
+   rebase     Reapply commits on top of another base tip(申请提交的另一个基本技巧)
+   tag        Create, list, delete or verify a tag object signed with GPG(创建、列出、删除或验证一个标签对象与GPG签署)
+
+collaborate (合作)
+   fetch      Download objects and refs from another repository(从另一个存储库下载对象和参考文献)
+   pull       Fetch from and integrate with another repository or a local branch(获取另一个库进行整合或整合当地的分支)
+   push       Update remote refs along with associated objects(更新远程参考文献以及相关的对象)
+   
+   -----------------------------------------------------------------------------------------------------------------------
+   
+如上所示，其返回了很多关于 Git 的信息，其中就包括 Git 的常用命令，例如init、add、log和status等等。在 Git 中，所有的命令都是以git开头，例如，git init其作用就是初始一个 Git 仓库。
+
+
+我们先在D盘的CoderLife目录下创建一个名为demo的子目录，并在其中新建一个名为hit.txt的文件，接下来我们的 Git 操作都是基于此目录和文件的。
+
+在这里还要强调一点，那就是：在我们进行任何的git操作之前，我们都得先切换到 Git 的仓库目录。换言之，我们得到先进入到（我们定义的）Git 仓库的最顶层文件目录下，
+然后从此目录中进入 Git Bash，这样之后的操作才能顺利进行。如果是 Linux 操作系统，则可以直接cd到仓库目录。
+选择demo目录作为 Git 仓库，然后进入demo目录之中，点击鼠标右键，再选择Git Bash Here，即可打开 Git Bash 的命令行窗口。
+   
+   
+第 1 个命令：git status
+在命令行窗口的光标处，输入git status命令，查看仓库的状态：结果显示demo不是一个 Git 仓库，这是很正常的反应，因为我们还没有在计算机中声明demo为 Git 仓库，之前说demo是 Git 仓库只是我们口头上的说的，计算机当然不会认可
+
+第 2 个命令：git init
+输入git init命令,初始化demo目录为一个空的 Git 仓库
+结果显示已经初始化demo为一个空的 Git 仓库啦！在这里大家可以会有些疑问，因为我们在建立demo目录的同时也在里面新建了一个名为hit.txt的文件，怎么初始化仓库之后，demo目录就变成空的了呢？
+这个问题稍后解惑，我们重新输入git status命令检查一下仓库的状态：
+在我们初始化仓库之后，demo目录已经成为一个 Git 仓库了，并且默认进入 Git 仓库的master分支，即主分支。
+在这里，我们需要注意的是Untracked fies提示，它表示demo仓库中有文件没有被追踪，并提示了具体没有被追踪的文件为hit.txt，还提示了我们可以使用git add命令操作这个文件，简直不要太好。
+
+第 3 个命令：git add
+在命令行窗口的光标处，输入git add hit.txt命令，将hit.txt文件添加到 Git 仓库：如果没有报错，就说明命令已经执行啦！接下来，输入git status命令查看仓库状态：
+已经显示Initial commit初始化提交了，同时已经没有Untracked files提示了，这说明文件hit.txt已经被添加到 Git 仓库了，
+而在我们没有进行git add操作之前，文件hit.txt并不被 Git 仓库认可，因此才会出现提示初始化仓库为空的现象。
+在这里，需要声明一点，那就是：git add命令并没有把文件提交到 Git 仓库，而是把文件添加到了「临时缓冲区」，这个命令有效防止了我们错误提交的可能性。
+
+第 4 个命令：git commit
+在命令行窗口的光标处，输入git commit -m "text commit"命令，将hit.txt文件提交到 Git 仓库：
+如上所示，我们成功将文件hit.txt提交到了 Git 仓库，其中commit表示提交，-m表示提交信息，提交信息写在双引号""内。接下来，再输入git status命令查看仓库状态：
+结果显示nothing to commit, working tree clean，这表示已经没有内容可以提交了，即全部内容已经提交完毕。
+
+第 5 个命令：git log
+在命令行窗口的光标处，输入git log"命令，打印 Git 仓库提交日志：
+显示了我们的提交记录，提交记录的内容包括Author提交作者、Date提交日期和提交信息。
+在提交记录的Author部分，显示了提交作者的名字和提交作者的邮箱，不过这当然不是 Git 自动生成的啦，而是事先进行了设置
+
+第 6 个命令：git branch
+在命令行窗口的光标处，输入git branch命令，查看 Git 仓库的分支情况：
+如上所示，显示了仓库demo中的分支情况，现在仅有一个master分支，其中master分支前的*号表示“当前所在的分支”
+例如* master就意味着我们所在的位置为demo仓库的主分支。输入命令git branch a,创建一个名为a的分支，并且当前的位置仍然为主分支。
+
+第 7 个命令：git checkout
+在命令行窗口的光标处，输入git checkout a命令，切换到a分支：
+此外，我们也可以在创建分支的同时，直接切换到新分支,例如输入git checkout -b b命令：我们在a分支下创建b分支（b为a的分支），并直接切换到b分支。
+
+第 8 个命令：git merge
+切换到master分支，然后输入git merge a命令，将a分支合并到master分支：
+此外，在这里需要注意一点，那就是：在合并分支的时候，要考虑到两个分支是否有冲突，如果有冲突，则不能直接合并，需要先解决冲突；反之，则可以直接合并。
+
+第 9 个命令：git branch -d & git branch -D
+在命令行窗口的光标处，输入git branch -d a命令，删除a分支：
+我们已经将分支a删除啦！不过有的时候，通过git branch -d命令可以出现删除不了现象，例如分支a的代码没有合并到主分支等，这时如果我们一定要删除该分支，那么我们可以通过命令git branch -D进行强制删除。
+
+第 10 个命令：git tag
+在命令行窗口的光标处，输入git tag v1.0命令，为当前分支添加标签：
+我们为当前所在的a分支添加了一个v1.0标签。通过命令git tag即可查看标签记录：
+通过命令git checkout v1.0即可切换到a分支的v1.0标签

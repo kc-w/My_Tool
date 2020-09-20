@@ -1,0 +1,13 @@
+Spark Streaming是核心Spark API的扩展，可实现实时数据流的可扩展，高吞吐量，容错流处理(可以在数据流上应用Spark的机器学习和图形处理算法)。
+
+
+从kafka,flume,hdfs获取数据经过spark Streaming处理存储到hdfs或者数据库中
+ 
+具体工作原理如下:
+	1:Spark Streaming接受实时输入的数据流并将数据变成批处理传给Spark Engine(spark引擎)
+	2:Spark Engine处理Spark Streaming传过来的批处理数据再批量生成最终结果流
+
+
+Spark Streaming提供称为DStream(离散流)的高级抽象，表示连续的数据流。
+DStream可以从来自Kafka，Flume和Kinesis等源的输入数据流创建，也可以通过在其他DStream上应用高级操作来创建。在内部，DStream表示为一系列 RDD。
+

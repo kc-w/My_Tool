@@ -1,0 +1,148 @@
+service是一个后台运行的组件，执行长时间运行且不需要用户交互的任务。即使应用被销毁也依然可以工作。服务基本上包含两种状态
+需继承Service类.
+Started:
+    Android的应用程序组件，如活动，通过startService()启动了服务，则服务是Started状态。
+    一旦启动，服务可以在后台无限期运行，即使启动它的组件已经被销毁。
+
+Bound:
+    当Android的应用程序组件通过bindService()绑定了服务，则服务是Bound状态。
+    Bound状态的服务提供了一个客户服务器接口来允许组件与服务进行交互，如发送请求，获取结果，甚至通过IPC来进行跨进程通信。
+
+onStartCommand()
+    其他组件(如活动)通过调用startService()来请求启动服务时，系统调用该方法。
+    如果你实现该方法，你有责任在工作完成时通过stopSelf()或者stopService()方法来停止服务。
+onBind
+    当其他组件想要通过bindService()来绑定服务时，系统调用该方法。
+    如果你实现该方法，你需要返回IBinder对象来提供一个接口，以便客户来与服务通信。
+    你必须实现该方法，如果你不允许绑定，则直接返回null。
+onUnbind()
+    当客户中断所有服务发布的特殊接口时，系统调用该方法。
+onRebind()
+    当新的客户端与服务连接，且此前它已经通过onUnbind(Intent)通知断开连接时，系统调用该方法。
+onCreate()
+    当服务通过onStartCommand()和onBind()被第一次创建的时候，系统调用该方法。该调用要求执行一次性安装。
+onDestroy()
+    当服务不再有用或者被销毁时，系统调用该方法。
+    你的服务需要实现该方法来清理任何资源，如线程，已注册的监听器，接收器等。
+
+
+服务是一个通用入口点，用于因各种原因使应用在后台保持运行状态。
+它是一种在后台运行的组件，用于执行长时间运行的操作或为远程进程执行作业。
+服务不提供界面。例如，当用户使用其他应用时，服务可能会在后台播放音乐或通过网络获取数据，但这不会阻断用户与 Activity 的交互。
+诸如 Activity 等其他组件可以启动服务，使该服务运行或绑定到该服务，以便与其进行交互。
+
+startService:
+执行startService时，Service会经历onCreate->onStartCommand。调用者如果没有stopService，Service会一直在后台运行。
+多次调用startService，该Service只能被创建一次，即该Service的onCreate方法只会被调用一次。
+但是每次调用startService，onStartCommand方法都会被调用。
+
+bindService:
+执行bindService时，Service会经历onCreate->onBind。这个时候调用者和Service绑定在一起。
+调用者调用unbindService方法或者调用者Context不存在了(如Activity被finish了),Service就会调用onUnbind->onDestroy。
+多次执行bindService时，onCreate和onBind方法并不会被多次调用，即并不会多次创建服务和绑定服务。
+
+onBind回调方法将返回给客户端一个IBinder接口实例,IBinder允许客户端回调服务的方法,比如得到Service运行的状态或其他操作
+
+startService和bindService
+一个Service又被启动又被绑定，则该Service会一直在后台运行,管如何调用，onCreate始终只会调用一次。
+对应startService调用多少次，Service的onStart方法便会调用多少次。
+Service的终止，需要unbindService和stopService同时调用才行。
+
+如果你只是想要启动一个后台服务长期进行某项任务，那么使用startService便可以了。
+如果你还想要与正在运行的Service取得联系，那么有两种方法：一种是使用broadcast，另一种是使用bindService。
+前者的缺点是如果交流较为频繁，容易造成性能上的问题，而后者则没有这些问题。
+
+
+
+
+public class MService extends Service {
+    /**
+    * 首次创建服务时，系统将调用此方法来执行一次性设置程序（在调用 onStartCommand() 或 onBind() 之前）。
+    * 如果服务已在运行，则不会调用此方法。该方法只被调用一次
+    */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+    /**
+    * 每次通过startService()方法启动Service时都会被回调。
+    */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+    /**
+    * 服务销毁时的回调
+    */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+    /**
+    * 绑定服务时才会调用 必须要实现的方法
+    */
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+}
+
+
+在清单文件声明
+定义了上面的Service之后，接下来需要在Androidmaniferst.xml文件中配置该Service,配置Service使用<service../>元素。
+与配置Activity显示的是，配置Service时也可为<service../>元素配置<intent-filter.../>子元素，用于说明该Service可被那些Intent启动。
+<application
+        ...
+        <service android:name=".MService" >
+            <intent-filter>
+                <action android:name="..." />
+            </intent-filter>
+        <service/>
+</application>
+
+
+Service包含的属性有
+<service android:enabled=["true" | "false"]
+    android:exported=["true" | "false"]
+    android:icon="drawable resource"
+    android:isolatedProcess=["true" | "false"]
+    android:label="string resource"
+    android:name="string"
+    android:permission="string"
+    android:process="string" >
+    . . .
+</service>
+
+
+属性	        说明
+description	    对服务进行描述，属性值应为对字符串资源的引用，以便进行本地化
+directBootAware	设置是否可以在用户解锁设备之前运行，默认值为“false”
+enabled	        设置是否可以由系统来实例化服务。< application >元素有自己的enabled属性，适用于包括服务在内的所有应用程序组件。要启用服务，< application >和< service >属性必须都为“true”（默认情况下都为true）。如果其中一个是“false”，则服务被禁用
+exported	    设置其他应用程序的组件是否可以调用本服务或与其交互，如果可以，则为“true”。当值为“false”时，只有同一个应用程序或具有相同用户ID的应用程序的组件可以启动该服务或绑定到该服务。该属性的默认值取决于服务是否包含Intent filters。没有任何过滤器意味着它只能通过指定其确切的类名来调用，这意味着该服务仅用于应用程序内部使用（因为其他人不知道类名）。所以在这种情况下，默认值为“false”。 另一方面，如果存在至少一个过滤器，意味着该服务打算供外部使用，因此默认值为“true”
+icon	        服务的图标，属性值应是对drawable资源的引用。如果未设置，则将使用应用程序图标
+isolatedProcess	设置该服务是否作为一个单独的进程运行，如果设置为true，此服务将在与系统其余部分隔离的特殊进程下运行，并且没有自己的权限，与它唯一的通信是通过服务API（绑定和启动）
+label	        可以向用户显示的服务的名称，属性值应是对字符串资源的引用
+name	        服务类的完全限定名
+permission	    设定组件必须具有的权限，得以启动服务或绑定服务。如果startService（），bindService（）或stopService（）的调用者没有被授予此权限，则该方法将不会工作，并且Intent对象不会传递到服务中
+process	        用来运行服务的进程的名称。通常，应用程序的所有组件都运行在应用程序创建的默认进程中，它与应用程序包名具有相同的名称。 < application >元素的process属性可以为所有组件设置不同的默认值，但组件可以使用自己的进程属性覆盖默认值，从而允许跨多个进程扩展应用程序
+
+
+
+
+onStartCommand()的返回值有三种可选值， START_STICKY，START_NOT_STICKY，START_REDELIVER_INTENT，它们具体含义如下：
+
+START_STICKY
+当Service因内存不足而被系统kill后，一段时间后内存再次空闲时，系统将会尝试重新创建此Service，一旦创建成功后将回调onStartCommand方法，
+但其中的Intent将是null，除非有挂起的Intent，如pendingintent，这个状态下比较适用于不执行命令、但无限期运行并等待作业的媒体播放器或类似服务。
+
+START_NOT_STICKY
+当Service因内存不足而被系统kill后，即使系统内存再次空闲时，系统也不会尝试重新创建此Service。
+除非程序中再次调用startService启动此Service，这是最安全的选项，可以避免在不必要时以及应用能够轻松重启所有未完成的作业时运行服务。
+
+START_REDELIVER_INTENT
+当Service因内存不足而被系统kill后，则会重建服务，并通过传递给服务的最后一个 Intent 调用 onStartCommand()，任何挂起 Intent均依次传递。
+与START_STICKY不同的是，其中的传递的Intent将是非空，是最后一次调用startService中的intent。
+这个值适用于主动执行应该立即恢复的作业（例如下载文件）的服务。
+
+

@@ -1,0 +1,32 @@
+use db
+go
+/*添加列
+alter table book
+add bookname varchar(10) not null
+go
+*/
+if exists(select name
+          from sysobjects
+		  where name='cunchuguocheng'
+		  )
+drop procedure cunchuguocheng--如果条件成立，删除存储过程
+go
+
+create procedure cunchuguocheng--创建存储过程
+as
+  select *
+  from book
+go
+
+alter procedure cunchuguocheng--修改存储过程
+as
+  select *
+  from book
+  where student='小一'
+go
+
+exec sp_helptext'cunchuguocheng'--查看存储过程
+go
+
+exec cunchuguocheng--执行存储过程
+go

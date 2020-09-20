@@ -1,0 +1,73 @@
+在项目的main目录下单击右键新建jni目录
+
+在jni文件夹下新建Android.mk文件
+    LOCAL_PATH :=$(call my-dir)
+    include $(CLEAR_VARS)
+    #编译后的so文件名
+    LOCAL_MODULE :=hello
+    #需要编译的c文件名
+    LOCAL_SRC_FILES :=hello.c
+    #编译为动态文件
+    include $(BUILD_SHARED_LIBRARY)
+
+
+在包中创建一个类实现native方法,使用javah工具生成.h头文件
+
+在jni文件中创建一个c文件,引入生成的头文件,实现头文件中的方法
+
+在local.properties文件中添加ndk.dir=D\:\\Android\\Sdk\\ndk\\21.0.6113669
+
+
+=============手动编译so文件后运行程序=====================
+打开android studio里的settings/Tools/External Tools
+
+添加ndk-build(编译android.mk)命令
+name:ndk-build
+program:D:\Android\Sdk\ndk\21.1.6352462\ndk-build.cmd
+Working directory:$ModuleFileDir$
+
+添加配置javah，用于生成Jni的头文件
+Program:$JDKPath$\bin\javah.exe 
+Arguments:-classpath . -jni -d $ModuleFileDir$/jni $FileClass$
+Working directory:$ModuleFileDir$/src/main/java
+
+在jni文件夹下新建Application.mk(用于指定编译平台)文件
+    APP_ABI := all
+
+在app文件夹下的build.gradle的android标签内添加
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            jni.srcDirs = [] //禁止自动调用ndk-build
+        }
+    }
+
+右键单击jni目录使用ndk-build工具编译c文件，生成so文件
+
+编译so文件完成后临时生成的obj文件夹和jni文件夹可以一起删除
+
+
+
+=============执行自动编译so并打包到APK运行=====================
+
+在app文件夹下的build.gradle中的defaultConfig里加入如下代码(这就可以不需要Application.mk来声明API)
+    ndk{
+        moduleName "hello"       //生成的so文件名字，调用C程序的代码中会用到该名字
+        abiFilters 'arm64-v8a' // 指定ABI:'armeabi','x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+    }
+
+
+在app文件夹下的build.gradle的android标签内添加
+    externalNativeBuild {
+        ndkBuild {
+            path file('jni/Android.mk')
+        }
+    }
+
+
+
+在gradle.properties文件中添加android.useDeprecatedNdk=true
+
+
+
+

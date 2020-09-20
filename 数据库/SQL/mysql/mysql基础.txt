@@ -1,0 +1,47 @@
+调用数据库
+use 数据库名;
+
+显示所有表列表
+show 数据库名;
+
+展示表中的字段信息
+desc 表明;
+
+创建数据库
+create 数据库名;
+
+删除数据库
+drop database 数据库名称;
+
+创建表
+create table 表名(
+字段名 字段属性 auto_increment,
+)
+
+删除表
+drop table 表名称;
+
+仅删除表中所有数据而不删除表
+truncate table 表名称;
+
+查询表数据
+select * from 表名；
+
+为表中添加列
+alter table 表名 add 要添加的列名 列名的属性;
+
+删除表中的列
+alter table 表名 drop column 列名称;
+
+更改表中列的名称
+alter table 表名 alter column 列名称 列名属性;
+
+
+增加数据
+insert into 表名(字段1，字段2，字段3...) values(值1，值2，值3...);
+
+修改数据
+update 表名 set 列名=新的值 where 条件;
+
+删除数据
+delete from 表名 where 条件;

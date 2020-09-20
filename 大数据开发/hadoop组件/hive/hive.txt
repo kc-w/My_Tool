@@ -1,0 +1,78 @@
+hive是基于Hadoop的一个数据仓库工具，可以将结构化的数据文件映射为一张表，并提供sql查询功能，把sql语句转换为MapReduce任务进行运行。
+hive可以通过类SQL语句快速实现简单的MapReduce统计，不必开发专门的MapReduce应用，十分适合数据仓库的统计分析。
+Hive是建立在Hadoop上的数据仓库。它可以把数据提取转化加载（ETL），这是一种可以存储、查询和分析存储在hdfs中的大规模数据的机制。
+
+使用场景:
+	Hive 构建在基于静态批处理的Hadoop 之上，Hadoop 通常都有较高的延迟并且在作业提交和调度的时候需要大量的开销。
+	Hive 并不能够在大规模数据集上实现低延迟快速的查询，例如，Hive 在几百MB 的数据集上执行查询一般有分钟级的时间延迟。
+	Hive 并不适合那些需要低延迟的应用，例如，联机事务处理（OLTP）。
+	Hive 的最佳使用场合是大数据集的批处理作业，例如，网络日志分析。
+
+特征:
+	Hive在把数据文件加载到hdfs中时不会对文件进行修改，因此Hive不支持对数据的改写和添加，所有的数据都是在加载的时候确定的。
+	支持索引，加快数据查询。
+	支持不同的存储类型，例如，纯文本文件、HBase 中的文件。
+	支持将元数据保存在关系数据库中，大大减少了在查询过程中执行语义检查的时间。
+	支持类SQL 的查询方式，将SQL 查询转换为MapReduce 的job 在Hadoop集群上执行。
+	内置大量用户函数UDF 来操作时间、字符串和其他的数据挖掘工具，支持用户扩展UDF 函数来完成内置函数无法实现的操作。
+	
+体系结构:
+	用户接口:
+		CLI，Client 和 WUI。
+		其中最常用的是 CLI，Cli 启动的时候，会同时启动一个 Hive 副本。
+		Client 是 Hive 的客户端，在启动 Client 模式的时候，需要指出 Hive Server 所在节点，并且在该节点启动 Hive Server。
+		WUI 是通过浏览器访问 Hive。
+	元数据存储:
+		Hive 将元数据存储在数据库中，如 mysqlHive中的元数据包括表的名字，表的列和分区及其属性（是否为外部表等），表的数据所在目录等。
+	解释器、编译器、优化器、执行器:
+		解释器、编译器、优化器完成 HQL 查询语句从词法分析、语法分析、编译、优化以及查询计划的生成。
+		生成的查询计划存储在 HDFS 中，并在随后由 MapReduce 调用执行。
+
+数据存储:
+	Hive 没有专门的数据存储格式，用户可以自由的组织Hive中的表，只需要在建表的时候告诉Hive数据的列分隔符和行分隔符，Hive 就可以解析数据。
+	Hive 中所有的数据都存储在 HDFS 中，Hive 中包含以下数据模型：表(Table)，外部表(External Table)，分区(Partition)，桶(Bucket)。
+	Hive 中的表和数据库中的表在概念上是类似的,每一个Table在Hive中都有一个相应的目录存储数据。
+	例如，一个表 pvs，它在 HDFS 中的路径为：/wh/pvs，其中，wh 是在 hive-site.xml 中由 ${hive.metastore.warehouse.dir} 指定的数据仓库的目录，所有的 Table 数据（不包括 External Table）都保存在这个目录中。
+	
+	Hive 中的Partition是类似于数据库的密集索引，但是Hive中的Partition组织方式和数据库中的很不相同。
+	Hive 中，表中的一个Partition对应于hdfs下的一个目录，所有的Partition数据都存储在表目录下的对应的目录中。
+	例如：pvs 表中包含 ds 和 city 两个 Partition，则对应于 ds = 20090801, city = US 的 HDFS 子目录为：/wh/pvs/ds=20090801/city=US；对应于 ds = 20090801, city = CA 的 HDFS 子目录为；/wh/pvs/ds=20090801/city=CA
+	
+	Hive 中的Buckets对指定列计算hash，根据hash值切分数据，目的是为了并行，每一个 Bucket 对应一个文件。
+	例如：将user列分散至 32 个 bucket，首先对 user 列的值计算 hash，对应 hash 值为 0 的 HDFS 目录为：/wh/pvs/ds=20090801/ctry=US/part-00000；hash 值为 20 的 HDFS 目录为：/wh/pvs/ds=20090801/ctry=US/part-00020
+	
+	Hive 中的External Table指向已经在HDFS中存在的数据，可以创建Partition。它和Table在元数据的组织上是相同的，而实际数据的存储则有较大的差异。
+	
+	External Table和Table的差别:
+		Table在导入数据的过程中，实际数据会被移动到数据仓库目录中；之后对数据对访问将会直接在数据仓库目录中完成。删除表时，hdfs中的数据和存储在mysql中的元数据将会被同时删除。
+		External Table是存储在 LOCATION 后面指定的 HDFS 路径中，并不会移动到数据仓库目录中。当删除一个External Table时，仅删除存储在mysql中的元数据，hdfs中的数据不会被删除。
+
+		
+优化方式:
+	1、join连接时的优化：当三个或多个以上的表进行join操作时，如果每个on使用相同的字段连接时只会产生一个mapreduce。
+	2、join连接时的优化：当多个表进行查询时，从左到右的连接顺序为小表到大表。因为hive在对每行记录操作时会把其他表先缓存起来，直到扫描最后的表进行计算任务。
+	3、在进行where查询之前进行分区(Partition)操作。
+	4、当可以使用left join语法时不要使用inner join，前者效率更高。原因：对于左表中指定的一条记录，一旦在右表中找到立即停止扫描。
+	5、limit调优：limit语句通常是执行整个语句后返回部分结果。set hive.limit.optimize.enable=true;
+	6、开启并发执行。某个job任务中可能包含众多的阶段，其中某些阶段没有依赖关系可以并发执行，开启并发执行后job任务可以更快的完成。设置属性：set hive.exec.parallel=true;
+	7、hive提供的严格模式，禁止3种情况下的查询模式。
+		a：当表为分区表时，where字句后没有分区字段和限制时，不允许执行。
+		b：当使用order by语句时，必须使用limit字段，因为order by 只会产生一个reduce任务。
+		c：限制笛卡尔积的查询。
+	8、合理的设置map和reduce数量。
+	9、jvm重用。可在hadoop的mapred-site.xml中设置jvm被重用的次数。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

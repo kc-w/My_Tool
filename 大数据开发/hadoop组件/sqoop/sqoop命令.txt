@@ -1,0 +1,107 @@
+export	从hdfs中把数据导出到databases中
+import	从数据库中把一个表数据导到hdfs中
+import-all-tables	从数据库中把多个表数据导到hdfs中
+
+--append	在HDFS数据附加到一个现有的数据集
+--as-textfile	进口数据作为纯文本(默认)
+--delete-target-dir	如果导入的目录存在则删除
+--direct	如果存在数据库则直接使用
+--fetch-size	<n>	从数据库读取多少项
+-m,--num-mappers	<n>	指定map数量
+--fields-terminated-by	指定hive表的分割字符
+--split-by	<column-name>	列的表用来分割
+--split-limit	<n>	为每个分割大小上限。这只适用于整数和日期列。日期或时间戳字段以秒计算。
+--table <table-name>	指定表名
+--target-dir <dir>	指定hdfs目录
+--temporary-rootdir <dir>	创建临时hdfs目录导入
+--columns <col,col,col…>	指定导入的到hive的字段
+-e,--query	<sql>	查询指定结果($CONDITIONS)(--target-dir)(--split-by)
+--where		<sql>	限定查询条件
+-z,--compress	启用压缩
+--compression-codec <c>	使用Hadoop编解码器(默认gzip)
+--null-string <null-string>	空值的字符串写入字符串列
+
+--check-column (col)		指定增量检查的字段
+--last-value (value)		设置检查字段的最大值以后的值进行增量插入
+--incremental (mode)		指定增量模式
+
+注：如果要使用 --direct参数，需要将mysqldump文件添加每台datanode的/usr/bin下
+也就是说mysqldump操作是由集群中的datanode节点来执行
+
+mysql命令:把linux系统文件导入mysql,字段之间以\t分割,记录之间以\n分割
+load data infile '/job.tsv' into table test_db.table1 fields terminated by'\t' lines terminated by'\n';
+
+
+增量导出数据到hdfs中
+sqoop import --connect jdbc:mysql://hadoop1:3306/test_db \
+--username root \
+--password 123456 \
+--query 'select id,name from table where $CONDITIONS' \		//自定义查询条件("select id,name from table where id=1 and \$CONDITIONS")
+--target-dir /Sqoop \		//指定查出的结果保存在hdfs的目录
+--split-by id \
+--table table1 \
+--m 1 \
+--incremental append \
+--check-column id \
+--last-value 2
+
+
+
+通过文本来执行sqoop
+sqoop --options-file filename
+
+
+
+
+
+
+指定的文本内容格式
+(mysql导入数据到Hive,先在hive中创建相对应的表)
+
+import
+
+--connect
+jdbc:mysql://192.168.2.111:3306/test_db
+--username
+root
+--password
+123456
+--table
+table1
+--columns
+no1,no2,no3,no4,no5,no6
+where
+no1=1
+--fields-terminated-by
+,
+--delete-target-dir
+--num-mappers
+3
+--hive-import
+--hive-database
+test
+--hive-table
+table1
+
+
+(从hive导出到mysql,先在mysql中创建相对应的表)
+
+export
+
+--connect		//导出的数据库链接
+jdbc:mysql://hadoop1:3306/test_db
+--driver
+com.mysql.jdbc.Driver
+--username		//数据库的用户名
+root
+--password		//数据库密码
+123456
+--table		//mysql的表名
+table1
+--fields-terminated-by		//指定hive的表的分隔符
+'\t'
+--num-mappers		//map数
+1
+--export-dir		//导出的hive路径
+/user/hive/warehouse/test_db/table1
+--direct

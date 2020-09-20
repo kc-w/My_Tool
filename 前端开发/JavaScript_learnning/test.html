@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<link href="js/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+		
+	</head>
+	<body>
+		
+		<p id="a">444</p>
+		<script>
+			var a=$("#a").attr("id");
+			console.log(a);
+			$("#a").attr({"id":"aaaa"});
+			var a=$("#aaaa").attr("id");
+			console.log(a);
+		</script>
+	</body>
+</html>

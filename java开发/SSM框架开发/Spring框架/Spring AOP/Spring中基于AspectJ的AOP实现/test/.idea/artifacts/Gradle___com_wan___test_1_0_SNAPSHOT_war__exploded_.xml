@@ -1,0 +1,35 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="Gradle : com.wan : test-1.0-SNAPSHOT.war (exploded)">
+    <output-path>$PROJECT_DIR$/build/libs/exploded/test-1.0-SNAPSHOT.war</output-path>
+    <properties id="gradle-properties">
+      <options external-project-path="$PROJECT_DIR$">
+        <manifest>TWFuaWZlc3QtVmVyc2lvbjogMS4wDQoNCg==</manifest>
+      </options>
+    </properties>
+    <root id="root">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/build/libs/exploded/test-1.0-SNAPSHOT.war/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="test_main/web/Web Gradle : test-1.0-SNAPSHOT.war" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="test_main" />
+          <element id="dir-copy" path="$PROJECT_DIR$/out/production/resources" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="file-copy" path="$PROJECT_DIR$/libs/aopalliance-1.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-tx-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-jdbc-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-expression-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-core-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-context-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-beans-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-aspects-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/spring-aop-4.3.6.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/aspectjweaver-1.8.13.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/libs/commons-logging-1.2.jar" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

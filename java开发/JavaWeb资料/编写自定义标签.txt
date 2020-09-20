@@ -1,0 +1,121 @@
+在JSP页面中，最为理想的代码结构是页面中不含有Java代码，只含有HTML代码和部
+分标签代码，Java代码只存在于业务逻辑处理的后台中。JSTL标签使得
+JSP中的Java代码得到简化，页面逻辑更加清晰.
+
+在实际的应用中，自定义标签应用最多的是自定义分页标签，读者可以根据分页原理自定
+义出一份分页标签，这样在实现应用时可以减少大量的开发工作。如果读者需要进行更为高端
+的开发(比如开发自己的框架或者中间件等)时，那么自定义标签就显得尤为重要了。
+
+新建一个自定义标签如下：
+【1】编写自定义标签实现类：(Copy类若不是在编译器中编写，则需要进行编译，然后将编译好的Copy.class文件放在项目的WEB-INF\classes下面)
+public class Copy extends TagSupport{
+   public int doStartTag(){
+      String copyright="清华版权所有&nbsp;&nbsp;&copy2015"
+      try{
+         pageContext.getOut().print(copyRight);
+      }catch(IOException e){
+         e.printStackTrace();
+      }
+   return EVAL_PAGE;
+   }
+   public int doEndTag(){
+      return EVAL_PAGE;
+   }
+}
+         
+      
+【2】配置标签：（自定义标签需要自己编写.tld文件。tld文件需要保存在项目的WEB-INF目录下，为了管理方便可以在该目录下新建tlds文件夹放入）
+copyright.tld
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE taglib>
+<taglib>
+   <tilb-version>1.0</tilb-version>//标签库版本号
+   <jsp-version>1.2</jsp-version>//JSP版本号
+   <short-name>lms</short-name>//当前标签库的前缀
+   <uri>/copyr-tags</uri>//页面引用的自定义标签uri地址
+   <tag>
+      <!--自定义标签名称，在jsp页面中通过它来使用标签-->
+      <name>copyright</name>
+      <!--自定义标签的实现类路径-->
+      <tag-class>com.Copy</tag-class>
+      <!--正文内容类型-->
+      <body-content>empty</body-content>
+      <!--自定义标签的功能描述-->
+      <description>自定义版权</description>
+   <tag>
+</taglib>
+【上述文件,只有一对taglib标签，而taglib标签里可以有多个tag标签，每个tag标签代表一个自定义标签的含义。上述自定义标签的含义是定义一个copyright的自定义标签，其对应的实现类是com.Copy，该标签不需要标签内容，并且没有指定属性。】
+
+【3】使用自定义标签：
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="linl" uri="/copyr-tags"%>
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <title></title>
+   </head>
+   <body>
+      <linl:copyright/>
+   <body>
+</html>
+【引用自定义标签copyright.tld标签库时通过prefix属性指定了标签前缀linl，那么在页面中使用自定义标签时就可以直接使用标签<linl:copyright/>来引用标签库copyright.tld中的copyright标签】
+
+
+
+tld标签库描述文件实质是采用XML文件格式进行描述的，tld文件中常用的元素有taglib、tag、attribute和variable。
+
+#标签库元素<taglib>属性如下：[<taglib>元素是用来设置整个标签库信息的]
+tlib-version：标签库版本号
+jsp-version：JSP版本号
+short-name：当前标签库的前缀
+uri：页面引用的自定义标签uri地址
+tag：定义标签的具体内容
+
+#标签元素<tag>属性如下：[<tag>元素用来定义标签的具体内容]
+name：自定义标签名称
+tag-class：自定义标签实现类路径
+body-content：自定义标签正文内容类型，有3个值empty(表示无标签体)、Jsp(表示标签体可以加入jsp程序代码)、tagdependent(表示标签体中的内容由标签自己处理)
+description：自定义标签的功能描述
+attribute：自定义标签功能指定属性，可以有多个
+variable：自定义标签的变量属性
+
+#标签属性元素<attribute>属性如下：[<attribute>元素指定标签<tag>中的属性]
+name：属性名称
+description：属性描述
+required：属性是否是必须的，默认为false
+rtexprvalue：属性值是否支持JSP表达式
+type：定义该属性的Java类型。默认为String
+fragment：如果声明了该属性，值将被视为一个JspFragment
+
+#标签变量元素<variable>属性如下：[<variable>元素用来定义标签<tag>中的变量属性]
+declare：变量声明
+description：变量描述
+name-from-attribute：指定的属性名称，其值为变量，在调用JSP页面可以使用的名字
+name-given：变量名(标签使用时的变量名)
+scope：变量的作用范围，NESTED(开始和结束标签之间)、AT_BEGIN(从开始标签到页面结束)、AT一END(在结束标签之后到页面结束)
+variable-class：变量的Java类型，默认String
+
+
+
+TagSupport类简介：（在JSP1.0中，自定义标签库的实现类大多继承TagSupport类来实现自身的方法，其实现了Tag接口，有4个重要的方法）
+
+int doStartTag()：遇到自定义标签开始时调用该方法，有2个可选值SKIP_BODY(表示不用处理标签体，直接调用doEndTag()方法)、EVAL_BODY_INCLUDE(正常执行标签体，但不对标签体做任何处理)
+
+int doAfterBody()重复执行标签体内容的方法，有2个可选值SKIP_BODY(表示不用处理标签体，直接调用doEndTag()方法)、EVAL_BODY_AGAIN(重复执行标签体内容)
+
+int doEndTag()有2个可选值SKIP_PAGE(忽略标签后面的JSP内容，中止JSP页面执行)、EVAL_PAGE(处理标签后，继续处理JSP后面的内容)
+
+void release()释放获得的资源
+
+各方法执行过程如下：
+（1）当页面中遇到自定义标签的开始标记，先建立一个标签处理对象，JSP容器回调setPageContext()方法，然后初始化自定义标签的属性值
+
+（2）JSP容器运行doStartTag()方法，如果该方法返回SKIP_BODY,则表示JSP忽略此标签主体的内容；如果返回EVAL_BODY_INCLUDE,则表示JSP容器会执行标签主体的内容，接着运行doAfterBody()方法
+
+（3）运行doAfLerBodyo方法，若返回EVAL0DY_AGAIN，则表示JSP容器再次执行标签主体的内容；返回SKIP_BODY,JSP容器将会运行doEndTago方法
+
+（4）运行doEndTag()方法，返回SKIP_PAGE,则表示JSP容器会忽略自定义标签之后的JSP内容；返回EVAL_PAGE,则运行自定义标签以后的JSP内容。
+
+
+
+带参数的自定义标签

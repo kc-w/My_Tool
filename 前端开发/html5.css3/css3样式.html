@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+</head>
+<style type="text/css">
+   body{
+	   text-align:center;
+	   color:black;
+	   font-size:60px;
+	   font-weight:10;
+	   /*应用多重背景*/
+	   background-image:url(../image/2.jpg),url(../image/3.jpg);
+	   background-position:20px 80px,50% 0;
+	   background-repeat:no-repeat,no-repeat;
+   }
+   div{
+	   background:#f00;
+	   float:left;
+	   width:100px;
+	   height:200px;
+	   margin:50px;
+   }
+   /*设置四个圆角半径为20px*/
+   #a{
+	  -moz-border-radius:20px;
+	  -webkit-border-radius:20px;
+	  border-radius:20px; 
+   }
+   /*设置左上角圆角半径为75px*/
+   #b{
+	  -moz-border-top-left-radius:75px;
+	  -webkit-border-top-left-radius:75xp;
+	  border-top-left-radius:75px; 
+   }
+   /*设置左上角和右下角圆角半径为50px，左下角和右上角的圆角半径为20px*/
+   img{
+	  -moz-border-radius:50px 20px;
+	  -webkit-border-radius:50px 20px;
+	  border-radius:50px 20px; 
+   }
+   /*阴影向右偏移3px，向下偏移3px*/
+   #p1{
+	   text-shadow:3px 3px #0C0;
+   }
+   /*阴影向左偏移3px，向上偏移3px*/
+   #p2{
+	    text-shadow:-3px -3px #0C0;
+   }
+   /*阴影向右偏移5px，向下偏移5px，模糊半径为10px*/
+   #p3{
+	    text-shadow:5px 5px 10px #0C0;
+   }
+   /*阴影向右偏移3px，向下偏移3px，模糊半径为10px*/
+   #p4{
+	    text-shadow:3px 3px 10px #F33;
+   }
+   /*多重阴影：第一个阴影向右偏移3px，向下偏移3px，第二个阴影向右偏移6px，向下偏移6px*/
+   #p5{
+	    text-shadow:3px 3px #0C0,
+		            6px 6px #36F;
+   }
+   #p6{
+	   height:600px;
+	   width:600px;
+	   margin-top:100px;
+	   /*从左到右的线性变化*/
+	   background:#000;
+	   background:linear-gradient(to right,#666,#000,#333);
+   }
+   #p7{
+	   height:600px;
+	   width:600px;
+	   /*渐变线角度为30度的线性渐变*/
+	   background:#000;
+	   background:linear-gradient(30deg,#ccc,#000);
+   }
+   #p8{
+	   height:600px;
+	   width:600px;
+	   /*渐变原点在顶部的径向渐变*/
+	   background:#000;
+	   background:radial-gradient(at top,#ccc,#000);
+   }
+   #p9{
+	   height:600px;
+	   width:600px;
+	   /*多种颜色的渐变*/
+	   background:#000;
+	   background:linear-gradient(red 50%,blue 90%,yellow);
+   }
+   #p10{
+	   height:600px;
+	   width:600px;
+	   background:#000;
+	   /*设置径向渐变尺寸*/
+	   background:radial-gradient(100px 50px at bottom,yellow,red);
+   }
+   /*初始透明度*/
+   #d{
+	   opacity:0.2;
+   }
+   /*鼠标移动到第二个div时透明度变化*/
+   #d:hover{
+	   opacity:1;
+   }
+</style>
+<body>
+
+<div id="a"></div>
+<div id="b"></div>
+<img src="../image/1.jpg">
+
+<p id="p1">阴影效果</p>
+<p id="p2">阴影效果</p>
+<p id="p3">阴影效果</p>
+<p id="p4">阴影效果</p>
+<p id="p5">阴影效果</p>
+
+<p id="p6"></p>
+<p id="p7"></p>
+<p id="p8"></p>
+<p id="p9"></p>
+<p id="p10"></p>
+
+<div id="c">不透明</div>
+<div id="d">透明</div>
+
+</body>
+</html>

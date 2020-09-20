@@ -1,0 +1,36 @@
+import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.{SparkConf, SparkContext}
+
+
+object T_T {
+//只能打jar包使用脚本进行运行,无法在本地执行
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-hive")//打jar包运行时不加.setMaster("local")
+    val sc = new SparkContext(conf)
+
+    val sqlContext = new HiveContext(sc)
+
+    sqlContext.sql("create table wan.wan_test (key INT, value STRING)")
+    sqlContext.sql("load data inpath '/tt.txt' into table wan.wan_test")
+          .write.format("json")
+          .save("hdfs://192.168.2.121:8020/wan/")
+
+  }
+
+}
+
+
+---------------shell脚本---------------
+
+#!/bin/bash
+
+spark-submit \
+--class T_T \
+--master yarn \
+--deploy-mode cluster \
+--executor-memory 1G \
+--total-executor-cores 1 \
+/RDD.jar
+
+--jars /opt/cloudera/parcels/CDH-5.7.2-1.cdh5.7.2.p0.18/lib/hive-hcatalog/share/hcatalog/hive-hcatalog-core-1.1.0-cdh5.7.2.jar \ 当表为json文件导入的时候需要加(可选)

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!--配置  需要创建的对象  对象依赖关系的处理 -->
+	<!-- 4. 方式  自动装配-->
+	<bean id="userDao" class="cn.spring.e_autowire.UserDao"></bean>
+	<bean id="userService" class="cn.spring.e_autowire.UserService" autowire="byName"></bean>
+	<bean id="userAction" class="cn.spring.e_autowire.UserAction" autowire="byName"></bean>
+	
+</beans>      

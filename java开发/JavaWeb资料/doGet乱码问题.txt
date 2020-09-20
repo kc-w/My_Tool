@@ -1,0 +1,3 @@
+String username=request.getParameter("username")
+byte source[] =username.getBytes("iso8859-1");
+username=new String(source,"utf-8");

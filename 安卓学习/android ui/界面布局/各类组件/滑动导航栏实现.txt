@@ -1,0 +1,168 @@
+activity_main.xml文件,tablayout和viewpager互换位置可以为上下导航
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" xmlns:android.support.design="http://schemas.android.com/tools"
+              android:orientation="vertical">
+
+<!--    app:tabIndicatorHeight="90dp"  设置选项卡导航条高度-->
+<!--    app:tabIndicatorColor="@color/black"  设置选项卡导航条颜色-->
+<!--    app:tabSelectedTextColor="@color/black  设置选中选项卡的文字颜色-->
+<!--    app:tabTextColor="@color/green"  设置选项卡的默认文字颜色-->
+<!--    app:tabPaddingTop="10dp"  设置选项卡内部文字和顶部的距离-->
+<!--    app:tabMaxWidth="10dp"  设置单个选项卡的最大宽度-->
+<!--    app:tabMinWidth="10dp"  设置单个选项卡的最小宽度-->
+
+    <android.support.design.widget.TabLayout
+            android:id="@+id/sliding_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/gray"
+            app:tabTextColor="@color/black"
+            app:tabSelectedTextColor="@color/blue"/>
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+</LinearLayout>
+
+
+
+MainActivity.java
+
+public class MainActivity extends AppCompatActivity {
+
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+    private FragmentManager fm;
+    private List<Fragment> fragmentlist;
+    private FragmentAdapter adapter;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //实例化
+        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+
+
+        //页面，数据源
+        fragmentlist = new ArrayList<>();
+        fragmentlist.add(new Fragment1());
+        fragmentlist.add(new Fragment2());
+        fragmentlist.add(new Fragment3());
+        fragmentlist.add(new Fragment4());
+
+        fm = getSupportFragmentManager();
+        adapter = new FragmentAdapter(fm,fragmentlist);
+        //为viewpager设置适配器
+        mViewPager.setAdapter(adapter);
+        //绑定适配器
+        mTabLayout.setupWithViewPager(mViewPager);
+
+
+        ///MODE_SCROLLABLE可滑动的标题栏
+        //MODE_FIXED固定展示的标题栏
+        mTabLayout.setTabMode(TabLayout.MODE_FIXED);
+
+        //设置自定义tab视图
+        for (int i = 0; i < 4; i++) {
+            TabLayout.Tab tab = mTabLayout.getTabAt(i);
+            tab.setCustomView(adapter.getTabView(i,this,mTabLayout));
+        }
+
+
+    }
+
+
+}
+
+
+
+
+
+FragmentAdapter适配器
+
+public class FragmentAdapter extends FragmentPagerAdapter {
+
+    List<Fragment> fragmentlist;
+    FragmentManager fm;
+    private String[] titles = {"页面1", "页面2", "页面3","页面4"};
+    //每个tab的选中和未选择样式,这里使用同一个样式
+    private int images[] = {R.drawable.tab_selector};
+
+
+    public FragmentAdapter(FragmentManager fm, List<Fragment> fragmentlist) {
+        super(fm);
+        this.fm=fm;
+        this.fragmentlist=fragmentlist;
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        return fragmentlist.get(position);
+    }
+
+    @Override
+    public int getCount() {
+        return fragmentlist.size();
+    }
+
+    //自定义方法，提供自定义Tab样式
+    public View getTabView(int position, Context context, TabLayout tabLayout) {
+        View view = LayoutInflater.from(context).inflate(R.layout.tab_item, null);
+        TextView textView = (TextView) view.findViewById(R.id.tab_title);
+        ImageView imageView = (ImageView) view.findViewById(R.id.tab_icon);
+        //设置标题
+        textView.setText(titles[position]);
+        设置图片样式
+        imageView.setImageResource(images[0]);
+        //设置选中时的标题颜色
+        textView.setTextColor(tabLayout.getTabTextColors());
+
+        return view;
+    }
+
+}
+
+
+
+
+tab_item.xml  每个tab项的文字图标排布
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:orientation="vertical">
+
+    <ImageView
+            android:id="@+id/tab_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+
+    <TextView
+            android:id="@+id/tab_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+</LinearLayout>
+
+
+
+tab_selector.xml  图标选择样式(可以有多个,这里是所有tab项公用一个图标样式)
+
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/tab_true" android:state_selected="true" />
+    <item android:drawable="@drawable/tab" />
+</selector>

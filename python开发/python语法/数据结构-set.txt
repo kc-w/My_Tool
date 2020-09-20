@@ -1,0 +1,57 @@
+集合
+集合是一个无序不重复元素的集。基本功能包括关系测试和消除重复元素。
+可以用大括号({})创建集合。注意：如果要创建一个空集合，你必须用 set() 而不是 {} ；后者创建一个空的字典.
+
+
+集合的方法
+set()  #设置一个空集合
+set('asd') #设置一个集合{a,s,d}
+set({'ad','ad','sdf'}) #设置一个集合
+s.add(x)   #向集合中添加元素
+s.update({1,3})  #向集合中添加元素
+s.remove(x)  #移除集合中的元素,如果元素不存在则发生错误
+s.discard( x ) #移除集合中的元素,如果元素不存在不会发生错误
+s.pop()  #随机删除一个元素
+s.clear()  #清空集合
+x in s  #判断元素是否存在于集合中
+
+
+
+集合的用法
+student = {'Tom', 'Jim', 'Mary', 'Tom', 'Jack', 'Rose'}
+if('Rose' in student) :
+    print('Rose 在集合中')
+else :
+    print('Rose 不在集合中')
+	
+'Rose 在集合中'
+
+
+>>> basket = {'apple', 'orange', 'apple', 'pear', 'orange', 'banana'}
+>>> print(basket)                      # 删除重复的
+{'orange', 'banana', 'pear', 'apple'}
+>>> 'orange' in basket                 # 检测成员
+True
+>>> 'crabgrass' in basket
+False
+
+>>> # 以下演示了两个集合的操作
+...
+>>> a = set('abracadabra')
+>>> b = set('alacazam')
+>>> a                                  # a 中唯一的字母
+{'a', 'r', 'b', 'c', 'd'}
+>>> a - b                              # 在 a 中的字母，但不在 b 中
+{'r', 'd', 'b'}
+>>> a | b                              # 在 a 或 b 中的字母
+{'a', 'c', 'r', 'd', 'b', 'm', 'z', 'l'}
+>>> a & b                              # 在 a 和 b 中都有的字母
+{'a', 'c'}
+>>> a ^ b                              # 在 a 或 b 中的字母，但不同时在 a 和 b 中
+{'r', 'd', 'b', 'm', 'z', 'l'}
+
+
+集合推导式
+>>> a = {x for x in 'abracadabra' if x not in 'abc'}#遍历'abracadabra',将每个成员赋值到x并进行条件判断,满足条件的话就输出到集合中
+>>> a
+{'r', 'd'}

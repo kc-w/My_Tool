@@ -1,0 +1,156 @@
+这里的函数都是 JNIEnv 操作的相关函数，JNI_OnLoad 等 JavaVM 的方法不在这里介绍。
+
+一:获取版本
+1. jint GetVersion()
+说明：获取当前 JNI 的版本号
+返回:
+    #define JNI_VERSION_1_1 0x00010001
+    #define JNI_VERSION_1_2 0x00010002
+    #define JNI_VERSION_1_4 0x00010004
+    #define JNI_VERSION_1_6 0x00010006
+
+================================================================================
+
+二:类操作
+1. jclass FindClass(const char* name)
+说明：根据类的全路径找到相应的 jclass 对象
+示例：jclass mStringClass = env->FindClass("Ljava/lang/String;");
+
+2. jclass GetSuperclass(jclass clazz)
+说明：返回一个类的父类，如果 clazz 是 Object 类，没有父类，那么将返回 NULL
+示例：jclass clazz = env->GetSuperclass(mStringClass); // clazz is Ljava/lang/Object;
+
+3. jboolean IsAssignableFrom(jclass clazz1, jclass clazz2)
+说明：判断类1是否可以安全的强制转换类2
+
+==============================================================================
+
+三:对象操作
+1. jobject AllocObject(jclass clazz)
+说明：不调用构造方法创建实例
+
+2. jobject NewObject(jclass clazz, jmethodID methodID, …)
+3. jobject NewObjectA(jclass clazz, jmethodID methodID, jvalue* args)
+4. jobject NewObjectV(jclass clazz, jmethodID methodID, va_list args)
+说明：使用指定的构造方法创建类的实例，唯一不同的是输入参数的传入形式不同
+示例：
+    jclass rect_clazz = env->FindClass("android/graphics/Rect");
+    jmethodID rect_constructor = env->GetMethodID(rect_clazz, "<init>", "()V");
+    jobject rect = env->NewObject(rect_clazz, rect_constructor);
+
+
+5. jclass GetObjectClass(jobject obj)
+说明：根据对象获取所属类
+
+6. jobjectRefType GetObjectRefType(jobject obj)
+说明：获取到对象的引用类型，JNI 1.6 新增的方法
+返回:
+    JNIInvalidRefType = 0 // 该 obj 是个无效的引用
+    JNILocalRefType = 1 // 该 obj 是个局部引用
+    JNIGlobalRefType = 2 // 该 obj 是个全局引用
+    JNIWeakGlobalRefType = 3 // 该 obj 是个全局的弱引用
+
+7. jboolean IsInstanceOf(jobject obj, jclass clazz)
+说明：判断某个对象是否是指定类的实例
+
+8. jboolean IsSameObject(jobject ref1, jobject ref2)
+说明：判断两个对象的引用是否指向的是相同的 Java 对象
+
+=============================================================
+
+四、域操作
+1. jfieldID GetFieldID(jclass clazz, const char name, const char sig)
+说明：获取类中某个非静态成员变量的ID（域ID）
+参数：
+    clazz：指定对象的类
+    name：这个域（Field）在 Java 类中定义的名字
+    sig：这个域（Field）的类型描述符
+示例：
+    jclass clazz = env->FindClass("android/graphics/Rect");
+    jfieldID left_field = env->GetFieldID(clazz, "left", "I");
+    jfieldID top_field = env->GetFieldID(clazz, "top", "I");
+    jfieldID right_field = env->GetFieldID(clazz, "right", "I");
+    jfieldID bottom_field = env->GetFieldID(clazz, "bottom", "I");
+
+2. NativeType Get<type>Field(jobject obj, jfieldID fieldID)
+说明：获取实例域的变量值，这里 type 表示的是一系列方法，如下：
+Get<type>Field Routine Name         Native Type
+GetObjectField()                    jobject
+GetBooleanField()                   jboolean
+GetByteField()                      jbyte
+GetCharField()                      jchar
+GetShortField()                     jshort
+GetIntField()                       jint
+GetLongField()                      jlong
+GetFloatField()                     jfloat
+GetDoubleField()                    jdouble
+
+参数：
+    obj：某个 Java 对象实例
+    fieldID：这个变量的域ID
+示例：
+    jobject rect; // 初始化过程省略
+    jclass clazz = env->FindClass("android/graphics/Rect");
+    jfieldID left_field = env->GetFieldID(clazz, "left", "I");
+    jint left = env->GetIntField(rect, left_field);
+
+3. void Set<type>Field(jobject obj, jfieldID fieldID, NativeType value)
+说明：修改实例域的变量值，这里 type 对应上面的 Get 方法，不再累述
+
+参数：
+    obj：需要修改的 Java 对象实例
+    fieldID：这个变量的域ID
+    value：需要设置的值
+示例：
+    jobject rect; // 初始化过程省略
+    jclass clazz = env->FindClass("android/graphics/Rect");
+    jfieldID left_field = env->GetFieldID(clazz, "left", "I");
+    env->SetIntField(rect, left_field, 1);
+
+4. jfieldID GetStaticFieldID(jclass clazz, const char name, const char sig)
+说明：同 GetFieldID，只不过这里操作的是静态的域（Filed）
+
+5. NativeType GetStaticField(jobject obj, jfieldID fieldID)
+说明：同 GetField，只不过这里操作的是静态的域（Filed）
+
+6. void SetStaticField(jobject obj, jfieldID fieldID, NativeType value)
+说明：同 SetField，只不过这里操作的是静态的域（Filed）
+
+======================================================================
+
+五、方法操作
+
+1. jmethodID GetMethodID(jclass clazz, const char name, const char sig)
+说明：获取类中某个非静态方法的ID
+参数：
+    clazz：指定对象的类
+    name：这个方法在 Java 类中定义的名称，构造方法为 ““
+    sig：这个方法的类型描述符，例如 “()V”，其中括号内是方法的参数，括号后是返回值类型
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

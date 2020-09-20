@@ -1,0 +1,53 @@
+>>>list=[1,2,3,4]
+>>> it = iter(list)    # 创建迭代器对象
+>>> print (next(it))   # 输出迭代器的下一个元素
+1
+>>> print (next(it))
+2
+>>>
+
+
+list=[1,2,3,4]
+it = iter(list)    # 创建迭代器对象
+for x in it:
+    print (x, end=" ")
+	
+	
+import sys         # 引入 sys 模块
+ 
+list=[1,2,3,4]
+it = iter(list)    # 创建迭代器对象
+ 
+while True:
+    try:
+        print (next(it))
+    except StopIteration:
+        sys.exit()  #如果不捕捉异常将退出
+		
+		
+		
+		
+import sys
+ 
+def fibonacci(n): # 生成器函数 - 斐波那契
+    a, b, counter = 0, 1, 0
+    while True:
+        if (counter > n): 
+            return
+        yield a
+        a, b = b, a + b
+        counter += 1
+f = fibonacci(10) # f 是一个迭代器，由生成器返回生成
+ 
+while True:
+    try:
+        print (next(f), end=" ")
+    except StopIteration:
+        sys.exit()
+		
+		
+		
+
+		
+os._exit(0)#直接结束程序,不执行后面的语句
+sys.exit(0)#如果抛出异常则执行异常语句,然后结束程序

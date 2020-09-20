@@ -1,0 +1,50 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="Gradle : com.wan : test-1.0-SNAPSHOT.war (exploded)">
+    <output-path>$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/build/libs/exploded/test-1.0-SNAPSHOT.war</output-path>
+    <properties id="gradle-properties">
+      <options external-project-path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test">
+        <manifest>TWFuaWZlc3QtVmVyc2lvbjogMS4wDQoNCg==</manifest>
+      </options>
+    </properties>
+    <root id="root">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/build/libs/exploded/test-1.0-SNAPSHOT.war/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="学习进度-test_main/web/Web Gradle : test-1.0-SNAPSHOT.war" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="学习进度-test_main" />
+          <element id="dir-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/out/production/resources" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/aopalliance-1.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/aspectjweaver-1.8.13.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/commons-logging-1.2.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/mysql-connector-java-5.1.42-bin.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/servlet-api.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-aop-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-aspects-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-beans-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-context-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-context-indexer-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-context-support-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-core-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-expression-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-instrument-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-jcl-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-jdbc-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-jms-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-messaging-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-orm-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-oxm-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-test-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-tx-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-web-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-webflux-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-webmvc-5.0.4.RELEASE.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../../../../Spring MVC框架/学习进度/test/libs/spring-websocket-5.0.4.RELEASE.jar" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

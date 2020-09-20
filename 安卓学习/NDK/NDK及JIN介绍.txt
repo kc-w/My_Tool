@@ -1,0 +1,9 @@
+JNI 是 Java Native Interface 的缩写，即 Java 的本地接口。
+目的是使得 Java 与本地其他语言（如 C/C++）进行交互。
+JNI 是属于 Java 的，与 Android 无直接关系。
+
+NDK 是 Native Development Kit 的缩写，是 Android 的工具开发包。
+作用是快速开发 C/C++ 的动态库，并自动将动态库与应用一起打包到 apk。
+NDK 是属于 Android 的，与 Java 无直接关系。
+
+JNI 是实现的目的，NDK 是 Android 中实现 JNI 的手段。

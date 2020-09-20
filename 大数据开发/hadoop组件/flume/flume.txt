@@ -1,0 +1,49 @@
+Flume是Cloudera提供的一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统。
+
+当前Flume有两个版本Flume 0.9X版本的统称Flume-og，Flume1.X版本的统称Flume-ng。
+由于Flume-ng经过重大重构，与Flume-og有很大不同，使用时请注意区分。
+
+Flume-og采用了多Master的方式。
+为了保证配置数据的一致性，Flume引入了ZooKeeper，用于保存配置数据，ZooKeeper本身可保证配置数据的一致性和高可用，
+另外，在配置数据发生变化时，ZooKeeper可以通知Flume Master节点。Flume Master间使用gossip协议同步数据。
+
+Flume-ng最明显的改动就是取消了集中管理配置的 Master 和 Zookeeper，变为一个纯粹的传输工具。
+Flume-ng另一个主要的不同点是读入数据和写出数据现在由不同的工作线程处理（称为 Runner）。
+在 Flume-og 中，读入线程同样做写出工作（除了故障重试）。如果写出慢的话（不是完全失败），它将阻塞 Flume 接收数据的能力。
+这种异步的设计使读入线程可以顺畅的工作而无需关注下游的任何问题。
+ 
+ 优点:
+ Flume可以将应用产生的数据存储到任何集中存储器中，比如HDFS,HBase
+ 当收集数据的速度超过将写入数据的时候，也就是当收集信息遇到峰值时，这时候收集的信息非常大，甚至超过了系统的写入数据能力，这时候，Flume会在数据生产者和数据收容器间做出调整，保证其能够在两者之间提供平稳的数据.
+ Flume的管道是基于事务，保证了数据在传送和接收时的一致性.
+ Flume是可靠的，容错性高的，可升级的，易管理的,并且可定制的。
+ 
+Agent主要由:source,channel,sink三个组件组成.
+Source:
+从数据发生器(Source)接收数据,并将接收的数据以Flume的event格式传递给一个或者多个通道channel
+
+Channel:
+channel是一种短暂的存储容器,它将从source处接收到的event格式的数据缓存起来,直到它们被sinks消费掉,
+它在source和sink间起着一共桥梁的作用,channal是一个完整的事务,这一点保证了数据在收发的时候的一致性.
+ 并且它可以和任意数量的source和sink链接. 支持的类型有: JDBC channel , File System channel , Memort channel等.
+ 
+sink:
+sink将数据存储到集中存储器比如Hbase和HDFS,它从channals消费数据(events)并将其传递给目标地. 目标地可能是另一个sink,也可能HDFS,HBase.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+打开C:\Users\kc\.gradle下的gradle.properties文件在下面加上
+
+
+org.gradle.jvmargs=-DsocksProxyHost=127.0.0.1 -DsocksProxyPort=10809

@@ -1,0 +1,210 @@
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+一个最小的 Flask 应用看起来会是这样
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello World!'
+
+if __name__ == '__main__':
+    app.run()
+
+把它保存为 hello.py （或是类似的），然后用 Python 解释器来运行。 确保你的应用文件名不是 flask.py ，因为这将与 Flask 本身冲突
+然后启动flaskserver服务器,点击访问你会看到浏览器页面显示"Hello World!"
+
+ok,那么这段代有什么含义呢?
+1:首先,导入了Flask类.这个类将会是我们的wsgi应用程序.
+2:接下来，我们创建一个该类的实例，第一个参数是应用模块或者包的名称。 如果你使用单一的模块（如本例），你应该使用 __name__ ，因为模块的名称将会因其作为单独应用启动还是作为模块导入而有不同（ 也即是 '__main__' 或实际的导入名）。这是必须的，这样 Flask 才知道到哪去找模板、静态文件等等
+3:然后，我们使用 route() 装饰器告诉 Flask 什么样的URL 能触发我们的函数。
+4:这个函数的名字也在生成 URL 时被特定的函数采用，这个函数返回我们想要显示在用户浏览器中的信息。
+5:最后我们用 run() 函数来让应用运行在本地服务器上。 其中 if __name__ == '__main__': 确保服务器只会在该脚本被 Python 解释器直接执行的时候才会运行，而不是作为模块导入的时候。
+
+2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+路由: route() 装饰器把一个函数绑定到对应的 URL 上。
+@app.route('/')
+def index():
+    return 'Index Page'
+
+@app.route('/hello')
+def hello():
+    return 'Hello World'
+
+但是，不仅如此！你可以构造含有动态部分的 URL，也可以在一个函数上附着多个规则。
+要给 URL 添加变量部分，你可以把这些特殊的字段标记为 <variable_name> ， 这个部分将会作为命名参数传递到你的函数。规则可以用 <converter:variable_name> 指定一个可选的转换器。
+@app.route('/user/<username>')
+def show_user_profile(username):
+    # show the user profile for that user
+    return 'User %s' % username
+
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    # show the post with the given id, the id is an integer
+    return 'Post %d' % post_id
+
+构造 URL:你可以用 url_for() 来给指定的函数构造 URL。它接受函数名作为第一个参数，也接受对应 URL 规则的变量部分的命名参数。未知变量部分会添加到 URL 末尾作为查询参数。
+from flask import Flask, url_for
+app = Flask(__name__)
+@app.route('/')
+ def index(): pass
+
+@app.route('/login')
+ def login(): pass
+
+@app.route('/user/<username>')
+ def profile(username): pass
+
+with app.test_request_context():
+  print url_for('index')
+  print url_for('login')
+  print url_for('login', next='/')
+  print url_for('profile', username='John Doe')
+
+输出结果如下:
+/
+/login
+/login?next=/
+/user/John%20Doe
+
+HTTP 方法:HTTP （与 Web 应用会话的协议）有许多不同的访问 URL 方法。默认情况下，路由只回应 GET 请求，但是通过 route() 装饰器传递 methods 参数可以改变这个行为。
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        do_the_login()
+    else:
+        show_the_login_form()
+
+HTTP 方法告知服务器，客户端想对请求的页面 做 些什么。下面的都是非常常见的方法：
+GET
+浏览器告知服务器：只 获取 页面上的信息并发给我。这是最常用的方法。
+HEAD
+浏览器告诉服务器：欲获取信息，但是只关心 消息头 。应用应像处理 GET 请求一样来处理它，但是不分发实际内容。在 Flask 中你完全无需 人工 干预，底层的 Werkzeug 库已经替你打点好了。
+POST
+浏览器告诉服务器：想在 URL 上 发布 新信息。并且，服务器必须确保 数据已存储且仅存储一次。这是 HTML 表单通常发送数据到服务器的方法。
+PUT
+类似 POST 但是服务器可能触发了存储过程多次，多次覆盖掉旧值。你可 能会问这有什么用，当然这是有原因的。考虑到传输中连接可能会丢失，在 这种 情况下浏览器和服务器之间的系统可能安全地第二次接收请求，而 不破坏其它东西。因为 POST 它只触发一次，所以用 POST 是不可能的。
+DELETE
+删除给定位置的信息。
+OPTIONS
+给客户端提供一个敏捷的途径来弄清这个 URL 支持哪些 HTTP 方法。 从 Flask 0.6 开始，实现了自动处理。
+
+静态文件:动态 web 应用也会需要静态文件，通常是 CSS 和 JavaScript 文件。理想状况下， 你已经配置好 Web 服务器来提供静态文件，但是在开发中，Flask 也可以做到。 只要在你的包中或是模块的所在目录中创建一个名为 static 的文件夹，在应用中使用 /static 即可访问。
+url_for("static",filename="style.css")
+这个文件应该存储在文件系统上的 static/style.css 。
+
+模板渲染:用 Python 生成 HTML 十分无趣，而且相当繁琐，因为你必须手动对 HTML 做转义来保证应用的安全。为此，Flask 配备了 Jinja2 模板引擎。你可以使用 render_template() 方法来渲染模板。你需要做的一切就是将模板名和你想作为关键字的参数传入模板的变量。
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('hello.html', name=name)
+
+请求对象:
+通过request.form[]来获取post提交的表单参数
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if valid_login(request.form['username'],
+                       request.form['password']):
+            return log_the_user_in(request.form['username'])
+        else:
+            error = 'Invalid username/password'
+    return render_template('login.html', error=error)
+
+你可以通过 args 属性来访问 URL(get) 中提交的参数:
+request.args.get('q', '')
+
+文件上传:在 HTML 表单中设置 enctype="multipart/form-data" 属性，不然你的浏览器根本不会发送文件。已上传的文件存储在内存或是文件系统中一个临时的位置。你可以通过请求对象的 files 属性访问它们。每个上传的文件都会存储在这个字典里。但它还有一个 save() 方法允许你把文件保存到服务器的文件系统上。
+允许的文件类型集合
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+UPLOAD_FOLDER='/path/to/the/uploads'
+app = Flask(__name__)
+把上传文件限制为最大 16 MB 。 如果请求传输一个更大的文件， Flask 会抛出一个 RequestEntityTooLarge 异常。
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+与集合中的文件类型做对比
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',filename=filename))
+提供对已上传文件的访问服务
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
+
+Cookies:你可以通过 cookies 属性来访问 Cookies，用响应对象的 set_cookie 方法来设置 Cookies。请求对象的 cookies 属性是一个内容为客户端提交的所有 Cookies 的字典。如果你想使用会话，请不要直接使用 Cookies
+读取Cookies:
+@app.route('/')
+def index():
+    username = request.cookies.get('username')
+
+存储Cookies:
+@app.route('/')
+def index():
+    resp = make_response(render_template(...))
+    resp.set_cookie('username', 'the username')
+    return resp
+
+会话:除请求对象之外，还有一个 session 对象。它允许你在不同请求间存储特定用户的信息。它是在 Cookies 的基础上实现的，并且对 Cookies 进行密钥签名。这意味着用户可以查看你 Cookie 的内容，但却不能修改它，除非用户知道签名的密钥。
+@app.route('/')
+def index():
+    if 'username' in session:
+        return '你好, %s' % escape(session['username'])
+    return '请先进行登陆'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+设置session密钥:os.urandom(24)用于生成24位随机密钥
+app.secret_key = os.urandom(24)
+
+
+重定向和错误:
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+@app.route('/login')
+def login():
+    abort(401)
+    this_is_never_executed()
+
+定制错误页面:如果你要定制错误页面， 可以使用 errorhandler() 装饰器
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+
+消息闪现:好的应用和用户界面的重点是回馈。Flask 提供了一个非常简单的方法来使用闪现系统向用户反馈信息。闪现系统使得在一个请求结束的时候记录一个信息，然后在且仅仅在下一个请求中访问这个数据。
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != '123':
+            error = '用户名或密码错误'
+        else:
+            flash('登陆成功')
+            return redirect(url_for('index'))
+    return render_template('login.html', error=error)
+
+日志记录:
+app.logger.debug('A value for debugging')
+app.logger.warning('A warning occurred (%d apples)', 42)
+app.logger.error('An error occurred')
+

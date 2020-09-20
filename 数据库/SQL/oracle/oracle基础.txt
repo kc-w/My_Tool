@@ -1,0 +1,127 @@
+SQL可分为:
+数据定义语言（DDL） : Data Definition Language
+数据操纵语言（DML） : Data Manipulation Language
+事务控制语言（TCL）：Transaction Control Language)
+数据查询语言（DQL）：Data Query Language
+数据控制语言（DCL） : Data Control Language
+
+数据定义语言（DDL）:
+用于建立、修改、删除数据库对象，包括创建语句(CREATE)、修改语句(ALTER)、删除语句(DROP)，比如使用CREATE TABLE创建表，使用ALTER TABLE修改表，使用DROPTABLE删除表等动作。这类语言不需要事务的参与，自动提交。
+
+数据操作语言（DML）:
+用于改变数据库数据，包括INSERT、UPDATE、DELETE三条语句。其中，INSERT语句用于将数据插入到数据库中，UPDATE语句用于更新数据库中已存在的数据，DELETE用于删除数据库中已存在的数据。DML语言和事务是相关的，执行完DML操作后必须经过事务控制语句提交后才真正的将改变应用到数据库中。
+
+事务控制语言（TCL）:
+用来维护数据一致性的语句，包括提交(COMMIT)、回滚(ROLLBACK)、保存点(SAVEPOINT)三条语句，其中COMMIT用来确认已经进行的数据库改变， ROLLBACK语句用来取消已经进行的数据库改变，当执行DML操作后(也就是上面说的增加、修改、删除等动作)，可以使用COMMIT语句来确认这种改变，或者使用ROLLBACK取消这种改变。SAVEPOINT语句用来设置保存点，使当前的事务可以回退到指定的保存点，便于取消部分改变。
+
+数据查询语言（DQL）:
+用来查询所需要的数据。使用最广泛，语法灵活复杂。
+
+数据控制语言（DCL）:
+用于执行权限的授予和收回操作、创建用户等，包括授予(GRANT)语句，收回(REVOKE)语句，CREATE USER语句，其中GRANT用于给用户或角色授予权限， REVOKE用于收回用户或角色已有的权限。DCL语句也不需要事务的参与，是自动提交的。
+
+Oracle数据类型:
+1:number
+number表示数字类型，经常被定义成number(p,s)形式，其中：
+p表示数字的总位数
+s表示小数点后面的位数
+
+2:char
+char表示固定长度的字符类型，经常被定义成char(n)形式, n表示占用的字节数，n的最大取值是2000。
+
+3:varchar2
+varchar2表示变长的字符类型，定义格式是varchar2(n), n表示最多可占用的字节数，最大长度是4000字节。
+
+4:date
+date用于定义日期时间的数据，长度是7个字节，默认格式是：DD-MON-RR,如果是中文环境，是“11-4月-71”这种形式。
+
+创建表:
+create table 表名(
+);
+
+查看表结构:
+desc 表名;
+
+修改表:
+修改表名
+rename 旧表名 to 新表名;
+
+增加列:
+alter table 表名 add(字段名 字段类型 约束)
+
+删除列:
+alter table 表名 drop (字段名);
+
+修改列:
+alter table 表名 modify(字段名 字段类型 约束);
+
+字符串连接函数:
+select concat(a,b) from 表名;
+将a,b两个字符串截取
+
+字符串截取:
+select substr(char,[m],[n] ) from 表名;
+用于返回char中从m位开始取n个字符的子串，字符串的首位计数从1开始。参数含义如下：
+如果m = 0，则从首字符开始，如果m取负数，则从尾部开始
+如果没有设置n，或者n的长度超过了char的长度，则取到字符串末尾为止
+
+用来返回在一个字符串中子串的位置:
+select instr(char1,char2,[n],[m])  from 表名;
+返回子串char2在源字符串char1中的位置
+从n的位置开始搜索，没有指定n，从第1个字符开始搜索
+m用于指定子串的第m次出现次数，如果不指定取值1
+如果在char1中没有找到子串char2 ，返回0
+
+
+数据类型number:
+
+number(p)
+表示整数
+number(p,s)
+可以用来表示整数和浮点数。如果没有设置参数s，则默认取值0，即number(p)用来表示整数。P表示数字的总位数，取值为1-38。一般用来在表中存放如编码、年龄、次数等用整数记录的数据
+
+number的变种数据类型：内部实现是number，可以将其理解为number的别名，目的是多种数据库及编程语言兼容:
+NUMERIC(p,s)：完全映射至number(p,s)
+DECIMAL(p,s)或DEC(p,s)：完全映射至number(p,s)
+INTEGER或INT：完全映射至number(38)类型
+SMALLINT：完全映射至number(38)类型
+FLOAT(b)：映射至number类型
+DOUBLE PRECISION：映射至number类型
+REAL：映射至number类型
+
+数据类型date:
+
+date类型在数据库中的实际存储固定为7个字节，格式分别为：
+第1字节：世纪+100
+第2字节：年
+第3字节：月
+第4字节：天
+第5字节：小时+1
+第6字节：分+1
+第7字节：秒+1
+
+数据类型timestamp:
+
+timestamp表示时间戳，与date的区别是不仅可以保存日期和时间，还能保存小数秒，可指定为0-9位，默认6位，最高精度可以到ns(纳秒)级别。
+数据库内部用7或者11个字节存储，精度为0时，用7字节存储，与DATE功能相同，精度大于0则用11字节存储。格式为：
+第1字节-第7字节：和date相同
+第8-11字节：纳秒，采用4个字节存储，内部运算类型为整型
+
+日期关键字sysdate:
+sysdate本质是一个Oracle的内部函数，用来返回当前的系统时间，精确到秒，默认显示格式是DD-MON-RR，只有年月日并不显示时间
+
+日期关键字systimestamp:
+systimestamp是Oracle的内部日期函数，返回当前系统日期和时间，精确到毫秒
+
+NVL(expr1, expr2):
+将null转变为非null值。如果expr1为null，则取值expr2, expr2是非空值。
+其中expr1和expr2可以是任何数据类型，但两个参数的数据类型必须是一致的。
+计算员工月收入，如果comm列为空值的话，最终计算结果将是空，不符合逻辑，所以先将取NULL值的comm列转换为0，再相加
+
+NVL2(expr1, expr2, expr3)：
+和NVL函数功能类似，都是将null转变为非空值。NVL2用来判断expr1是否为null，如果不是null，返回expr2，如果是null，返回expr3。
+
+
+使用distinct过滤重复:
+数据表中有可能存储相同数据的行，当执行查询操作时，默认情况会显示所有行，不管查询结果是否有重复的数据。当重复数据没有实际意义，经常会需要去掉重复值，使用distinct实现
+

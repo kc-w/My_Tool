@@ -1,0 +1,119 @@
+何为过滤器?顾名思义它的作用就是阻挡某些事件的发生。在Web应用程序中，过滤器是介于Servlet之前，即可以拦截过滤浏览器的请求，也可以改变对浏览器的响应。它在服务器端与客户端起到了一个中间组件的作用，对二者之间的数据信息进行过滤。当客户端浏览器发起一个请求时，服务器端的过滤器将检查请求数据中的内容，它可改变这些内容或者重新设置报头信息，再转发给服务器上被请求的目标资源，处理完毕后再向客户端响应处理结果。
+
+一个Web应用程序，可以有多个过滤器，组成一个过滤器链，如使用过滤器完成字守编码的设定和验证用户的合法性。过滤器链中的每个过滤器都各司其职地处理并转发数据。
+
+一股而言，在Web开发中，经常用Filter来进行以下操作
+1、对用户请求进行身份认证
+2、对用户发送的数据进行过滤或者替换
+3、转换图像数据格式
+4、数据压缩
+5、数据加密
+6、xml数据的转换
+7、修改请求数据的字符集
+
+实现与设置过滤器
+【1】在Servlet中要实现过滤器，必须实现Filter接口，并用注入的方式或者在web.xml中定义过滤器，让Web容器知道该加载哪些过滤器。Filter接口的类是javax.servlet.Filter，该接口有3个方法。
+
+
+(1)public void init(FilterConfig filter)该方法用来初始化过滤器。filter参数是一个FilterConfig对象。利用该对象可以得到过滤器中初始化配置参数信息。
+
+(2)public void doFilter(ServletRequest request, ServletResponse response, Filterchain chain)该方法是过滤器中主要实现过滤的方法。当客户端请求目标资源时，Web应用程序就会调用与此目标资源相关的doFilter()方法，在该方法中，实现对请求和响应的数据处理。参数request表示客户端的请求，response表示对应请求的响应，chain是过滤器链对象。在该方法中特定操作完成后，可调用FilterChain对象的doFilter(request,response)将请求传给过滤链中的下一个过滤器，也可以直接返回响应内容，还可以将目标重定向。
+
+(3)public void destroy()该方法用于释放过滤器中使用的资源。
+
+
+【2】过滤器中还有FilterConfig接口，该接口用于在过滤器初始化时Web容器向过滤器传送初始化配置参数，并传入过滤器对象的init()方法中。FilterConfig接口中有4个方法可以调用。
+
+(1)public String getFilterName()用户得到过滤器的名字。
+
+(2)public String getInitparameter(String name)得到过滤器中初始化参数值。
+
+(3)public Enumeration getInitparameterNames()得到过滤器配置中的所有初始化参数名字的枚举类型。
+
+(4)public ServletContext getServlet()得到Servlet上下文文件对象。
+
+
+【3】设置过滤器
+注入方式：@WebFilter(
+          description="demp",
+          filterName="myfilter",
+          servletNames={"*.do"},
+          urlPatterns={"/*"},
+          initParams={
+                 @WebInitParam(name="param",value="paramvalue")
+          },
+          dispatcherTypes={DispatcherType.REQUEST}
+          )
+
+xml配置：<filter>
+            <description>demo</description>
+            <!--过滤器名称-->
+            <filter-name>myfilter</filter-name>
+            <!--过滤器类-->
+            <filter-class>com.eshore.MyFilter</filter-class>
+            <!--过滤器初始化参数--〉
+            <init-param>
+               <param-name>param</param-name>
+               <param-value>paramvalue</param-value>
+            </init-param>
+         </filter>
+         <!--过滤器映射配置-->
+         <filter-mapping>
+            <filter-name>myfilter</filter-name>
+            <servlet-name>*. do</servlet-name >
+            <url-pattern>/*</ur1-pattern>
+            <dispatcher>REQUEST</dispatcher>
+         </filter-mapping>
+
+
+filtername:指定Filter的name属性，等价于<filter-name>标签
+servletNames:指定Filter的servlet过滤对象，等价于<servlet-name>标签，当与urlPatterns同时存在时，则web容器先比对urlPatterns中的URL，再比对servletNames中的配置
+urlPatterns：指定Filter的URL匹配模式；等价于<url-pattern>标签
+value：与urlPatterns属性相同，但不能同时使用
+dispatcherTypes：指定Filter的过滤时间，等价于<dispatcher>标签，其值有FORWARD、INCLUDE、REQUEST、ERROR、ASYNC等。默认值是REQUEST .
+loadOnStatup：指定servlet的加载顺序，等价于<load-on-startup>标签。当值为0或大于0时，表示容器在应用启动时就加载并初始化这个Servlet；当值小于0或者没有指定时，则表示容器在该Servlet被选择时才会去加载；正数的值越小，该Servlet的优先级越高，应用启动时就越先加载，当值相同时，容器就会自己选择顺序来加载
+initParams：指定过滤器初始化参数，等价于<init-param>标签
+asyncSupported：声明Servlet是否支持异步操作模式，等价于<async-supported>标签，该属性在servlet3.0才有
+
+——请求封装器：请求封装器是指利用HttpServletRequestWrapper类将请求中的内容进行统一修改，如修改请求字符编码、替换字符、权限验证等
+#实现编码过滤
+@WebFilter(
+          description="字符编码过滤器",
+          filterName="encodingFilter",
+          urlPatterns={"/*"},
+          initParams={
+                 @WebInitParam(name="ENCODING",value="utf-8")
+          }
+     )
+public class EncodingFilter implements Filter{
+   private static Logger log=Logger.getLogger("EncodingFilter");
+   private String encoding="";
+   private String filterName="";
+
+   public void init(FilterConfig filterCofig) throws ServletException{
+      //通过filterCofig获得初始化中的编码值
+      encoding=filterCofig.getInitParameter("ENCODING");
+      filterName=filterConfig.getFilterName();
+      if(encoding==null|"".equals(encoding)){
+         encoding="utf-8";
+      }
+      log.debug("获得编码值");
+   }
+   public void doFilter(ServletRequest request,ServletResponse response,FilterChain chain) throws IOException,ServletException{
+      //分别对请求和响应进行编码设置
+      request.setCharacterEncoding(encoding);
+      response.setCharacterEncoding(encoding);
+      HttpServletRequest req=( HttpServletRequest)request
+      log.debug("被请求"+filterName+"过滤");
+      //传输给过滤链过滤
+      chain.doFilter(req,response);
+      log.debug("响应被"+filterName+"过滤");
+   }
+   public void destroy(){
+      log.debug("请求销毁");
+   }
+}
+
+上述编码过滤器对post请求没有问题，但是对于get请求获取中文参数还是会出现乱码问题。这是因为post请求时，参数是在请求数据包的消息体中；而get请求，参数存放在URL的字段中。request.setCharacterEncoding(encoding);只对消息体中的数据有效，对URL中的参数不起作用。基于这种情况，想到请求包装器包装请求，将字符编码转换的工作添加到getParameter()方法中，这样就可以对请求的参数进行统一的转换。
+
+——响应封装器：响应封装器是指利用HttpservletResponsewrapper类将响应中的内容进行统一修改，例如压缩输出内容，替换输出内容等。有些时候需要对网站的输出内容进行控制，一般有两种方法，一是在保存在数据库前对不合法的内容进行替换。二是在输出端进行替换。能想到要是对每一个Servlet进行输出控制，任务量就非常大而且繁琐。读者会想到利用过滤器对Servlet进行统一处理，但是因为HttpservletResponse不能缓存输出内容，所以需要自定义一个具备缓存功能的response。

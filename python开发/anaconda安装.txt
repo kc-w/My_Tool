@@ -1,0 +1,5 @@
+安装了anaconda后可以不安装python,
+打开环境变量后加上以下环境变量即可使用anaconda自带的python命令
+D:\Anaconda3
+D:\Anaconda3\Scripts
+D:\Anaconda3\Library\bin

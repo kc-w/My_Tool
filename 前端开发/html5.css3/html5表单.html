@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+</head>
+<style type="text/css">
+   body{
+	   width:800px;
+	   margin:0 auto;
+	   text-align:center;
+   }
+</style>
+<body>
+
+<h1>用户调查</h1>
+<!--form用于标记一个表单，它的属性：action（属性值是访问者提交表单时服务器上对数据进行处理的脚本URL，例如action="1.jsp"）
+method（属性值用于设置表单内容向服务器提交时数据的传送方式。有两个值可选：get或post）
+get方式:要传输的数据附加到url之后，被显示在浏览器的地址栏中，被传送的数据不超过255个字符，对数据的保密性差，不安全
+post方式:传输的数据量没有限制，以数据流的形式传送表单数据，但速度慢；
+autocomplete(属性值有on保存输入记录，off不保存输入记录)-->
+
+<!--input标签的属性：type（属性值有：text(文本框)；password(密码框)；radio(单选框)；checkbox(复选框)；novalidate(不对其进行验证，值为true)；
+file(文件上传框)；hidden(隐藏域)；button(普通按钮)；submit(提交按钮)；reset(重置按钮)；text(文本框)；text(文本框)；）-->
+
+<!--文本框和密码框内的属性：name(文本框的名字)；value(设置文本框的默认值)；size(文本框的宽度)；maxlength（最大可输入的字符数）；autocomplete(属性值有on保存输入记录，off不保存输入记录)；required:验证表单是否为空-->
+
+<!--单选框和复选框内的属性：name(复选框的名字必须相同，单选框的名字必须不相同)；value(预设值)；checked：默认被选中-->
+
+<form action="mailto:2312297207@qq.com" method="get" name="invest" autocomplete="on">
+<input type="range" min="10" max="30">
+<input type="text" pattern="[0-9]{6}" title="请输入6个1-9之间的数">
+<input type="color">
+<input type="email">
+<input type="url">
+<input type="number">
+<input type="search">
+<!--根据formaction的值提交到不同的页面-->
+<input type="submit" name="submit" value="登陆" formaction="1.html" formaction="get" required>
+<input type="submit" name="reset" value="注册" formaction="2.html" formaction="post">
+
+<fieldset>
+   <legend>基本信息</legend>
+   <label for="username">姓名:</label>
+   <input type="text" name="username" id="username" value="name" size="30" maxlength="5">
+   <br>
+   <label for="password">密码:</label>
+   <input type="password" name="password" id="password" maxlength="8">
+   <br>
+   <label>请上传你的照片：</label>
+   <input type="file" name="photo" id="photo">
+</fieldset>
+
+<fieldset>
+   <legend>个人资料</legend>
+   <p><!--checked:默认选项-->
+   请选择你喜欢的音乐(可多选)：
+   <input type="checkbox" name="nusic" id="rock" value="rock" checked><label for="rock">摇滚乐</label>
+   <input type="checkbox" name="nusic" id="jazz" value="jazz"><label for="jazz">爵士乐</label>
+   <input type="checkbox" name="nusic" id="pop" value="pop"><label for="pop">流行乐</label>
+   </p>
+   <p>
+   请选择你居住的城市：
+   <input type="radio" name="city" id="beijing" value="beijing" checked><label for="beijing">北京</label>
+   <input type="radio" name="city" id="shanghai" value="shanghai"><label for="shanghai">上海</label>
+   <input type="radio" name="city" id="nanjing" value="nanjing"><label for="nanjing">南京</label>
+   </p>
+   <p>
+   <label for="season">请选择你最喜欢的季节：</label>
+   <select name="color" id="season">
+      <option value="red" selected>春</option>
+      <option value="blue">夏</option>
+      <option value="white">秋</option>
+      <option value="green">冬</option>
+   </select>
+   </p>
+</fieldset>
+
+<div>
+   <label for="comment">请留言:</label>
+   <br>
+   <textarea name="comment" id="comment" rows="11" cols="110">文本域默认内容</textarea>
+   <br>
+   <input type="button" value="关闭窗口" onClick="winClose()">
+   <br>
+   <input type="submit" name="submit" value="提交表单">
+   <input type="reset" name="reset" value="重置表单">
+</div>
+
+</form>
+</body>
+</html>

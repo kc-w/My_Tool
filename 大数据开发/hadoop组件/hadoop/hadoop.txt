@@ -1,0 +1,48 @@
+Hadoop是一个由Apache基金会所开发的分布式系统基础架构,它受到最先由 Google Lab 开发的 Map/Reduce 和 Google File System(GFS) 的启发。
+用户可以在不了解分布式底层细节的情况下，开发分布式程序。充分利用集群的威力进行高速运算和存储。
+
+Hadoop的框架最核心的设计就是：HDFS和MapReduce。HDFS为海量的数据提供了存储，而MapReduce则为海量的数据提供了计算。
+
+优点:
+1:Hadoop 是可靠的，因为它假设计算元素和存储会失败，因此它维护多个工作数据副本，确保能够针对失败的节点重新分布处理。
+2:Hadoop 是高效的，因为它以并行的方式工作，通过并行处理加快处理速度。
+3:Hadoop 还是可伸缩的，能够处理 PB 级数据。
+
+核心架构:
+Hadoop 由许多元素构成。
+最底部是 Hadoop Distributed File System（HDFS），它存储 Hadoop 集群中所有存储节点上的文件。
+HDFS（对于本文）的上一层是MapReduce 引擎，该引擎由 JobTrackers 和 TaskTrackers 组成。
+
+Google的数据中心使用廉价的Linux PC机组成集群，在上面运行各种应用。即使是分布式开发的新手也可以迅速使用Google的基础设施。核心组件是3个：
+1:GFS（Google File System）
+	一个分布式文件系统，隐藏下层负载均衡，冗余复制等细节，对上层程序提供一个统一的文件系统API接口。
+	Google根据自己的需求对它进行了特别优化，包括：超大文件的访问，读操作比例远超过写操作，PC机极易发生故障造成节点失效等。
+	GFS把文件分成64MB的块，分布在集群的机器上，使用Linux的文件系统存放。
+	同时每块文件至少有3份以上的冗余。中心是一个Master节点，根据文件索引，找寻文件块。
+
+2:MapReduce
+	Google发现大多数分布式运算可以抽象为MapReduce操作。
+	Map是把输入Input分解成中间的Key/Value对，Reduce把Key/Value合成最终输出Output。
+	这两个函数由程序员提供给系统，下层设施把Map和Reduce操作分布在集群上运行，并把结果存储在GFS上。
+	
+3:BigTable
+	一个大型的分布式数据库，这个数据库不是关系式的数据库。像它的名字一样，就是一个巨大的表格，用来存储结构化的数据。
+	
+子项目:
+HDFS: Hadoop分布式文件系统(Distributed File System) － HDFS (Hadoop Distributed File System)
+MapReduce：并行计算框架，0.20前使用 org.apache.hadoop.mapred 旧接口，0.20版本开始引入org.apache.hadoop.mapreduce的新API
+HBase: 类似Google BigTable的分布式NoSQL列数据库。（HBase和Avro已经于2010年5月成为顶级 Apache 项目）
+Hive：数据仓库工具，由Facebook贡献。
+Zookeeper：分布式锁设施，提供类似Google Chubby的功能，由Facebook贡献。
+Avro：新的数据序列化格式与传输工具，将逐步取代Hadoop原有的IPC机制。
+Pig: 大数据分析平台，为用户提供多种接口。
+Ambari：Hadoop管理工具，可以快捷的监控、部署、管理集群。
+Sqoop：于在HADOOP与传统的数据库间进行数据的传递。
+
+
+
+
+
+
+
+

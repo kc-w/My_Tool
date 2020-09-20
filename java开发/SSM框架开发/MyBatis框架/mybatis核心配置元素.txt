@@ -1,0 +1,171 @@
+<properties>是一个配置属性的元素，该元素通常用于将内部的配置外在化，即通过外部的配置来动态地替换内部定义的属性，例如，数据库的连接等属性，就可以通过典型的Java属性文件中的配置来替换.
+例:
+在src中创建db.properties配置文件
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/data
+jdbc.username=root
+jdbc.password=999999999852
+
+在mybatis-config.xml中配置<properties>元素,具体如下
+<properties resource="db.properties"/>
+
+修改配置中数据库连接的信息,具体如下
+<dataSource type="POOLED">
+<property name="driver" value="${jdbc.driver}"/>
+<property name="url" value="${jdbc.url}"/>
+<property name="username" value="${jdbc.username}"/>
+<property name="password" value="${jdbc.password}"/>
+</dataSource>
+
+================================================================================================================
+
+<settings>元素主要用于改变MyBatis运行时的行为，例如开启二级缓存、开启延迟加载.
+例:
+在mybatis-config.xml中配置<settings>元素
+<settings>
+<setting name="cacheEnabled" value="true"/>
+<setting name="lazyLoadingEnabled" value="true"/>
+.......................
+</setting>
+
+
+常见配置下:
+设置参数                          描述                                                                                                                                                有效值                      默认值
+cacheEnabled                  该配置影响所有映射器中配置的缓存全局开关                                                                                    true/false                   false
+lazyLoadingEnabled        延迟加载的全局开关.开启时,所有关联对象都会延迟加载                                                                     true/false                   false
+aggresiveLazyLoading     关联对象属性的延迟加载开关.开启时,对任意延迟属性的调用会使带有延迟加载属性的对象完整加载     true/false                   true
+multipleResultSetsEnabled 是否允许单一语句返回多结果集(需要兼容驱动)                                                                                true/false                   true
+useColumnLabel              使用列标签代替列名(不同的驱动在这方面有不同的表现)                                                                    true/false                   true
+useGeneratedKeys           允许JDBC支持自动生成主键.如果为true,则强制使用自动生成主键,尽管驱动兼容但仍可正常工作          true/false                   false
+autoMappingBehavior    指定mybatis如何自动映射到字段,none:取消自动映射,partial:只会映射没有定义嵌套结果集映射的结果集,full:会映射任意复杂的结果集       默认为partial
+defaultExecutorType       配置默认的执行器.simple:普通执行器,reuse:执行器会重用预处理语句,batch:执行器将重用语句并执行批量更新          默认为simple
+defaultStatementTimeout    设置超时时间.它决定驱动等待数据库响应的秒数,可以是任何正整数,当没有设置的时候默认为驱动默认时间
+mapUnderscoreTocamelCase   是否开启自动驼峰命名规则映射        true/false    false
+jdbcTypeForNull            当没有为参数提供特定的jdbc映射时,为空值指定jdbc类型                  null/varchar/other            other
+
+================================================================================================================
+
+<typeAliases>元素用于配置文件中的java类型设置一个简短的名字,即设置别名,可以在核心配置文件中代替该类
+
+例:
+1,当pojo类较少时可以这样,如下
+<typeAliases>
+<typeAlias alias="别名" type="类路径"/>
+</typeAliases>
+
+2,当pojo类过多时还可以通过自动扫描包的形式自定义别名,具体如下
+<typeAliases>
+<package name="pojo的包路径"/>
+</typeAliases>
+
+在类中添加注解
+@Alias(value="别名")
+public class User(){}
+
+================================================================================================================
+
+<typeHandler>元素的作用就是将预处理语句中传入的参数从javaType(java类型)转换为jdbcType(jdbc类型),或者从数据库取出结果时将jdbcType转化为javaType
+
+例:
+当mybatis框架所提供的这些类型处理器不能满足要求时,还可以通过自定义的方式对类型处理器进行扩展(自定义类型处理器可以通过实现TypeHandler接口或者继承BaseTypeHandle类定义)
+
+1,注册一个类的类型处理器
+<typeHandlers>
+<typeHandler handler="类路径"/>
+</typeHandlers>
+
+2,使用自动扫描将包里的所有类视为类型处理器,无需在类中添加注解
+<typeHandlers>
+<package name="包路径"/>
+</typeHandlers>
+
+Mybatis提供的默认类型处理器:
+类型处理器                                               java类型                                                   jdbc类型
+BooleanTypeHandler                              java.lang.boolean                                    数据库兼容的boolean
+ByteTypeHandler                                    java.lang.Byte                                          数据库兼容的byte
+ShortTypeHandler                                  java.lang.Short                                        数据库兼容的short integer
+IntegerTypeHandler                               java.lang.Integer                                      数据库兼容的integer
+LongTypeHandler                                   java.lang.Long                                          数据库兼容的short integer
+FloatTypeHandler                                   java.lang.Float                                          数据库兼容的float
+DoubleTypeHandler                               java.lang.Double                                       数据库兼容的double
+BigDecimalTypeHandler                         java.math.BigDecimal                               数据库兼容的decimal
+StringTypeHandler                                 java.lang.String                                         char,varchar
+ClobTypeHandler                                   java.lang.String                                         clob,longvarchar
+ByteArrayTypeHandler                          byte[]                                                         数据库兼容的字节流类型
+BlobTypeHandler                                  byte[]                                                        blob,longvarchar
+DateTypeHandler                                  java.util.Date                                              timestamp
+SqlTimestampTypeHandler                   java.sql.Timestamp                                    timestamp
+SqlDateTypeHandler                             java.sql.Date                                               date
+SqlTimeTypeHandler                             java.sqlTime                                               time
+
+================================================================================================================
+
+<environments>元素用于对环境进行配置。MyBatis的环境配置实际上就是数据源的配置
+
+例:
+   <environments default="mysql">
+        <!--配置id为mysql的数据库环境-->
+        <environment id="mysql">
+            <!--使用JDBC的事务管理-->
+            <transactionManager type="JDBC"></transactionManager>
+            <!--数据库连接池-->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/data"/>
+                <property name="username" value="root"/>
+                <property name="password" value="999999999852"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+mybatis提供了三种数据源类型
+1:UNPOOLED,配置此数据源后,在每次请求时会打开和关闭连接,它对没有性能要求的简单应用程序是一个很好的选择.
+属性                                                                               说明
+driver                                                                             jdbc驱动的类名
+url                                                                                  数据库地址
+username                                                                      登陆数据库的用户名
+password                                                                      登陆数据库的密码
+defaultTransactionlsolationLevel                                   默认的连接事务隔离级别
+
+
+2:POOLED,此数据源利用"池"的概念将JDBC连接对象组织起来，避免了在创建新的连接实例时所需要初始化和认证的时间,使得并发Web应用可以快速地响应请求，是当前流行的处理方式。
+属性                                                                               说明
+driver                                                                             jdbc驱动的类名
+url                                                                                  数据库地址
+username                                                                      登陆数据库的用户名
+password                                                                      登陆数据库的密码
+defaultTransactionlsolationLevel                                   默认的连接事务隔离级别
+poolMaximumActiveConnections                                 在任意时间可以存在的活动(也就是正在使用)连接数量，默认值10
+poolMaximumldleConnections                                     任意时间可能存在的空闲连接数
+poolMaximumCheckoutTime                                        在被强制返回之前，池中连接被检出(checked out)时间，默认值20000毫秒，即20秒
+poolTimeToWait                                                           如果获取连接花费的时间较长，它会给连接池打印状态日志并会重新试获取连接，默认值20000毫秒，即20秒
+poolPingQuery                                                             发送到数据库的侦测查询，用于检验连接是否处于正常工作秩序中。默认是"NO PING QUERY SET".
+poolPingEnabIed                                                          是否启用侦测查询。若开启，必须使用一个可执行的SQL语句,设置poolPingQuery 属性，默认值false
+poolPingConnectionsNotUsedFor                                配置poolPingQuery的使用频度。可以被设置为匹配的数据库连接超时时间，来避免不必要的侦测，默认值0
+
+3:JNDI,此数据源可以在EJB或应用服务器等容器中使用.
+
+
+================================================================================================================
+
+
+<mappers>元素用于指定mybatis映射文件的位置,可以用以下四种方法引入映射器文件.
+1:类路径引用
+    <mappers>
+        <mapper resource="UserMapper.xml"/>
+    </mappers>
+
+2:本地文件路径引用
+    <mappers>
+        <mapper url="file:///D:/UserMapper.xml"/>
+    </mappers>
+
+3:接口类引用
+    <mappers>
+        <mapper class="com.wan.UserMapper.xml"/>
+    </mappers>
+
+4:包名引用
+    <mappers>
+        <mapper name="com.wan"/>
+    </mappers>

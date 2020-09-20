@@ -1,0 +1,104 @@
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.types.{IntegerType, MapType}
+import org.apache.spark.sql.functions._
+
+object SparkSQLTest4 {
+  //通过StructType来动态生成DataFrame
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+
+    val sc = new SparkContext(conf)
+
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+
+    import org.apache.spark.sql.Row
+    import org.apache.spark.sql.types.{StructType, StructField, StringType}
+
+    //读取数据
+    val rdd1 = sc.textFile("C:\\Users\\Wkc23\\Desktop\\文件夹2\\people.txt")
+
+
+    //第一种生成DataFrame的方式
+    //设定DataFrame的字段
+    val schemaString = "name,age"
+    //StructType相当于一个表的总和
+    val schema1 = StructType(
+      //StructField相当于字段,fieldName(字段名),StringType(数据类型),true表示是否可以为空
+      schemaString.split(",").map(fieldName => StructField(fieldName, StringType, true))
+    )
+    //将读取到的rdd数据转换为表形式[Row(x(0).trim,x(1).trim)表示一条记录]
+    val rowRDD1 = rdd1.map(_.split(",")).map(x => Row(x(0).trim, x(1).trim))
+    //把表形式的数据和字段设置组合成一个DataFrame
+    val df1 = sqlContext.createDataFrame(rowRDD1, schema1)
+    df1.show
+
+
+    //第二种生成DataFrame的方式
+    val schema2 = StructType(
+      Array(
+        //(字段名,类型,是否可以为空)
+        StructField("name", StringType, true),
+        StructField("age", IntegerType, true)
+      )
+    )
+    //将读取到的rdd数据转换为表形式[Row(x(0).trim,x(1).toInt)表示一条记录]
+    val rowRDD2 = rdd1.map(_.split(",")).map(x => Row(x(0).trim, x(1).toInt))
+    //把表形式的数据和字段设置组合成一个DataFrame
+    val df2 = sqlContext.createDataFrame(rowRDD2, schema2)
+    df2.show
+
+
+    //第三种生成DataFrame的方式(复杂json处理)
+    val schema3 = new StructType()
+      .add("type", StringType, true)
+      .add("version", StringType, true)
+      .add("data", MapType(
+        StringType, new StructType()
+          .add("title", StringType, true)
+          .add("id", IntegerType, true)
+          .add("key", StringType, true)
+          .add("name", StringType, true)
+      ))
+    val df3 = sqlContext.read.schema(schema3).json("C:\\Users\\Wkc23\\Desktop\\文件夹2\\champion_info1.json")
+    //explode可以显示嵌套层的数据,需要import org.apache.spark.sql.functions._
+    val RDD = df3.select(explode($"data")).select("value").collect()
+    for (i <- RDD) {
+
+      println(i(0).toString.replace("[", "").replace("]", ""))
+    }
+
+  }
+}
+
+
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+
+
+object ConvertRDDToDataFrame {
+
+  //基于反射来构建DataFrame
+  case class Person(name: String, age: Int)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+
+
+    //读取文件
+    val df = sc.textFile("C:\\Users\\Wkc23\\Desktop\\文件夹2\\people.txt")
+        .map(_.split(","))//字段分割
+        .map(x => Person(x(0).trim,x(1).trim.toInt))//传入字段信息
+        .toDF//转换为DataFrame
+
+    //注册为临时表
+    df.registerTempTable("record")
+    sqlContext.sql("select * from record").show()

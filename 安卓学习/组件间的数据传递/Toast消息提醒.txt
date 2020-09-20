@@ -1,0 +1,4 @@
+(上下文对象,提示的消息,显示的时间)
+Looper.prepare();
+Toast.makeText(this, "账号或者密码错误！", Toast.LENGTH_SHORT).show();
+Looper.loop();

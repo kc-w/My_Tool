@@ -1,0 +1,90 @@
+title.xml文件
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg1">
+    <Button
+        android:id="@+id/tile_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:background="@drawable/bg2"
+        android:text="Back"
+        android:textColor="#fff" />
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="Title Text"
+        android:textColor="#fff"
+        android:textSize="24sp" />
+    <Button
+        android:id="@+id/title_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:background="@drawable/bg3"
+        android:text="Edit"
+        android:textColor="#fff" />
+</LinearLayout>
+
+
+一:在样式文件中引入外部样式文件,对xml布局文件进行复用
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/title" />
+
+</LinearLayout>
+
+
+
+二:创建自定义控件
+
+新建TitleLayout继承自LinearLayout,让它成为我们自定义的标题栏控件
+public class MyLinearLayou extends LinearLayout {
+    public MyLinearLayou(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        //引入样式
+        LayoutInflater.from(context).inflate(R.layout.title,this);
+        Button titleBack = (Button) findViewById(R.id.tile_back);
+        Button titleEdit = (Button) findViewById(R.id.title_edit);
+
+        titleBack.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                ((Activity) getContext()).finish();
+            }
+        });
+        titleEdit.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "You clicked Edit button",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
+
+//使用自定义样式控件
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.androiddemo5.MyLinearLayou
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

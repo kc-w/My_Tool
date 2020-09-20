@@ -1,0 +1,54 @@
+打开idaq.exe,点击new进入解包后的lib目录找到so文件并用打开(打开要安装机型的ARM处理器下的so文件)
+会出现多个弹窗全部点击0k进入工作状态
+
+按住 shift + f12 打开字符串窗口,窗口将会列举出so中所包含的所有字符串
+双击字符串会找到该字符串的的内存地址
+
+鼠标点在字符串上,打开view下的open subviews下的 Hex dump窗口
+
+找到所要修改的字符所对应的16进制 右键Edit开始修改(关于字符对应的16进制可以在搜索ascii码表 找到字符所对应的16进制)
+
+修改好后 右键Apply changes应用
+
+点击edit下的plugins下的modifyfile保存修改后的so文件
+
+关闭ida 把armeabi和armeabi-v7a下的so替换成修改后的so(注意这里两个文件夹下的so都要替换,同理 如果是x86模式的 这里要替换x86文件夹的so)
+
+使用apktool将修改好的解包文件重新打包,最后用android killer重新签名
+
+
+
+
+===========================================================================================
+签名爆破
+用apktool解包apk后用IDA打开解包后的so文件
+
+其中有两个窗口,Exports窗口是导出表（so中能让外部调用的函数）Imports窗口是导入表（so调用到外面的函数）
+在Exports窗口下
+通过分析java层知道程序调用了一个native层函数check,调用原生函数都是java_包名类名_方法名格式的
+
+在IDA双击check函数进去查看check方法.按f5将汇编转换为c语言,会看到中文乱码
+此时按住alt+A键打开ASCII string style窗口
+然后点击set default encodings在弹出框中选择8-bit的change 选择utf-8后点击ok回到c语言界面按f5刷新一下界面乱码消失
+
+乱码问题虽然解决但代码可读性很差,需要导入jni.h文件
+点File->Load file->Parse C header file 找到jni.h所在位置 点打开 此时显示Compilation successful 导入成功
+
+点击该check函数第一个参数int 右键Convert to struct* 在弹出的框中选择_JNIEnv点ok后可以看到有一些函数已经显示出来了
+
+虽然现在下面已经显示出来一些函数 但是可读性还是差一点 为了让代码可读性更好 选中显示出来的函数 右键Force call type
+
+然后点住a1按住n键重命名为env
+
+点击IDA View-A回到汇编视图 然后按空格键转化为图形视图,通过图形视图可以对apk的整个逻辑一览无余快捷键ctrl+鼠标滑轮可以缩小方法视图
+
+通过图形视图很清晰的可以看出 如果签名正确程序通过BNE指令跳到左视图程序继续执行 否则跳到右视图退出程序
+BNE(也可能是CBNZ): 数据跳转指令，标志寄存器中Z标志位不等于零时, 跳转到BNE后标签处
+BEQ(CBZ): 数据跳转指令，标志寄存器中Z标志位等于零时, 跳转到BEQ后标签处
+这两条汇编指令相当于smali里面的if-eqz,if-nez是相反的
+
+把BNE改成BEQ 让程序在签名错误的情况下还能继续执行 鼠标选中BNE执行按住空格键 返回到汇编视图
+通过鼠标点住BEQ 可以看到BEQ命令对应的16进制是D0,只要把BNE那行命令BNE对应的16进制改成D0就可以把命令BNE换成BEQ了
+
+
+将签名判断处的汇编记住修改保存为so文件覆盖掉原so重新打包并签名安装

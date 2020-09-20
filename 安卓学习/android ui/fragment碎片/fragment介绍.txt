@@ -1,0 +1,35 @@
+Fragment需要嵌套在Activity中使用,也可以嵌套到另外一个Fragment中,但这个被嵌套 的Fragment也是需要嵌套在Activity中的,
+Fragment受寄主Activity的生命周期影响,不建议在Fragment里面 嵌套Fragment因为嵌套在里面的Fragment生命周期不可控!!!
+
+//Fragment管理器,用于在Activity中操作Fragment
+//在MainActivity中,应使用getSupportFragmentManager()来获取fragment对象
+FragmentManager fragment = getFragmentManager();
+//对Fragment进行增加删除等操作
+FragmentTransaction Transaction = fragmentManager.beginTransaction();
+
+
+//用id来查找fragment
+Fragment findFragmentById(int id);
+
+//用标签来查找fragment
+Fragment findFragmentByTag(String tag);
+
+//将fragment加入到指定的id中,同时加入标签
+FragmentTransaction add(int containerViewId,Fragment fragment,String tag);
+
+//移除fragment
+FragmentTransaction remove(Fragment fragment);
+
+//将fragment替换到指定的id中,相当于先移除原来的fragment再加入新的fragment
+FragmentTransaction replace(int containerViewId,Fragment fragment);
+
+//隐藏fragment
+FragmentTransaction hide(Fragment fragment);
+
+//将隐藏的fragment显示出来
+FragmentTransaction show(Fragment fragment);
+
+//需要执行fragmentTransaction.commit()方法提交事务才能显示fragment
+
+
+

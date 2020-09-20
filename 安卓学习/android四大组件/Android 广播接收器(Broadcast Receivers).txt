@@ -1,0 +1,30 @@
+广播接收器用于响应来自其他应用程序或者系统的广播消息,需继承BroadcastReceiver类
+
+有以下两个重要的步骤来使系统的广播意图配合广播接收器工作
+    创建广播接收器:创建广播接收类
+    注册广播接收器:在xml中添加广播元素
+
+android.intent.action.BATTERY_CHANGED	持久的广播，包含电池的充电状态，级别和其他信息。
+android.intent.action.BATTERY_LOW	标识设备的低电量条件。
+android.intent.action.BATTERY_OKAY	标识电池在电量低之后，现在已经好了。
+android.intent.action.BOOT_COMPLETED	在系统完成启动后广播一次。
+android.intent.action.BUG_REPORT	显示报告bug的活动。
+android.intent.action.CALL	执行呼叫数据指定的某人。
+android.intent.action.CALL_BUTTON	用户点击"呼叫"按钮打开拨号器或者其他拨号的合适界面。
+android.intent.action.DATE_CHANGED	日期发生改变。
+android.intent.action.REBOOT	设备重启。
+
+
+//发出意图
+sendBroadcast(intent);
+
+
+
+借助广播接收器组件，系统能够在常规用户流之外向应用传递事件，从而允许应用响应系统范围内的广播通知。
+由于广播接收器是另一个明确定义的应用入口，因此系统甚至可以向当前未运行的应用传递广播。
+例如，应用可通过调度提醒来发布通知，以告知用户即将发生的事件。
+而且，通过将该提醒传递给应用的广播接收器，应用在提醒响起之前即无需继续运行。
+许多广播均由系统发起，例如，通知屏幕已关闭、电池电量不足或已拍摄照片的广播。
+应用也可发起广播，例如，通知其他应用某些数据已下载至设备，并且可供其使用。
+尽管广播接收器不会显示界面，但其可以创建状态栏通知，在发生广播事件时提醒用户。
+但广播接收器更常见的用途只是作为通向其他组件的通道，旨在执行极少量的工作。

@@ -1,0 +1,11 @@
+android 9 (sdk28)开始不支持http明文传输,只支持https
+
+解决办法
+在res文件夹下创建xml目录，新建network_https_config.xml文件
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
+
+在AndroidManifest.xml的Application中添加配置引用
+android:networkSecurityConfig="@xml/network_https_config"

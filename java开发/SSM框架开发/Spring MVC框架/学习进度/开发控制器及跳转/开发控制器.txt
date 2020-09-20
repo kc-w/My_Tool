@@ -1,0 +1,34 @@
+在Spring 2.5之前，只能使用实现Controller接口的方式来开发一个控制器，在Spring 2.5之后，新增加了基于注解的控制器以及其他一些常用注解，这些注解的使用极大地减少了程序员的开发工作。
+
+---------------------------------------------------------------------------------------------------------------------------
+
+@Controller注解:org.springframework.stereotype.Controller注解类型用于指示Spring类的实例是一个控制器，其注解形式为@Controller。该注解在使用时不需要再实现Controller接口，只需要将@Controller注解加到控制器类上.
+
+@RequestMapping注解:Spring通过@Controller注解找到相应的控制器类后，还需要知道控制器内部对每一个请求是如何处理的，这就需要使用org,springframework,web,bind.annotation.RequestMapping注解类型。RequestMapping注解类型用于映射一个请求或一个方法，其注解形式为
+@RequestMapping，可以使用该注解标注在一个方法或一个类上,标注在方法一个方法上时,该方法将成为一个请求处理方法,它会在程序接受到对面的URL请求时被调用.标注在一个类上时,该类中的所有方法都将映射为相对于类级别的请求,表示该控制器所处理的所有请求都被映射到value属性值所指定的路径下。
+
+@RequestMapping注解的属性:
+name 类型String可选属性，用于为映射地址指定别名
+
+value 类型String[]可选属性，同时也是默认属性，用于映射一个请求和一种方法，可以标注在方法或类上
+
+method 类型RequestMethod[]可选属性，用于指定该方法用于处理哪种类型的请求方式，其请求方式包括GET.POST.HEAD.OPTIONS.PUT.PATCH.DELETE TRACE,
+例如method=RequestMethod.GET表示只支持GET请求，如果需要支持多个请求方式则需要通过{}写成数组的形式，并且多个请求方式之间是有英文逗号分隔
+
+params 类型String[]可选属性，用于指定Request中必须包含某些参数的值，才可以通过其标注的方法处理
+
+headers 类型String[]可选属性，用于指定Request中必须包含某些指定的header的值，才可以通过其标注的方法处理
+
+consumes 类型String[]可选属性，用于指定处理请求的提交内容类型(Content-type)，比如 application/json, text/html等
+
+produces 类型String[]可选属性,用于指定返回的内容类型,返回的内容类型必须是request请求头(Accept)中所包含的类型
+
+组合注解:对应@RequestMapping注解中的method参数
+@GetMapping匹配GET方式的请求。
+@PostMapping匹配POST方式的请求。
+@PutMapping匹配PUT方式的请求。
+@DeleteMapping匹配DELETE方式的请求。
+@PatchMapping匹配PATCH方式的请求。
+如@RequestMapping(value="/index",method=RequestMethod.GET)等同于@GetMapping(value="/index")
+
+--------------------------------------------------------------------------------------------------------------------------------

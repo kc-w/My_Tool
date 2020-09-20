@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace表示命名空间-->
+<mapper namespace="com.wan.test.UserMapper">
+
+    <!--一对一-->
+    <sql id="name">a.*,b_id,b.b_card</sql>
+    <select id="findU2" parameterType="Integer" resultMap="UidWithUserResult2">
+        SELECT <include refid="name"/> FROM a,b WHERE a.a_card=b.b_id AND a.a_id=#{id}
+    </select>
+    <!--将从表查询到的数据自动映射到javabean对象中来-->
+    <resultMap id="UidWithUserResult2" type="com.wan.pojo.User">
+        <id property="id" column="a_id"/><!--主键-->
+        <result property="name" column="a_name"/>
+        <result property="age" column="a_age"/>
+        <!--card为一个javabean对象，将查询结果与Uid对象属性相对应返回一个Uid对象，交给card-->
+        <association property="card" javaType="com.wan.pojo.Uid">
+            <id property="id" column="b_id"/>
+            <result property="id_card" column="b_card"/>
+        </association>
+    </resultMap>
+
+    <!--一对多-->
+    <select id="findUserWithOrders" parameterType="Integer" resultMap="UserWithOrderResult">
+        SELECT user.id,user.username,user.address,orders.id,orders.number FROM user,orders WHERE user.id=orders.user_id AND user.id=#{id}
+    </select>
+    <resultMap id="UserWithOrderResult" type="com.wan.pojo.order_user">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="address" column="address"/>
+        <collection property="orderList" ofType="com.wan.pojo.orders">
+            <id property="id" column="id"/>
+            <result property="number" column="number"/>
+        </collection>
+    </resultMap>
+
+</mapper>
+

@@ -1,0 +1,20 @@
+//计时器
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			function run1(){
+				var t=new Date();
+				var time=t.getHours()+"时"+t.getMinutes()+"分"+t.getSeconds()+"秒";
+				document.getElementById("a").value=time;
+			}
+			var s=window.setInterval("run1()",1000);//每隔1000ms自动执行run1()函数
+		</script>
+	</head>
+	<body>
+		<input id="a" type="button" value="" /><br>
+		<input type="button" onclick="window.clearInterval(s)" value="停止" />
+	</body>
+</html>

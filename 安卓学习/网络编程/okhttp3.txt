@@ -1,0 +1,208 @@
+implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+
+
+1.1. 异步GET请求(不创建子线程)
+
+异步发起的请求会被加入到 Dispatcher 中的 runningAsyncCalls双端队列中通过线程池来执行。
+
+String url = "http://wwww.baidu.com";
+OkHttpClient client = new OkHttpClient();
+final Request request = new Request.Builder()
+        .url(url)
+        .get()//默认就是GET请求，可以不写
+        .build();
+Call call = client.newCall(request);
+call.enqueue(new Callback() {
+    @Override
+    public void onFailure(Call call, IOException e) {
+        Log.d(TAG, "onFailure: ");
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        Log.d(TAG, "onResponse: " + response.body().string());
+    }
+});
+
+
+=========================================================================================
+
+
+1.2. 同步GET请求(将请求放入线程中执行)
+
+String url = "http://wwww.baidu.com";
+OkHttpClient client = new OkHttpClient();
+final Request request = new Request.Builder()
+        .url(url)
+        .build();
+Call call = client.newCall(request);
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            Response response = call.execute();
+            Log.d(TAG, "run: " + response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}).start();
+
+
+=========================================================================================
+
+2.1. POST方式提交String
+
+
+这种方式与前面的区别就是在构造Request对象时，需要多构造一个RequestBody对象，用它来携带我们要提交的数据。
+在构造 RequestBody 需要指定MediaType，用于描述请求/响应 body 的内容类型
+RequestBody.create(File file,MediaType mediaType )
+RequestBody.create(byte[] content,MediaType mediaType)
+RequestBody.create(String str,MediaType mediaType)
+RequestBody.create(ByteString str,MediaType mediaType )
+RequestBody.create(MediaType mediaType, byte[] content, int offset, int byteCount)
+
+MediaType mediaType = MediaType.parse("text/x-markdown; charset=utf-8");
+String requestBody = "I am Jdqm.";
+Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+        .post(RequestBody.create(mediaType, requestBody))
+        .build();
+OkHttpClient client = new OkHttpClient();
+Call call = client.newCall(request);
+call.enqueue(new Callback() {
+    @Override
+    public void onFailure(Call call, IOException e) {
+        Log.d(TAG, "onFailure: " + e.getMessage());
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        Log.d(TAG, response.protocol() + " " +response.code() + " " + response.message());
+        Headers headers = response.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            Log.d(TAG, headers.name(i) + ":" + headers.value(i));
+        }
+        Log.d(TAG, "onResponse: " + response.body().string());
+    }
+});
+
+
+=========================================================================================
+
+2.2 POST方式提交流
+
+
+RequestBody requestBody = new RequestBody() {
+    @Nullable
+    @Override
+    public MediaType contentType() {
+        return MediaType.parse("text/x-markdown; charset=utf-8");
+    }
+
+    @Override
+    public void writeTo(BufferedSink sink) throws IOException {
+        sink.writeUtf8("I am Jdqm.");
+    }
+};
+
+Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+        .post(requestBody)
+        .build();
+OkHttpClient client = new OkHttpClient();
+Call call = client.newCall(request);
+call.enqueue(new Callback() {
+    @Override
+    public void onFailure(Call call, IOException e) {
+        Log.d(TAG, "onFailure: " + e.getMessage());
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        Log.d(TAG, response.protocol() + " " +response.code() + " " + response.message());
+        Headers headers = response.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            Log.d(TAG, headers.name(i) + ":" + headers.value(i));
+        }
+        Log.d(TAG, "onResponse: " + response.body().string());
+    }
+});
+
+
+=========================================================================================
+
+2.3. POST提交文件
+
+
+MediaType mediaType = MediaType.parse("text/x-markdown; charset=utf-8");
+OkHttpClient client = new OkHttpClient();
+File file = new File("test.md");
+Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+        .post(RequestBody.create(mediaType, file))
+        .build();
+Call call = client.newCall(request);
+call.enqueue(new Callback() {
+    @Override
+    public void onFailure(Call call, IOException e) {
+        Log.d(TAG, "onFailure: " + e.getMessage());
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        Log.d(TAG, response.protocol() + " " +response.code() + " " + response.message());
+        Headers headers = response.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            Log.d(TAG, headers.name(i) + ":" + headers.value(i));
+        }
+        Log.d(TAG, "onResponse: " + response.body().string());
+    }
+});
+
+
+=========================================================================================
+
+2.3. POST分块请求
+
+private static final String IMGUR_CLIENT_ID = "...";
+private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+
+private void postMultipartBody() {
+    OkHttpClient client = new OkHttpClient();
+
+
+    MultipartBody body = new MultipartBody.Builder("AaB03x")
+            .setType(MultipartBody.FORM)
+            .addPart(
+                    Headers.of("Content-Disposition", "form-data; name=\"title\""),
+                    RequestBody.create(null, "Square Logo"))
+            .addPart(
+                    Headers.of("Content-Disposition", "form-data; name=\"image\""),
+                    RequestBody.create(MEDIA_TYPE_PNG, new File("website/static/logo-square.png")))
+            .build();
+
+    Request request = new Request.Builder()
+            .header("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
+            .url("https://api.imgur.com/3/image")
+            .post(body)
+            .build();
+
+    Call call = client.newCall(request);
+    call.enqueue(new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            System.out.println(response.body().string());
+
+        }
+
+    });
+}
+
+
+

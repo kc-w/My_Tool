@@ -1,0 +1,306 @@
+STL标签中的标签主要有以下5类
+
+core标签庠(核心标签库)：包括有通用标签(输出标签)、流控制标签和循环控制标签等；
+fmt标签库：格式化、国际化标签库；
+fn标签库：函数标签库；
+XML标签库：关于XML操作的标签库；
+SQL标签库：操作数据库的标签库；
+
+【1】core标签庠(核心标签库)：<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:set>标签用于在某个范围中设定某个值(可以是对象或者参数)，这个范围可以是request、page、session、application其语法如下：
+<c:set value="参数值" var="参数名" [scope="request|page|session|application"]>
+【[]里的内容可选，scope的属性值默认为page】
+
+<c:out>标签用于把表达式中的结果输出到页面中，其语法如下：
+<c:out value="输出值" [escapeXML="true|false"]>
+【escapeXML的值默认为true，用于将特殊字符转换，如“<”转换为“&lt;”、“>”转换为“&gt;”】
+
+<c:if>标签用于条件判断，其语法如下：
+<c:if test="判断条件" [var="参数名"] [scope="request|page|session|application"]>条件为真时将执行的语句</c:if>
+【test参数是<c:if>标签必须设置的，var参数的值代表执行结果true|false，scope是var的有效范围】
+
+<c:choose>,<c:when>,<c:otherwise>标签是另外一组JSTL的流程控制标签。其语法形式如下：
+<c:choose>
+   <c:when test="表达式">
+      表达式为真时的执行语句
+   </c:when>
+   [<c:otherwise>表达式为假时执行的语句</c:otherwise>]
+</c:choose>
+【在上述的语法中,<c:choose>是父标签,<c:when>和<c:otherwise>是子标签,<c：when>标签可以有0个或者多个，同样<c:otherwise>标签也可以用0个或者多个，但是<c:when>标签必须在<c:otherwise>标签之前。当<c:when>标签中的判断语句为假时，才会执行<c:otherwise>中的内容。如果<c:when>标签中的判读语句有多个为真时，只会执行最先为真中的<c:when>中的内容】
+
+<c:forEach>标签是核心标签中的迭代标签，功能类似于java中的for循环语句。其语法如下：
+<c:forEach items="collection" [var="name"] [varStatus="statusName"] [begin="开始"] [end="结束"] [step="step"]>java程序或者html代码</c:forEach>
+【在上述语法中，var用来存放当前迭代到的成员值，items用来迭代集合，varStatus中存放当前迭代成员的状态信息；begin是迭代开始，end是迭代结束，step是迭的步长。collection集合可以是数组、Java集合(List容器和Map容器)。statusName中存放的信息有：index(当前迭代的索引号)、count(当前迭代的次数)、first(是否第一次迭代)、last】
+
+<c:forTokens>标签用于对字符串进行分割类似于java中的split方法。语法形式如下：
+<c:forTokens items="需要分割的字符串" delims="分隔符" [var="别名"] [varStatus="statusname"] [begin="开始"] [end="结束"] [step="步长"]>
+   java代码，html代码
+<c:forTokens>
+【在上述的语法中，items中放的是进行处理的字符串，delims是进行拆分处理的分隔符，var用来指明迭代值的别名，varStatus是指当前迭代的状态信息，begin是迭代开始，是一个可选项，end是迭代结束值，setp是迭代的步长。】
+
+<c:remove>标签，从标签命名中可以看出，该标签主要功能是删除作用，它可以删除某个范围中设定的值。其中范围可以是page、request、session、application值可以是某对象或者系统中某参数。其语法形式如下：
+<c:remove var="varname" [scope="request|page|session|application"]></c:remove>
+【在上述的语法中，varname是要删除的元素名，scope是指删除的范围，默认page】
+
+<c:catch>标签用于捕获嵌套在<c:catch>标签中的代码抛出的异常，并作相应的处理，类似于Java中的try...catch方法。其语法形式如下：
+<c:catch [var="varname"]>需要捕获异常的程序代码</c:catch>
+【varname用于标识捕获异常信息】
+
+<c:import>标签的作用是把当前JSP页面之外的静态或者动态文件导入进来，甚至可以是其他网站的文件，这功能类似于<jsp:include>JSP动作指令。但是它们有所不同，<jsp:include>只能导入当前Jsp页面同一Web应用下的文件,而<c:import>标签不是。其语法形式有两种，分别如下：
+#<c:import url="url" [context="context"] [var="varname"] [scope="request|page|session|application"] [charEncoding="charencoding"] [<c:param/>]>
+</c:import>
+#<c:import url="url" [context="context"] [varReader="readerName"] [charEncoding="coding"]>
+   [<c:param/>标签语句]
+</c:import>
+【上述语法中，第一种导入文件时，把文件的内容以字符串形式存入vamame中，第二种导入文件时，把文件的内容以Reader的方式向外提供读取。url是输入的地址，它可以是网址、FTP服务的文件地址，也可以是Web应用中的文件。<c:param>标签用于向导入的页面中传入参数，其语法形式如下:<c:param name="传入的参数名" value="参数值"/>】
+
+<c:redirect>标签用于把客户端发来的请求重定向到另一个页面。其语法如下：
+<c:redirect url="url" [context="context"]>
+   [<c:param/>]
+</c:redirect>
+【在上述语法中，url是重定向的目标网页，<c:param>标签是负责带入参数，是可选项，参数context的作用是当要重定向目标网址为其他Web应用的网页时指出其应用名。例如，当前Web应用为testJstl,要重定向到Web应用targeiJstl中的taget.jsp文件时，语句如下：<c:redirect url="/taget.jsp" context="targeiJstl"/>】
+
+<c:url>标签用于生成一个URL。其语法形式如下：
+<c:url value="url" [context="context"] var="varname" [scope="request|page|session|application"]>
+   [<c:param/>]
+</c:url>
+【上述语法中，url是要生成的URL,参数context是用于URL为其他web应用中的应用名称跟<c:import>标签中的context属性一样是可选项参数,varname是生成URL字符串的变量名称,scope是其作用范围，默认是page.】
+
+-------------------------------------------------------------------------------------------------------
+
+【2】fmt标签库：<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<fmt:requestEncoding>标签用于设置请求中数据的字符集，它的作用跟jsp中设定字符集语句：request.setCharacterEncoding("utf-8")是一样的。其语法形式如下：
+<fmt:requestEncoding value="utf-8"/>
+【设置完字符集，就不必再用request为每个参数做字符集编码转换】
+
+<fmt:setLocale>标签用于设置用户的语言国家或地区。其语法如下：
+<fmt:setLocale value="localcode" [scope="request|page|session|application"] [variant="variant"]/>
+【上述语法中，参数localcode代表语言代码，例如zh、en，也可以在后面加上国家或者地区的两位数的代码符号，中间用“_”连接，例如zh_Tw(中国台湾地区)、zh_HK(中国
+香港)。参数variant是设置浏览器类型的。例如win代表Windows。Scope是设置其有效范围，默认是page。】
+
+<fmt:bundle>标签的作用是绑定数据源.properties文件。其调用方式如下：
+<fmt:bundle basename="resourceName" prefix="pre">
+   代码块
+</fmt:bundle>
+【上述方式中，参数basename是要绑定的数据源.properties文件的文件名，参数pre是要获取.properties文件的前缀。若设置prefix属性，则嵌套的<fmt:message>标签中key属性就可以省略prefix属性设置的前缀部分，这功能主要是针对有相同前缀的多个关键字情况。】
+
+<fmt:message>标签的作用是从指定的资源文件。其调用方式如下：
+<fmt:message key="messageName" [var="varname"] [bundle="resourceName"] [scope="request|page|session|application"]>
+   [<fmt:param/>]
+</fmt:message>
+【上述语法中，参数key是要从.properties文件中取出的键名称;参数bundle是要绑定的数据源.properties文件的文件名，参数varname用来保存取出的键值，scope是设置标签的有效范围】
+
+<fmt:param>标签需要和<fmt:message>标签一起使用，用于设定<fmt:message>标签指定键的动态值。其调用方式如下：
+<fmt:param value="keyvalue"/>
+【若<fmt:message>标签对应的键有多个参数,可以用多个<fmt:param>标签来设置其动态值。若.properties文件中有如下的键值对messageT=Welcome {0},today is{1,date}.{0}表示第一个参数，{1,date}表示第二个参数，参数的格式为日期类型】
+
+<fmt:setBundle>标签和<fmt:bundle>标签类似，都是用于设置默认的数据源。其调用方法如下：
+<fmt:setBundle basename="resourceName" [var="绑定数据源别名"] [scope="request|page|session|application"]>
+   代码块
+</fmt:setBundle>
+【上述方式中，参数basename是要绑定的数据源.properties文件的文件名，参数var是代表了绑定的数据源，scope设置var参数的有效范围，默认是page】
+
+<fmt:formatNumber>标签用于显示不同地区的各种数据格式。其调用方法如下：
+<fmt:formatNumber value="numberValue">
+</fmt:formatNumber>
+【参数value：要格式化的数字
+参数type：设定数字的单位，有3种number、currency、percent
+参数pattern：设定显示的模式
+参数currencyCode：设置ISO-4217编码
+参数currencysymbol：设置货币符号
+参数groupingUsed：设置是否在显示数字时，隔开显示
+参数maxIntegerDigits：设置最多的整数位，若设定的数值少于数字的实际位数时，数字的左边位数会被截去响应的位数，例如，123456,maxIntegerDigits设定为4，则结果为3456
+参数minIntegerDigits：设置最少的整数位，若设定的数值多于数字的实际位数时，会在数字的左边补O,例如，123,minIntegerDigits设定为4，则结果为0123
+参数maxFractionDigits：设置最多小数位数，若设定的数值小于数字的实际小数位数，则会从右边截掉多的位数,例如，123.56,maxFractionDigits设定为1，则结果为123.5
+参数minFractionDigits：设置最少小数位数，若设定的数值大于数字的实际小数位数，则会从右边补O,例如，123.56,maxFractionDigits设定为4，则结果为123.5600
+参数var：代表格式化后的数字，若设定了该参数，需用<c:out>标签输出
+参数scope：设定参数var的有效范围，默认为page】
+
+<fmt:parseNumber>标签用于把字符串中表示的数字、货币、百分百转换成数字数据模型。其调用方法如下：
+<fmt:parseNumber value="number" [integerOnly="true|false"] [parseLocale=""] pattern=""scope="" type="number|currency|percent" var="varname"/>
+【参数value：要解析的数字
+参数type：设定数字的单位，有3种number、currency、percent
+参数pattern：设定显示的模式
+参数integerOnly：设置是否只输出整数部分
+参数parseLocale：解析数字时所用的区域
+参数var：代表格式化后的数字，若设定了该参数，需用<c:out>标签输出
+参数scope：设定参数var的有效范围，默认为page】
+
+<fmt:formatDate>标签用于格式化日期，使得可以用不同方式输出日期和时间。其调用方法如下：
+<fmt:formatDate value="datevalue" [dateStyle="default|short|medium|long|full"] [pattern=""] [scope=""] [timeStyle="default|short|medium|long|full"] [timeZone="timeZone"] [type="time|date|both"] [var="varname"]/>
+【参数value：要显示的日期
+参数type：设置输出的类别time、date和both
+参数dateStyle：设定日期输出的格式
+参数pattern：自定义格式模式
+参数timeStyle：设定日期的输出风格
+参数timeZone：设定日期的时区
+参数var：代表格式化后的数字，若设定了该参数，需用<c:out>标签输出
+参数scooe：设定参数var的有效范围，默认为page】
+
+<fmt:parseDate>标签用于把字符串类型的日期转换成日期数据类型，其调用方法如下：
+<fmt:parseDate value="datevalue" [dateStyle="default|short|medium|long|full"] [parseLocale=""] [pattern=""] [scope="request|page|session|application"] [timeStyle="default|short|medium|long|full"] [timeZone="timeZone"] [type="time|date|both"] [var="varname"]/>
+【参数value：要显示的日期
+参数type：设置输出的类别，time、date和both
+参数dateStyle：设定日期输出的格式
+参数pattern：用自定义格式模式
+参数timeStyle设定日期的输出风格
+参数timezone设定日期的时区
+参数var：代表格式化后的数字，若设定了该参数，需用<c:out>标签输出
+参数scope：设定参数var的有效范围，默认为page】
+
+<fmt:setTimeZone>标签用于设定默认的时区，其调用方法如下：
+<fmt:setTimeZone value="timeValue" var="varname" [scope="request|page|session|application"]/>
+【参数value为要设置的时区，var为存储新时区的变量名】
+
+<fmt:timeZone>标签用来指定时区，供其它标签使用，其调用方法如下：
+<fmt:timeZone value="timeValue">代码块</fmt:timeZone>
+
+-------------------------------------------------------------------------------------------------------------
+
+【3】fn标签库：<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+fn:contains()函数用于判断一个字符串是否包含指定的字符串。其语法如下：
+fn:contains(String1,String2)
+【上述语法中，String1是源字符串，String2是指定字符串】
+
+fn:containsIgnoreCase()函数用于判断一个字符串是否包含指定的字符串，忽略大小写敏感，其语法如下：
+fn:containsIgnoreCase(String1,String2)
+【上述语法中，String1是源字符串，String2是指定字符串】
+
+fn:startsWith()函数用于判断一个字符串是否以指定的前缀开始。其语法如下：
+fn:startsWith(String1,String2)
+【上述语法中，String1是源字符串，String2是指定的开始前缀，和java中的startsWith()方法类似】
+
+fn:endsWith()函数用于判断一个字符串是否以指定的后缀结尾。其语法如下：
+fn:endsWith(String1,String2)
+【上述语法中，String1是源字符串，String2是指定的结尾后缀，和java中的endsWith()方法类似】
+
+fn:escapeXml()函数用于忽略Xml标记的字符，其语法如下：
+fn:escapeXml(String)
+【String指定字符串】
+
+fn:indexOf()函数用于返回指定子字符串在此字符串中第一次出现处的索引，其用法跟Java中indexOf()方法是一样的，语法如下：
+fn:indexOf(String1,String2)
+【上述语法中，String1是源字符串，String2是指定字符串】
+
+fn:length()函数用于返回指定字符串的长度，其用法和Java中length()方法是一样的，语法如下：
+fn:length(String)
+【在上述语法中，String是要测试的字符串】
+
+fn:split()函数将字符串用指定的分隔符分隔为一个子串数组。其用法和Java中split()方法是一样的，语法如下：
+fn:split(String1,String2)
+【上述语法中，String1是源字符串，String2是指定分隔符】
+
+fn:join()函数用于将一数组中的所有元素用指定的分隔符来连接成一个字符串，其语法如下：
+fn:join(String[],Str)
+【上述语法中，array是源数组，Str是指定分隔符】
+
+-----------------------------------------------------------------------------------------------------------
+
+【4】SQL标签库：<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
+
+<sql:setDateSource>标签用于设定操作的数据源，其调用方法如下：
+#<sql:setDateSource dataSource="" [var=""] [scope="request|page|session|application"]/>
+#<sql:setDateSource var="test" driver="com.mysql.jdbc.Driver" url="jdbcURL" user="" password="" [scope="request|page|session|application"]/>
+【参数driver：注册的JDBC驱动
+参数url：数据库连接的JDBC URL
+参数user：连接数据库时使用的用户名
+参数password：连接数据库时使用的密码
+参数dataSource：已经存在的数据源
+参数var：代表数据源的变量
+参数scope：设定参数var的有效范围，默认为page】
+
+<sql:query>标签用于数据库中的数据，其调用方法如下：
+<sql:query var="varname" sql="sqlQuery" [dataSource=""] [maxRows=""] [startRow=""] [scope="request|page|session|application"] />
+【参数sql：查询的SQL语句
+参数startRow设置结果集从查询结果的第几条记录开始
+参数maxRows：设置最多可存放的记录条数
+参数dataSource：连接的数据源
+参数var：代表SQL查询的结果
+参数scope：设定参数var的有效范围，默认为page】
+【查询结果存放在var中，需要通过其属性来输出结果：
+参数rows：以字段名称读取结果记录集
+参数rowsByIndex：以数字作为索引的查询结果
+参数columnNames：设置结果集从查询结果的第几条记录开始
+参数rowCount：结果集中记录的条数
+参数limitedByMaxRows：查询结果记录数是否因为maxRows而受到限制，若超过maxRows,返回true，否则为false】
+
+<sql:update>标签用于更新数据库中的数据，其调用方法如下：
+<sql:update var="varname" sql="updatesql" [dataSource=""] [scope="request|page|session|application"]/>
+【参数sql：更新的SQL语句，可以是insert、update、delete语句
+参数dataSource：连接的数据源
+参数var：用来存储所影响行数的变量
+参数scope：设定参数var的有效范围，默认为page】
+
+<sql:dateParam>标签与<sql:query>标签、<sql:update>标签结合使用，用来提供日期和时间的动态值。其调用方法如下：
+<sql:dateParam value="value" type="DATE|time|timestamp"/>
+【参数value：代表要设置的动态参数值；参数type：设置日期数据种类，有date、time、timestamp3种类型。】
+【<sql:param>标签用来提供设置SQL语句中的动态值。其调用方法如下：<sql:param value=""/>】
+
+<sql:transaction>标签是事务标签，它用来将<sql:query>标签、<sql:update>标签封装在单一事务中，确保事务的一致性。<sql:transaction>标签调用方法如下：
+<sql:transaction dataSource="" isolation="">
+   #<sql:query/>
+   #<sql:update/>
+</sql:transaction>
+【参数dataSource：代表要设置的数据源；参数isolation：设置事务的隔离级别，有4个取值：READ_COMMITTED,READ_UNCOMMITTED, REPEATABLE_READ 或 SERIALIZABLE】
+
+
+-----------------------------------------------------------------------------------------------
+
+
+【5】XML标签库：<%@taglib prefix="x" uri="http://java.sun.com/jsp/jstl/xml"%>
+
+<x:parse>标签用来解析XML文件，其调用方法如下：
+<x:parse {doc="XMLDocument"|xml="XMLDocument"} [filter="filter"] [systemId="systemId"] {var="varname" [scope="request|page|session|application"] |varDom="" [scopeDom="request|page|session|application"]}/>
+【参数var：代表已解析XML数据的变量
+参数varDom：代表已解析XML数据的变量
+参数xml：需要解析的XML文档的文本内容
+参数doc：需要解析的XML文档的文本内容
+参数filter：文档过滤器
+参数systemId：XML文档的URI
+参数scope：参数var的作用范围
+参数scopeDom：参数varDom的作用范围】
+【<x:parse>标签常与<c:import>标签结合使用，解析完的节点需要用<x:out>标签输出】
+
+<x:out>标签用于输出XML文件中指定的内容，其调用方法如下：
+<x:out select="expression" {escapeXml="true|false"}/>
+【上述语句中，select属性是XPath表达式，escapseXml代表是否忽略XML特殊字符，默认值是true，即转换特殊字符为实体代码。】
+
+<x:forEach>标签的功能跟<c:forEach>相似，但<x:forEach>是针对XML文件内容的，调用方法如下：
+<x:forEach select="expression" [var="name"] [varStatus="statusName"] [begin="开始"] [end="结束"] [step="step"]/>
+【select属性是XPath表达式，var存放当前迭代的成员值，varStatus中存放当前迭代成员的状态信息；begin是迭代开始，end是迭代结束，step是迭的步长。statusName中存放的信息有：index(当前迭代的索引号)、count(当前迭代的次数)、first(是否第一次迭代)、last】
+
+<x:if>标签和<c:if>标签相似，但<x:if>标签是判断一个XPath表达式的值为真或假，调用方法如下：
+<x:if select="expression" [var="varname"] [scope="request|page|session|application"]>
+   条件为真时执行的语句
+</x:if>
+【select属性是XPath表达式，var代表结果变量】
+
+<x:choose><x:when><x:otherwise>标签与<c:choose><c:when><c:otherwise>标签相似，但前3者标签是判断XPath表达式。调用方法如下：
+<x:choose>
+   <x:when select="XPath表达式">
+      表达式为真时的执行语句
+   </x:when>
+   [<x:otherwise>表达式为假时执行的语句</x:otherwise>]
+</x:choose>
+
+
+<x:set>标签用于把XML文件中XPath表达式的值设置一个变量，调用方法如下：
+<x:set select="expression" var="varname" [scope="request|page|session|application"]/>
+【select属性是XPath表达式，var代表XPath表达式值的变量，使用<x:set>标签设置值后使用<c:out>标签输出】
+
+<x:transform>标签可以将XML文档转化为HTML格式，其调用方法如下：
+<x:transform {doc="XMLDocument" docSystemId="docSystemId"|xml="XMLDocument" xmlSystemId="xmlSystemId"} [result="result"] xslt="xslt" [var="varname"][xsltSystemId=""] [scope="request|page|session|application"]/>
+【参数xml：需要转化的XML文档
+参数doc：需要转化的XML文档
+参数docSystemId：XML文档的URI
+参数xm1SystemId：XML文档的URI
+参数xslt：XSLT样式表
+参数xsltSystemId：源XSLT文档的URI
+参数result：转换结果的对象
+参数var：代表被转换的XML文档的变量
+参数scope：参数var的作用范围】
+【xsl是可扩展样式表语言(EXtensible Stylesheet Language)，它包括3个部分：XSLT(一种用于转换XML文档的语言)、XPath、XSL-FO(一种用于格式化XML文档的语言)。】
+

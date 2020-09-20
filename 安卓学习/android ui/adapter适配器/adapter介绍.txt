@@ -1,0 +1,6 @@
+BaseAdapter：抽象类，实际开发中我们会继承这个类并且重写相关方法，用得最多的一个Adapter！
+ArrayAdapter：支持泛型操作，最简单的一个Adapter，只能展现一行文字~
+SimpleAdapter：同样具有良好扩展性的一个Adapter，可以自定义多种效果！
+
+
+

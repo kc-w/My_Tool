@@ -1,0 +1,1 @@
+tld目录下可以获得c.tld、如t.tld.fn.tld.sql.tld和x.tld，在lib目录下可以获得jstl.jar和standard.jar两个包，把这两个文件复制到Web应用的lib目录下，JSTL标签就可以在当前的Web应用中使用，若想要Tomcat服务器中所有的Web应用都能使用JSTL标签,就可以将这两个jar包复制到Tomcat安装目录的lib目录下。

@@ -1,0 +1,145 @@
+str()： 函数返回一个用户易读的表达形式。
+repr()： 产生一个解释器易读的表达形式。
+
+>>> s = 'Hello, Runoob'
+>>> str(s)
+'Hello, Runoob'
+
+>>> repr(s)
+"'Hello, Runoob'"
+
+>>> str(1/7)
+'0.14285714285714285'
+
+>>> x = 10 * 3.25
+>>> y = 200 * 200
+>>> s = 'x 的值为： ' + repr(x) + ',  y 的值为：' + repr(y) + '...'
+>>> print(s)
+x 的值为： 32.5,  y 的值为：40000...
+
+>>> #  repr() 函数可以转义字符串中的特殊字符
+... hello = 'hello, runoob\n'
+>>> hellos = repr(hello)
+>>> print(hellos)
+'hello, runoob\n'
+
+>>> # repr() 的参数可以是 Python 的任何对象
+... repr((x, y, ('Google', 'Runoob')))
+"(32.5, 40000, ('Google', 'Runoob'))"
+
+
+str.format() 的基本使用如下:
+>>> print('{}网址： "{}!"'.format('菜鸟教程', 'www.runoob.com'))
+菜鸟教程网址： "www.runoob.com!"
+
+>>> print('{0} 和 {1}'.format('Google', 'Runoob'))
+Google 和 Runoob
+>>> print('{1} 和 {0}'.format('Google', 'Runoob'))
+Runoob 和 Google
+
+>>> print('{name}网址： {site}'.format(name='菜鸟教程', site='www.runoob.com'))
+菜鸟教程网址： www.runoob.com
+
+>>> print('站点列表 {0}, {1}, 和 {other}。'.format('Google', 'Runoob',other='Taobao'))
+站点列表 Google, Runoob, 和 Taobao。
+
+
+>>> import math
+>>> print('常量 PI 的值近似为：%1.3f。' % math.pi)
+常量 PI 的值近似为：3.142。
+
+
+input 可以接收一个Python表达式作为输入，并将运算结果返回。
+str = input("请输入：");
+print ("你输入的内容是: ", str)
+
+
+Python转义字符
+转义字符	描述
+\           转义
+\a	        响铃
+\b	        退格(Backspace)
+\e	        转义
+\000	    空
+\n	        换行
+\v	        纵向制表符
+\t	        横向制表符
+\r	        回车
+\f	        换页
+\oyy	    八进制数，yy代表的字符，例如：\o12代表换行
+\xyy	    十六进制数，yy代表的字符，例如：\x0a代表换行
+\other	    其它的字符以普通格式输出
+
+
+
+Python 使用反斜杠(\)转义特殊字符，如果想把所有的字符冲全部输出可以在字符串前加r，表示原始字符串：
+>>> print('Ru\noob')
+Ru
+oob
+>>> print(r'Ru\noob')
+Ru\noob
+>>> 
+
+
+Python字符串运算符
+下表实例变量a值为字符串 "Hello"，b变量值为 "Python"：
+操作符	描述	                                             实例
++	    字符串连接	                                        a + b 输出结果： HelloPython
+*	    重复输出字符串	                                    a*2 输出结果：HelloHello
+[]	    通过索引获取字符串中字符	                        a[1] 输出结果 e
+[ : ]	截取字符串中的一部分	                            a[1:4] 输出结果 ell
+in	    成员运算符 - 如果字符串中包含给定的字符返回 True	'H' in a 输出结果 1
+not in	成员运算符 - 如果字符串中不包含给定的字符返回 True	'M' not in a 输出结果 1
+r/R	    原始字符串 - 原始字符串除在字符串的第一个引号       前加上字母 r，与普通字符串有着几乎完全相同的语法。	
+%	    格式字符串	                                        print ("我叫 %s 今年 %d 岁!" % ('小明', 10))
+
+
+
+python字符串格式化符号:
+符号	描述
+%c	 格式化字符及其ASCII码
+%s	 格式化字符串
+%d	 格式化整数
+%u	 格式化无符号整型
+%o	 格式化无符号八进制数
+%x	 格式化无符号十六进制数
+%X	 格式化无符号十六进制数（大写）
+%f	 格式化浮点数字，可指定小数点后的精度
+%e	 用科学计数法格式化浮点数
+%E	 作用同%e，用科学计数法格式化浮点数
+%g	 %f和%e的简写
+%G	 %f 和 %E 的简写
+%p	 用十六进制数格式化变量的地址
+
+
+
+格式化操作符辅助指令:
+符号	功能
+*	    定义宽度或者小数点精度
+-	    用做左对齐
++	    在正数前面显示加号( + )
+<sp>	在正数前面显示空格
+#	    在八进制数前面显示零('0')，在十六进制前面显示'0x'或者'0X'(取决于用的是'x'还是'X')
+0	    显示的数字前面填充'0'而不是默认的空格
+%	    '%%'输出一个单一的'%'
+(var)	映射变量(字典参数)
+m.n.	m是显示的最小总宽度,n 是小数点后的位数(如果可用的话)格式化操作符辅助指令:
+
+
+
+python三引号允许一个字符串跨多行，字符串中可以包含换行符、制表符以及其他特殊字符。实例如下
+errHTML = '''
+<HTML><HEAD><TITLE>
+Friends CGI Demo</TITLE></HEAD>
+<BODY><H3>ERROR</H3>
+<B>%s</B><P>
+<FORM><INPUT TYPE=button VALUE=Back
+ONCLICK="window.history.back()"></FORM>
+</BODY></HTML>
+'''
+
+
+
+
+
+

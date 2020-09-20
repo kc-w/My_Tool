@@ -1,0 +1,51 @@
+Spring框架的功能是通过核心容器来实现的,Spring框架提供两种核心容器,分别为BeanFactory和ApplicationContext.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1:BeanFactory
+BeanFactory由org.springframework.beans.facytory.BeanFactory接口定义，是基础类型的loc容器，它提供了完整的loc服务支持。简单来说，BeanFactory就是一个管理Bean的工厂，它主要负责初始化各种Bean，并调用它们的生命周期方法。
+
+BeanFactory接口提供了几个实现类，其中最常用的是org.springframework.beans.factory.xml.XmlBeanFactory，该类会根据XML配置文件中的定义来装配Bean.
+
+创建BeanFactory实例时，需要提供Spring所管理容器的详细配置信息，这些信息通常采用XML文件形式来管理，其加载配置信息的语法如下。
+BeanFactory beanFactory=new XmlBeanFactory (new FileSystemResource ("F /applicationContext. xml") )这种加载方式在实际开发中并不多用，了解即可。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2:ApplicationContext
+ApplicationContext是BeanFactory的子接口，也被称为应用上下文，是另一种常用的Spring核心容器，由org.springframework.context.Applicationcontext接口定义，不仅包含了BeanFactory的所有功能，还添加了对国际化、资源访问、事件传播等方面的支持。
+
+创建ApplicationContext接口实例，通常采用两种方法，具体如下。
+1. 通过ClassPathXmlApplicationContext创建
+ClassPathXmlApplicationContext会从类路径classpath中寻找指定的XML配置文件，找到并装载完成ApplicationContext的实例化工作,其使用语法如下:
+ApplicationContext applicationContext=new ClassPathXmlApplicationContext(applicationContext.xml);
+
+2. 通过FileSystemXmlApplicationContext创建
+FilesystemxmlApplicationcontext会从指定的文件系统路径(绝对路径)中寻找指定的XML配置文件，找到并装载完成Applicationcontext的实例化工作，其使用语法如下。
+Applicationcontext applicationcontext =new FileSystemXmlApplicationContext(D:/applicationContext.xml);
+
+与ClassPathXmlApplicationContext有所不同的是，在读取spring的配置文件时，FileSystemXmlApplicationContext不再从类路径中读取配置文件，而是通过参数指定配置文件的位置，例如D:/workspaces/applicationcontext.xml。如果在参数中写的不是绝对路径，那么方法调用的时候，会默认用绝对路径来找。这种采用绝对路径的方式，会导致程序的灵活性变差，所以这个方法一般不推荐使用。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+在使用Spring框架时，可以通过实例化其中任何一个类来创建ApplicationContext对容器。通常在Java项目中，会采用通过ClassPathXmlApplicationContext类来实例化ApplicationContext容器的方式，而在Web项目中，ApplicationContext容器的实例化工作会交由Web 服务器来完成。Web 服务器实例化 ApFHicationContext 容器时，通常会使用 基于ContextLoaderListener实现的方式，此种方式只需要在web.xml中添加如下代码。
+<!--指定spring配置文件的位置，多个配置文件时，以逗号分隔-->
+<context-param>
+   <param-name>contextConfigLocation</param-name>
+   <!--Spring将加载spring目录下的applicationContext.xml文件-->
+   <param-value>
+      classpath:applicationContext.xml
+   </param-value>
+</context-param>
+<!--指定以ContextLoaderListener方式启动spring容器-->
+<listener>
+   <listener-class>
+      org. springframework. web. context. ContextLoaderLi s tener
+   </listener-class>
+</listener>
+
+创建Spring容器后，就可以获取Spring容器中的Bean.Spring获取Bean的实例通常采用以下两种方法。
+.Object getBean(String name)根据容器中Bean的id或name来获取指定的Bean，获取之后需要进行强制类型转换。
+·<T> T getBean(Class<T> requiredType)根据类的类型来获取Bean的实例，由于此方法为泛型方法，因此在获取Bean之后不需要进行强制类型转换。
+
+

@@ -1,0 +1,30 @@
+首次请求获取sessionid并存储
+SharedPreferences preferences;
+SharedPreferences.Editor editor;
+
+//读取登录历史信息userinfo
+preferences = this.getSharedPreferences("userinfo", MODE_PRIVATE);
+editor = preferences.edit();
+
+//在okhttp的response中得到sessionid
+Headers headers =response.headers();
+List cookies = headers.values("Set-Cookie");
+String session = (String) cookies.get(0);
+String sessionid = session.substring(0,session.indexOf(";"));
+
+将sessionid存储到SharedPreferences中
+editor.putString("sessionid",sessionid);
+
+========================================================================
+
+在其他okhttp请求中添加存储的sessionid
+
+//取出存储的sessionid
+String sessionid= preferences.getString("sessionid","null");
+
+//构建请求
+Request request=new Request.Builder()
+        .url("http://192.168.1.154:8080/AddTaskServlet")
+        .addHeader("cookie",sessionid)//在请求头中添加
+        .post(RequestBody.create(jsonString, mediaType ))
+        .build();

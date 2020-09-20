@@ -1,0 +1,78 @@
+<selecrt>元素用于映射查询语句,它可以帮助我们从数据库中读取数据,并组装数据给业务开发人员.
+<select id="id名" parameterType="传入的参数类型" resultType="返回的参数类型">
+   select * from 表名 where 字段名=#{字段名}
+</select>
+
+<select>元素常用属性(该属性大部分于insert,update,delete共用)
+属性                           说明
+id                              表示命名空间中的唯一标识符，常与命名空间组合起来使用.组合后如果不唯一,mybatis会抛出异常.
+parameterType         该属性表示传入SQL语句的参数类型。它是一个可选属性，因为MyBatis可以通过TypeHandler推断出具体传入语句的参数。其默认值是unset(依赖于驱动)
+resultType                从SQL语句中返回的类型。如果是集合类型，那么返回的应该是集合可以包含的类型，而不是集合本身
+resultMap                表示外部resultMap的命名引用。返回时可以使用resultType或resultMap
+flushCache               表示在调用SQL语句之后，是否需要MyBatis清空之前查询的本地缓存和二级缓存。其值为布尔类型(默认值为false)
+useCache                 用于控制二级缓存的开启和关闭。其值为布尔类型(默认值为true，表示将查询结果存入二级缓存中)
+timeout                    用于设置超时参数，单位为秒。超时时将抛出异常
+fetchSize                  获取记录的总条数设定，其默认值是unset(依赖于驱动)
+statementType        设置MyBatis使用哪个JDBC的Statement,其值为STATEMENT,PREPARED(默认值)或CALLABLE,分别对应JDBC中的Statement,PreparedStatement,CallableStatement
+resultSetType          表示结果集的类型,其值可设置为FORWARD_ONLY,SCROLL_SENSITIVE或SCROLL_INSENSITIVE,其默认值是unset(依赖于驱动)
+
+
+================================================================================================================
+<insert>元素用于映射插入语句,在执行完元素定义的SQL语句后,会返回一个表示插入记录数的整数.
+<insert id="id名" parameterType="传入的参数类型" keyproperty="主键名" useGeneratedKeys="true">
+   insert into 表名(字段1,字段2) values(#{字段1},#{字段2})
+</insert>
+
+<insert>元素常用属性
+属性                           说明
+keyproperty             (仅对insert和update有用)此属性的作用是将插入或更新操作时的返回值赋值给PO类的某个属性，通常会设置为主键对应的属性。如果需要设置联合主键，可以在多个值                                   之间用逗号隔开
+keyColumn              (仅对insert和update有用)此属性用于设置第几列是主键，当主键列不是表中的第一列时需要设置。在需要主键联合时，值可以用逗号隔开
+useGeneratedKeys   (仅对insert和update有用)此属性会使MyBatis使用JDBC的getGeneratedKeys()方法来获取由数据库内部生产的主键，如MySQL和SQL Server等自动递增的字段，其默
+                                 认值为false
+
+================================================================================================================
+<update>元素用于映射插入语句,在执行完元素定义的SQL语句后,会返回一个表示更新记录数的整数.
+<update id="updateUser" parameterType="com.wan.pojo.User">
+     UPDATE 表名 SET 字段名=#{name} WHERE 字段名=#{id}
+</update>
+
+================================================================================================================
+<delete>元素用于映射插入语句,在执行完元素定义的SQL语句后,会返回一个表示删除记录数的整数.
+<delete id="deleteUser" parameterType="Integer">
+    DELETE FROM 表名 WHERE 字段名=#{id}
+</delete>
+
+
+================================================================================================================
+<sql>元素的作用就是定义可重用的SQL代码段,然后在其他语句中引用这一代码段.
+<sql id="name">字段1,字段2,字段3....</sql>
+<select id="id名" parameterType="传入的参数类型" resultType="返回的参数类型">
+   select <include refid="name"/> from 表名 where 字段名=#{字段名}
+</select>
+
+================================================================================================================
+<resultMap>元素是定义映射规则,级联的更新以及定义类型转化器.将属性自动和表字段相映射
+<resultMap>包含的一些子元素:
+
+<resultMap type="" id="">
+   <constructor><!--类在实例化时，用来注入结果到构造方法中-->
+      <idArg/><!--ID参数,标记结果作为ID-->
+      <arg/><!--注入到构造方法的一个普通结果-->
+   </constructor>
+   <id/><!--用于表示哪个列是主键-->
+   <result/><!--注入到字段或Java Bean属性的普通结果-->
+   <association property=""/><!--用于一对一关联-->
+   <collection property=""/><!--用于一对多关联-->
+   <discriminator javaType=""><!--使用结果值来决定使用哪个结果映射-->
+      <case value=""/><!--基于某些值的结果映射-->
+   <discriminator/>
+</resultMap>
+
+在映射文件中编写的示例如下:
+<resultMap type="pojo类路径" id="标识">
+   <id property="pojo属性名" column="字段名"/><!--用于表示哪个列是主键-->
+   <result property="pojo属性名" column="字段名"/><!--注入到字段或Java Bean属性的普通结果-->
+</resultMap>
+<select id="" resultMap="标识">
+   select * from 表名
+</select>

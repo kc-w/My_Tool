@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<style type="text/css">
+			#draggable{
+				width: 100px;
+				height: 100px;
+				padding: 0.5em;
+				margin: 10px 10px 10px 0;
+				background-color: greenyellow;
+			}
+			#droppable{
+				width: 150px;
+				height: 150px;
+				padding: 0.5em;
+				margin: 10px;
+				background-color: gold;
+			}
+			
+		</style>
+		<script>
+			$().ready(function(){
+				$("#draggable").draggable();
+				$("#droppable").droppable({
+					drop:function(){
+						$(this).addClass("a").html("变色了").css({"background":"red"});
+					}
+				});
+			})
+		</script>
+	</head>
+	<body>
+		
+		<div id="draggable" class="ui-widget-content">
+			拖
+		</div>
+		<div id="droppable" class="ui-widget-header">
+			放
+		</div>
+	</body>
+</html>

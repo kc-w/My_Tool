@@ -1,0 +1,51 @@
+运算符操作
+and操作
+select * from 表名 条件1 and条件2;
+
+or操作
+select * from 表名 条件1 or 条件2;
+
+order by排序
+select * from 表名 order by 字段名 asc;(默认以该字段进行升序排列)
+select * from 表名 order by 字段名 desc;(默认以该字段进行降序排列)
+
+limit用法
+select * from 表名 limit 6;(查询表的所有数字,并选择前6个进行显示)
+select * from 表名 limit 2,10;(查询所有数据,并选择从第三个数据开始向下取10个数据并进行显示)
+
+通配符%
+select * from 表名 where 字段名 like '%a%';(查询该字段值所有包含a的结果)
+select * from 表名 where 字段名 like '%a';(查询该字段值所有以任意字符开头结尾为a结果)
+select * from 表名 where 字段名 not like 'a%';(查询该字段值所有不以a开头的结果)
+
+通配符_
+select * from 表名 where 字段名 like '_a';(查询该字段以任意单个字符开头以a结尾的结果)
+
+通配符[]
+select * from 表名 where 字段名 like '[abc]%';(查询该字段以a,b,c开头的的结果)
+
+通配符[^]
+select * from 表名 where 字段名 like '[^abc]';(查询该字段以非a,b,c开头的结果)
+
+in操作符
+select * from 表名 where 字段名 in(value1,value2,value3...);(查询所有字段名为value1,value2,value3...的结果)
+
+between and操作符
+select * from 表名 where 字段名between value1 and value2;(查寻所有字段名为value1到value2之间的结果)
+select * from 表名 where 字段名 not between value1 and value2;(查寻所有字段名不以value1到value2之间的结果)
+
+连接查询
+select 表1.* ,表2.* from 表1,表2 where 表1.字段1=表2.字段1;(连接查询所有表1中字段1等于表2中字段1的结果)
+
+inner join用法(内连接用法)
+select 表1.* ,表2.* from 表1 inner join 表2 on 表1.字段1=表2.字段1 order by 表1.字段2(内连接查询所有表1的字段1等于表2的字段1的结果,并以表1的字段2进行升序排列)
+
+left join用法(左连接用法)
+select 表1.* ,表2.* from 表1 left join 表2 on 表1.字段1=表2.字段1 order by 表1.字段2(左连接查询所有以表1的字段1等于表2的字段1的结果,并以表1的字段2进行升序排列)
+
+right join用法(右连接用法)
+select 表1.* ,表2.* from 表1 right join 表2 on 表1.字段1=表2.字段1 order by 表1.字段2(右连接查询所有以表2的字段1等于表1的字段1的结果,并以表1的字段2进行升序排列)
+
+full join用法(全连接用法)
+select 表1.* ,表2.* from 表1 full join 表2 on 表1.字段1=表2.字段1 order by 表1.字段2(全连接查询所有以表1的字段1等于表2的字段1的结果,并以表1的字段2进行升序排列)
+

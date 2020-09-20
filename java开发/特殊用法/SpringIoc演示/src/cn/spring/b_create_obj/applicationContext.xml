@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!--IOC容器， 创建对象 -->
+	
+	<!-- 1） 调用无参数构造器   -->
+	<bean id="user1" class="cn.spring.b_create_obj.User"></bean> 
+	
+	<!-- 2） 调用有参数构造器, 创建对象 -->
+	<!-- String str = new String("Jack"); -->
+	<bean id="str" class="java.lang.String">
+		<constructor-arg value="Jack"></constructor-arg>
+	</bean>
+	
+	
+	<!-- 创建user对象，且赋值 -->
+	<!-- 
+		value 当直接给属性值的时候使用value赋值
+		ref   当引用的是IOC容器中的对象的时候，使用ref    
+	 -->
+	<bean id="user" class="cn.spring.b_create_obj.User">
+		
+		<constructor-arg index="1" type="String" ref="str"></constructor-arg>
+		<constructor-arg index="0" type="int" value="10000"></constructor-arg>
+	</bean>
+	
+	
+</beans>      

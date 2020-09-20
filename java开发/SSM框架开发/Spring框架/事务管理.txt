@@ -1,0 +1,61 @@
+PlatformTransactionManager接口是Spring提供的平台事务管理器，主要用于管理事务。该接口中提供了3个事务操作的方法，具体如下。
+
+.TransactionStatus getTransaction(TransactionDefinition definition)用于获取事务状态信息。
+.void commit(Transactionstatus status)用于提交事务。
+.void rollback(Transactionstatus status)用于回滚事务。
+
+在上面的3个方法中.TransactionStatus getTransaction(TransactionDefinition definition)方法会根据TransactionDefinition参数返回一个TransactionStatus对象，TransactionStatus对象就表示个事务，它被关联在当前执行的线程上。
+
+
+
+PlatformTransactionManager接口只是代表事务管理的接口，它并不知道底层是如何管理事务的，它只需要事务管理提供上面的3个方法，但具体如何管理事务则由它的实现类来完成。
+
+PlatformTransactionManager接口有许多不同的实现类，常见的几个实现类如下。
+
+.org.springframework.jdbc.datasource.DatasourceTransactionManager:用于配置JDBC数据源的事务管理器。
+
+.org.springframework.orm.hibernate4.HibernateTransactionManager:用于配置 Hibernate的事务管理器。
+
+.org.springframework.transaction.jta.JtaTransactionManager用于配置全局事务管理器。
+
+当底层采用不同的持久层技术时，系统只需使用不同的PlatformTransactionManager实现类即可。
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+TransactionDefinition接口是事务定义(描述)的对象,该对象中定义了事务规则,并提供了获取事务相关信息的方法，具体如下。
+
+.String getName()获取事务对象名称。
+.int getlsolationLevel()获取事务的隔离级别。
+.int getPropagationBehavior()获取事务的传播行为。
+.int getTimeout()获取事务的超时时间.
+.boolean isReadOnly()获取事务是否只读。
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+TransactionStatus接口是事务的状态,它描述了某一时间点上事务的状态信息。该接口中包含6个方法，具体如下。
+
+.void flush()刷新事务。
+.boolean hasSavepoint()获取是否存在保存点。
+.boolean isCompleted()获取事务是否完成。
+.boolean isNewTransaction()获取是否是新事务。
+.boolean isRo11backOnly()获取是否回滚。
+.void setRollbackOnly()设置事务回滚。
+
+
+
+------------------------------------------------------------------------------------------------
+
+
+事务的管理方式:
+
+Spring中的事务管理分为两种方式；一种是传统的编程式事务管理，另一种是声明式事务管理。
+
+编程式事务管理是通过编写代码实现的事务管理，包括定义事务的开始、正常执行后的事务提交和异常时的事务回滚。
+
+声明式事务管理是通过AOP技术实现的事务管理,其主要思想是将事务管理作为一个切面。代码单独编写,然后通过AOP技术将事务管理的切面代码织入到业等目标类中。
+
+声明式事务管理最大的优点在于开发者无须通过编程的方式来管理事务，只需在配置文件中进行相关的事务规则声明，就可以将事务规则应用到业务逻辑中。这使得开发人员可以更加专注于核心业务逻辑代码的编写，在一定程度上减少了工作量，提高了开发效率，所以在实际开发中，通常都推荐使用声明式事务管理。这里主要讲解的就是Spring的声明式事务管理。
+
+

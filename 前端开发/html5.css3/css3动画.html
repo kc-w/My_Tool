@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style type="text/css"> 
+   *{
+	   margin:0;
+	   }
+   div{
+	   border-radius:50%; 
+	   -moz-border-radius:50%;
+	   -webkit-border-radius:50%;
+	   
+	   height:30px;
+	   width:30px;
+	   background:green;
+	   position:relative;
+	   /*(动画名 一个周期的总播放时长 速度变化 动画开始时间 循环播放次数 在下一周期是否逆向播放)*/
+	   animation:donghua 5s linear 2s infinite alternate;
+	   -webkit-animation:donghua 5s linear 1s infinite alternate;
+	   -ms-animation:donghua 5s linear 2s infinite alternate;
+	   -moz-animation:donghua 5s linear 2s infinite alternate;
+	   -o-animation:donghua 5s linear 2s infinite alternate;
+   }
+   /*规定动画名*/
+   @keyframes donghua{
+	   0%{
+		   left:-20px;
+		   top:-20px;
+		   background:red;
+	   }
+	   10%{
+		   left:200px;
+		   top:900px;
+		   background:blue;
+	   }
+	   20%{
+		   left:400px;
+		   top:0px;
+		   background:yellow;
+	   }
+	   30%{
+		   left:600px;
+		   top:900px;
+		   background:black;
+	   }
+	   40%{
+		   left:800px;
+		   top:0px;
+		   background:#C06;
+	   }
+	   50%{
+		   left:1000px;
+		   top:900px;
+		   background:#0C0;
+	   }
+	   60%{
+		   left:1200px;
+		   top:0px;
+		   background:#FF0;
+	   }
+	  70%{
+		   left:1400px;
+		   top:900px;
+		   background:#0FF;
+	   }
+	   80%{
+		   left:1600px;
+		   top:0px;
+		   background:#CF0;
+	   }
+	   90%{
+		   left:1800px;
+		   top:900px;
+		   background:#F30;
+	   }
+	   100%{
+		   left:2000px;
+		   top:0px;
+		   background:#C0F;
+	   }
+	   
+   }
+   @-webkit-keyframes donghua{
+	   0%{
+		   left:-100px;
+		   top:-100px;
+	   }
+	   10%{
+		   left:100px;
+		   top:100px;
+	   }
+	   20%{
+		   left:200px;
+		   top:0px;
+	   }
+	   30%{
+		   left:300px;
+		   top:100px;
+	   }
+	   40%{
+		   left:400px;
+		   top:0px;
+	   }
+	   50%{
+		   left:500px;
+		   top:100px;
+	   }
+	   60%{
+		   left:600px;
+		   top:0px;
+	   }
+	  70%{
+		   left:700px;
+		   top:100px;
+	   }
+	   80%{
+		   left:800px;
+		   top:0px;
+	   }
+	   90%{
+		   left:900px;
+		   top:100px;
+	   }
+	   100%{
+		   left:1000px;
+		   top:0px;
+	   }
+   }
+</style>
+</head>
+<body>
+
+<div></div>
+
+</body>
+</html>

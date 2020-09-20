@@ -1,0 +1,131 @@
+ES6的javascript的代码声明方式为<scrip type="module">ES6代码</script>
+
+[1]变量:
+1:第一个字符必须是字母(大小写均可),下划线或美元符号开头.
+2:后续的字符可以是字母,数字,下划线或美元符号.
+3:变量名称不能是关键字或保留字.
+4:不允许出现中文变量名,且大小写敏感.
+
+变量声明:变量根据其有效范围可分为全局变量和局部变量两种,如果不声明变量类型就直接对其进行赋值将默认为全局变量.
+var:变量声明修饰符,在所声明的区域有效;
+let:变量声明修饰符,只在所声明的{}内有效,内部{}内声明的let变量不能影响到外部{}的let变量;
+const:常量修饰符,声明后不能再赋值
+
+-----------------------------------------------------
+
+[2]基础数据类型:
+Number:数值型数据.
+String:字符串型数据.需要加双引号或单引号.
+Boolean:布尔型数据.
+Undefined:表示为未定义的数据.即声明了变量但是未对其进行赋值.
+Null:表示空值.对象不存在.
+Infinity:当在javascript中使用的数字大于javascript所能表示的最大值时,javascript就会输出Infinity,意思为无穷大,反之为-Infinity.
+NaN:javascript中的NaN是"not a number"的意思,通常在数值运算产生未知的错误时会返回NaN,NaN不会和任何数值相等,包括NaN.但是可以使用isNaN()方法来判断
+
+-----------------------------------------------------
+
+[3]数据类型的转换:
+转换为字符串:布尔值,数字,字符串可以使用toString()方法将数据转换为字符串
+转换为数字:字符串可以使用parseInt()和parseFloat()方法将其转换为数字,转换时跳过空格读取到非数值时停下,返回数字,如果字符串不以数字开头则返回NaN.
+数据类型强制转换:Boolean(),Number(),String()
+
+-----------------------------------------------------
+
+[4]引用类型:
+对象:var myobject={"id":1,"name":"kc-w","info":function info(){alert("ok");}};(保存在对象中的数据可以是任意类型,甚至是函数)
+数组:var shuzu=[11,"11",object];(存放在数组中的值可以为不同的数据类型,甚至是对象,并且通过下标进行访问)
+
+-----------------------------------------------------
+
+[5]变量的解构赋值:（ES6允许按照一定模式，从数组和对象中提取值，对变量进行赋值，称之为解构）
+
+数组的解构：
+例如：var [a,b,c]=[1,2,3];
+如果等号左边的模式只匹配等号右边的数组中的一部分，解构依旧成功，但是属于不完全解构，如：let[x,y]=[1,2,3];  x=1,y=2
+解构中还可以嵌套数组，如：let[a,[b],[c]]=[1,[2,3],4];   a=1,b=2,c=4
+
+对象的解构：
+var{obj1,obj2}={obj2:"abc",obj1:"123"};(按对象名进行赋值)
+
+-----------------------------------------------------
+
+[6]控制语句：
+选择分支：
+if(条件){语句} else{语句}
+if(条件){语句}  else if(条件){语句}  else{语句}
+switch
+(条件)?语句1:语句2;
+
+
+循环控制：
+while(条件){语句}
+do{语句}while(条件)
+for(循环变量;条件判断;循环变量更新){语句}
+for(变量名;in;数组对象名){语句} （变量名表示为下标）
+for(变量名;of;数组对象名){}   （变量名表示数值）
+
+跳转控制：
+break:执行到break语句后将无条件退出当前循环
+continue:执行到continue语句后将跳过当前循环，直接进行下一次循环
+
+-----------------------------------------------------
+
+[7]函数：
+函数声明：function hangshu(){}
+arguments对象：arguments[]可以获取函数调用的实际传递参数的值,使用arguments.length可以得到实际传递的参数长度
+typeof():typeof()函数可以判断传入变量的数据类型，并返回字符串
+-----------------------------------------------------
+函数参数的默认值设置：
+function hi(x,y="word"){
+   document.writer(x,y);
+}
+hi("hello");
+hi("hello","javascript");
+hi("hello","");
+显示结果为：hello world     hello javascript      hello
+
+函数参数的默认值与解构赋值结合:
+function test({x,y=2}){
+   document.writer(x,y);
+}
+test({});
+test({x:1});
+test({x:1,y:3});
+test();
+显示结果为：undefined 2     1 2      1 3       TypeError:无法获取属性x 
+
+
+#rest参数:(ES6引入rest参数,形式为"...变量名",用于获取函数的多余参数,这样就不需要使用argument对象了)
+function sum(...args){
+   let s=0;
+   for(let k of args){
+      s+=k;
+   }
+   return s;
+}
+var sum=sum(1,3,1);
+document.write(sum);
+结果显示为:5
+
+function str(s1,s2,s3,s4,s5){
+   document.writer(s1+s2+s3+s4+s5);
+}
+var arr=["a","b","c","d","e"];
+str(...arr);
+结果显示为:abcde
+
+#call()和apply()方法:
+函数名.call(对象名,参数1,参数2,...)
+函数名.apply(对象名,数组)
+function sum(){
+   var sum=0;
+   for(var i=0;i<arguments.length;i++){
+      sum+=arguments[i];
+   }
+   return sum;
+}
+var myobj=new Object();
+var arr=[1,3,5];
+document.writer("sum1:"+sum.call(myobj,1,4,6));
+document.writer("sum2:"+sum.apply(myobj,arr));
+结果为:sum1:11   sum2:9

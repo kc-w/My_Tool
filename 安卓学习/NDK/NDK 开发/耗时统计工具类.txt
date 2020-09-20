@@ -1,0 +1,130 @@
+一、需求分析
+    在开发阶段中，经常会需要打印出某些方式或步骤的耗时情况，大致需求如下：
+        能打印出某个步骤的耗时；
+                有开关可以控制打开和关闭耗时统计；
+                使用方便
+
+二、准备工作
+    日志类
+    LogUtils.h
+        #ifndef _LOG_UTILS_H_
+        #define _LOG_UTILS_H_
+
+        #ifdef __ANDROID__ // Android平台
+        #include <android/log.h>
+        #else // 其它平台
+        #include <stdio.h>
+        #endif // __ANDROID__
+
+        #include <string.h>
+
+        #define DEBUG // 可以通过 CmakeLists.txt 等方式来定义在这个宏，实现动态打开和关闭LOG
+
+        // Windows 和 Linux 这两个宏是在 CMakeLists.txt 通过 ADD_DEFINITIONS 定义的
+        #ifdef Windows
+        #define __FILENAME__ (strrchr(__FILE__, '\\') + 1) // Windows下文件目录层级是'\\'
+        #else
+        #define __FILENAME__ (strrchr(__FILE__, '/') + 1) // Linux下文件目录层级是'/'，默认使用这种方式
+        #endif // Windows
+
+        #ifdef DEBUG // 如果打开了 DEBUG 开关
+
+        #ifdef __ANDROID__
+        #define TAG "JNI"
+        #define LOGV(fmt, ...) __android_log_print(ANDROID_LOG_VERBOSE, TAG,\
+                "[%s][%s][%d]: " fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGD(fmt, ...) __android_log_print(ANDROID_LOG_DEBUG, TAG,\
+                "[%s][%s][%d]: " fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, TAG,\
+                "[%s][%s][%d]: " fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGW(fmt, ...) __android_log_print(ANDROID_LOG_WARN, TAG,\
+                "[%s][%s][%d]: " fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, TAG,\
+                "[%s][%s][%d]: " fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #else
+        #define LOGV(fmt, ...) printf("[%s][%s][%d]: " fmt "\n",\
+                __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGD(fmt, ...) printf("[%s][%s][%d]: " fmt "\n",\
+                __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGI(fmt, ...) printf("[%s][%s][%d]: " fmt "\n",\
+                __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGW(fmt, ...) printf("[%s][%s][%d]: " fmt "\n",\
+                __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #define LOGE(fmt, ...) printf("[%s][%s][%d]: " fmt "\n",\
+                __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__);
+        #endif // __ANDROID__
+
+        #else // 如果没打开 DEBUG 开关，则只是一些空的语句
+        #define LOGV(fmt, ...);
+        #define LOGD(fmt, ...);
+        #define LOGI(fmt, ...);
+        #define LOGW(fmt, ...);
+        #define LOGE(fmt, ...);
+        #endif // DEBUG
+
+        #endif // _LOG_UTILS_H_
+
+    耗时工具类
+    TimeUtils.h
+        #ifndef _TIME_UTILS_H
+        #define _TIME_UTILS_H
+
+        #include "LogUtils.h"
+
+        #ifdef _MSC_VER // 兼容微软平台
+        #include <windows.h>
+        #include <WinSock.h>
+        static int gettimeofday(struct timeval *tp, void *tzp) {
+            time_t clock;
+            struct tm tm;
+            SYSTEMTIME wtm;
+            GetLocalTime(&wtm);
+            tm.tm_year = wtm.wYear - 1900;
+            tm.tm_mon = wtm.wMonth - 1;
+            tm.tm_mday = wtm.wDay;
+            tm.tm_hour = wtm.wHour;
+            tm.tm_min = wtm.wMinute;
+            tm.tm_sec = wtm.wSecond;
+            tm.tm_isdst = -1;
+            clock = mktime(&tm);
+            tp->tv_sec = clock;
+            tp->tv_usec = wtm.wMilliseconds * 1000;
+            return (0);
+        }
+        #else
+        #include <sys/time.h>
+        #endif // _MSC_VER
+
+        static unsigned long long currentTimeMillis(void) {
+            struct timeval tv;
+            gettimeofday(&tv, nullptr);
+            return tv.tv_sec * 1000000ULL + tv.tv_usec;
+        }
+
+        #ifdef DEBUG // 在 LogUtils.h 中定义了，也可以单独使用另一个宏开控制开关
+        #define __TIC1__(tag) unsigned long long time_##tag##_start = currentTimeMillis();
+        #define __TOC1__(tag) unsigned long long time_##tag##_end = currentTimeMillis();\
+                LOGD(#tag " time: %.3f ms", ((time_##tag##_end - time_##tag##_start) / 1000.0))
+        #else
+        #define __TIC1__(tag)
+        #define __TOC1__(tag)
+        #endif // DEBUG
+
+        #endif //_TIME_UTILS_H
+
+    使用示例
+        #include "TimeUtils.h" // 包含这个头文件
+
+        int dump_image(const char *path, unsigned char *data, unsigned int len) {
+            FILE *file = fopen(path, "wb");
+            if (file == NULL) {
+                LOGE("fopen %s failed.", path);
+                return -1;
+            }
+            __TIC1__(fwrite) // 耗时统计起始处
+            int size = fwrite(data, 1, len, file);
+            __TOC1__(fwrite) // 耗时统计终止处，注意括号内的内容必须一致
+
+            fclose(file);
+            return 0;
+        }

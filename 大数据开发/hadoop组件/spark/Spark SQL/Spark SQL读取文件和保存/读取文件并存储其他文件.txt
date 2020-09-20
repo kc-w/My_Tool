@@ -1,0 +1,41 @@
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+
+object ttt {
+
+
+  //将得到的数据保存为其他格式数据
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+
+
+    //--------------从本地读取json文件到hdfs上保存为parquet格式---------------------
+    sqlContext
+      .read
+      .json("C:\\Users\\Wkc23\\Desktop\\文件夹2\\people.json").select("*")
+      .write
+      //mode,指定保存操作的模式(error:如果保存的目录存在则抛出异常)(append:如果已有目录则向目录中追加文件)
+      //(overwrite:当目录已存在时覆盖原目录)(ignore:如果目录已存在则不做任何操作)
+      .mode(saveMode = "append")//向hdfs文件夹追加文件
+      .format("parquet")//保存为parquet文件格式
+      //运行时需要给hdfs上的目录赋权限,hdfs dfs -chmod  -R 777 /wan
+      .save("hdfs://192.168.2.121:8020/wan/")
+
+    //当一个目录下有多个parquet文件时,只要parquet文件中的字段保持一致,就可以把它们当成一个表一起读出来
+    sqlContext.read.option("mergeSchema","true").parquet("hdfs://192.168.2.121:8020/wan/").show()
+
+
+
+    //-----------------在hdfs上读取parquet文件选取部分字段并保存为json文件----------------
+    val df =sqlContext.read.load("hdfs://192.168.2.121:8020/wan/part-r-00000-76184236-68e6-402c-aec9-eb0bed5640dd.gz.parquet")
+    //保存到hdfs目录下
+    df.select("age","name").write.format("json").save("hdfs://192.168.2.121:8020/wan/test/")
+
+  }
+}

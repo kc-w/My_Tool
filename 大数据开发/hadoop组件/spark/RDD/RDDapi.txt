@@ -1,0 +1,159 @@
+编写rdd时变量的声明使用val.
+缘由1:val为常量更易于节约内存.缘由2:使用var变量声明写出的程序在spark执行时会创建副本从而使执行结果而出现问题
+
+1:map(将集合中的所有元素进行次方操作)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val number=Array(1,2,3,4,5)
+    val numRDD=sc.parallelize(number)
+    val resultRDD=numRDD.map(num => num * num)
+    resultRDD.foreach(println)
+    sc.stopo()
+  }
+
+2:filter(过滤出集合中的偶数)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val number=Array(1,2,3,4,5)
+    val numRDD=sc.parallelize(number)
+    val resultRDD=numRDD.filter(_ % 2 == 0)
+    resultRDD.foreach(println)
+    sc.stopo()
+  }
+
+3:flatMap(将行拆分为单词)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val words=Array("hello python","hello hadoop","hello spark")
+    val wordRDD=sc.parallelize(words)
+    wordRDD.flatMap(_.split(" ")).foreach(println)
+    sc.stopo()
+  }
+
+4:groupByKey(将每个班级的成绩进行分组)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val words=Array(Tuple2("class1":80),Tuple2("class2":75),Tuple2("class1":45))
+    val wordRDD=sc.parallelize(words)
+    wordRDD.groupByKey().foreach(println)
+    sc.stopo()
+  }
+
+5:reduceByKey(统计每个班级的总分)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val words=Array(Tuple2("class1":80),Tuple2("class2":75),Tuple2("class1":45))
+    val wordRDD=sc.parallelize(words)
+    wordRDD.reduceByKey(_+_).foreach(println)
+    sc.stopo()
+  }
+
+6:sortByKey(将学生分数进行排序)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val words=Array(Tuple2("class1":80),Tuple2("class2":75))
+    val wordRDD=sc.parallelize(words)
+    wordRDD.map(x => (x._2, x._1) ).sortByKey(false).map(x => (x._2, x._1)).foreach(println)
+    sc.stopo()
+  }
+
+7:join(打印每个学生的成绩)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val students=Array(Tuple2(1,"小明"),Tuple2(2,"小白"),Tuple2(3,"小红"))
+    val scores=Array(Tuple2(1,66),Tuple2(2,99),Tuple2(3,77))
+    val wordRDD1=sc.parallelize(students)
+    val wordRDD2=sc.parallelize(scores)
+
+    val resultRDD=wordRDD1.join(wordRDD2).sortByKey()
+    resultRDD.foreach(x => {
+        println("id:"+x._1+" name:"+x._2._1+" score:"+x._2._2)
+    })
+    sc.stopo()
+  }
+
+8:cogroup(打印每个学生的成绩)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val students=Array(Tuple2(1,"小明"),Tuple2(2,"小白"),Tuple2(3,"小红"))
+    val scores=Array(Tuple2(1,66),Tuple2(2,99),Tuple2(3,77))
+    val wordRDD1=sc.parallelize(students)
+    val wordRDD2=sc.parallelize(scores)
+
+    val resultRDD=wordRDD1.cogroup(wordRDD2).sortByKey()
+    resultRDD.foreach(x => {
+        println(x._1)
+        for(i <- x._2._1){
+            println(i)
+        }
+        for(j <- x._2._2){
+            println(j)
+        }
+    })
+    sc.stopo()
+  }
+
+9:union(将两个RDD合并，不去重)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val rdd1=sc.parallelize(1 to 10)
+    val rdd2=sc.parallelize(5 to 16)
+    val result=rdd1.union(rdd2)
+    result.foreach(println)
+    sc.stopo()
+  }
+
+10:intersection(取两个RDD交集，并去重)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val rdd1=sc.parallelize(1 to 10)
+    val rdd2=sc.parallelize(5 to 16)
+    val result=rdd1.intersection(rdd2)
+    result.foreach(println)
+    sc.stopo()
+  }
+
+11:distinct(去重操作)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val arr=Array(("jack","math",90),("jack","language","ss"),("mike","math",60))
+    val scoreRDD=sc.parallelize(arr)
+    val resultRDD=scoreRDD.map(_._1).distinct.collect
+    println(resultRDD.mkString(","))
+    sc.stopo()
+  }
+
+12:aggregateByKey()
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf ().setAppName ("Kaggle7").setMaster ("local")
+    val sc = new SparkContext (conf)
+
+    val arr=Array(("mike",100),("jack",99),("jack",9),("mike",923))
+    val wordRDD=sc.parallelize(arr)
+
+    val result=wordRDD.aggregateByKey(0)(math.max(_,_),math.max(_,_)).collect
+    println(result.mkString)
+    sc.stopo()
+  }

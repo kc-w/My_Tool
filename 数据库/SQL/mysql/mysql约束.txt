@@ -1,0 +1,73 @@
+not null(非空约束)
+create table 表名(
+字段名 字段属性 not null;
+)
+
+unique(唯一约束)
+(为一个表字段建立唯一索引)
+create table 表名(
+字段名 字段属性,
+unique(字段名)
+)
+
+(为多个表字段建立唯一索引并为索引命名)
+create table 表名(
+字段1 字段属性,
+字段2 字段属性,
+constraint 定义唯一索引名 unique(字段1,字段2)
+)
+
+primary key(主键约束)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性
+)
+
+foreign key(外键约束)
+(为一个表字段建立外键索引)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性,
+foreign key(主表字段) references 从表(从表字段)
+)
+
+(为多个表字段建立外键索引)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性,
+constraint 定义索引名 foreign key(主表字段) references 从表(从表字段)
+)
+
+check(检查约束)
+(为单个字段建立检查约束)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性,
+check(字段1>0)
+)
+
+(为多个字段建立检查约束)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性,
+constraint 检查约束名 check (字段1>0 and 字段2='')
+)
+
+default(默认约束)
+create table 表名(
+字段1 字段属性 not null primary key,
+字段2 字段属性 default '',
+)
+
+修改表约束
+alter table 表名 add unique(字段名);(为表中的字段增加唯一约束)
+alter table 表名 add constraint 定义唯一索引名 unique(字段1,字段2);(为表中的多个字段增加唯一约束,并为唯一索引命名)
+alter table 表名 drop index 唯一索引名;(删除表中的唯一索引)
+alter table 表名 add foreign key(本表字段名) references 从表(从表字段);(为表中的字段增加外健约束)
+alter table 表名 add constraint 外键索引名 foreign key(本表字段名) references 从表(从表字段);(为表中的多个字段添加外键约束)
+alter table 表名 drop foreign key 外键约束名;(删除外键约束)
+alter table 表名 add check(条件);(为表中的单个字段添加检查约束)
+alter table 表名 add constraint 检查约束名 check(条件1 and 条件2..);(为表中的多个字段添加检查约束)[
+alter table 表名 drop check 检查索引名;(删除检查索引)
+alter table 表名 alter 字段名 set default '';(为表中的字段添加默认约束)
+alter table 表名 alter 字段名 drop default;(删除默认约束)

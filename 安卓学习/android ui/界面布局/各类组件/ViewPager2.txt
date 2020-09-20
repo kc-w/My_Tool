@@ -1,0 +1,492 @@
+首先导入依赖
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+
+
+1:主界面容器布局
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".vertical.VerticalActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+2:创建活动
+public class VerticalActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_vertical);
+        //获得ViewPager2组件位置
+        ViewPager2 viewPager2 = findViewById(R.id.vp_v);
+        //实例化适配器
+        VerticalVpAdapter adapter = new VerticalVpAdapter(this);
+        //组件绑定适配器
+        viewPager2.setAdapter(adapter);
+        //设置滑动为横向还是纵向
+        viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+    }
+}
+
+
+3:要放入组件中的样式文件
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_h_v"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_hv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+</LinearLayout>
+
+
+4:创建适配器
+public class VerticalVpAdapter extends RecyclerView.Adapter<VerticalVpAdapter.VerticalVpViewHolder> {
+
+    private List<Integer> backgrounds;
+    private Context mContext;
+
+    VerticalVpAdapter(Context context) {
+        mContext = context;
+        if (backgrounds == null) {
+            backgrounds = new ArrayList<>();
+            backgrounds.add(android.R.color.holo_blue_bright);
+            backgrounds.add(android.R.color.holo_red_dark);
+            backgrounds.add(android.R.color.holo_green_dark);
+            backgrounds.add(android.R.color.holo_orange_light);
+            backgrounds.add(android.R.color.holo_purple);
+        }
+    }
+
+    //绑定样式文件
+    @NonNull
+    @Override
+    public VerticalVpViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new VerticalVpViewHolder(LayoutInflater.from(mContext).inflate((R.layout.item_h_v), parent, false));
+    }
+
+    //滑动监听
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onBindViewHolder(@NonNull VerticalVpViewHolder holder, int position) {
+        //变更样式文件内容
+        holder.mTextView.setText("第  " + (position + 1) + " 界面");
+        //变更样式文件背景颜色
+        holder.mLinearLayout.setBackgroundResource(backgrounds.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+
+        if (backgrounds == null) {
+            return 0;
+        }
+        return backgrounds.size();
+    }
+
+    class VerticalVpViewHolder extends RecyclerView.ViewHolder {
+        LinearLayout mLinearLayout;
+        TextView mTextView;
+
+        VerticalVpViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mLinearLayout = itemView.findViewById(R.id.ll_h_v);
+            mTextView = itemView.findViewById(R.id.tv_hv);
+        }
+    }
+}
+
+==============================================================================================
+TabLayout+Fragment+ViewPager2:滑动标签导航
+
+导入依赖
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+
+1:主界面布局
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--tab标签栏-->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tb_vp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorFullWidth="false"
+        app:tabMode="scrollable"
+        app:tabIndicatorColor="#0371DD"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="#0371DD"
+        app:tabTextColor="#111111" />
+
+    <!--viewpager2组件-->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_tb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>
+
+
+2:创建活动
+public class RgActivity extends AppCompatActivity{
+
+    private ViewPager2 vpTab;
+    private TabLayout tabVp;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_rg);
+        //获取适配器
+        RgAdapter adapter = new RgAdapter(this);
+
+        //viewpager组件
+        vpTab = findViewById(R.id.vp_tb);
+        //tab栏
+        tabVp = findViewById(R.id.tb_vp);
+
+        //组件绑定适配器
+        vpTab.setAdapter(adapter);
+        //设置选项卡文字默认为黑色,选中时为蓝色
+        tabVp.setTabTextColors(Color.parseColor("#111111"),Color.parseColor("#0371DD"));
+
+
+
+        //设置选项卡内容文字
+        tabVp.addTab(tabVp.newTab().setText("第一个界面"));
+        tabVp.addTab(tabVp.newTab().setText("第二个界面"));
+        tabVp.addTab(tabVp.newTab().setText("第三个界面"));
+
+
+        //适配器加入fragment
+        adapter.addFragment(new HomeFragment());
+        adapter.addFragment(new MessageFragment());
+        adapter.addFragment(new MyFragment());
+
+        //设置首次加载时显示第几个fragment
+        vpTab.setCurrentItem(0);
+
+
+
+        tabVp.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            //点击选中监听
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                Log.d(getClass().getSimpleName(), "onTabSelected:11111111111 ");
+
+                vpTab.setCurrentItem(tab.getPosition());
+            }
+
+            //离开标签监听
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                Log.d(tab.getText().toString(), "onTabUnselected:2222222222 ");
+
+            }
+
+            //重复点击标签监听
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                Log.d(getClass().getSimpleName(), "onTabReselected:33333333333 ");
+
+            }
+        });
+
+        //手势滑动监听
+        vpTab.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                //设置滑动选项卡状态(当前滚动位置,偏移,滑动是否更新选项卡颜色)
+                tabVp.setScrollPosition(position, 0, true);
+
+                Log.d(getClass().getSimpleName(), "onPageSelected:4444444444444 ");
+            }
+        });
+    }
+}
+
+
+3:fragment样式文件
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fl_show"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".withTab.ShowFragment">
+
+    <TextView
+        android:id="@+id/tv_show"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/hello_blank_fragment"
+        android:textColor="#ffffff" />
+
+</FrameLayout>
+
+
+
+
+4:创建适配器
+public class RgAdapter extends FragmentStateAdapter {
+
+    private List<Class> fragments;
+
+    public RgAdapter(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
+        if (fragments == null) {
+            fragments = new ArrayList<>();
+        }
+    }
+
+    public void addFragment(Fragment fragment) {
+        if (fragments != null) {
+            fragments.add(fragment.getClass());
+        }
+    }
+
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+        try {
+            return (Fragment) fragments.get(position).newInstance();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public int getItemCount() {
+        return fragments.size();
+    }
+}
+
+=======================================================================================
+RadioGroup+Fragment+ViewPager2:滑动导航栏实现
+
+导入依赖
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+
+1:主界面布局
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".withRadioGroup.RgActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_rg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/rg_vp" />
+
+    <RadioGroup
+        android:id="@+id/rg_vp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_home"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:checked="true"
+            android:drawableTop="@drawable/selector_home"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="@string/home"
+            android:textColor="@color/selector_rg"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/rb_msg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@drawable/selector_msg"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="@string/msg"
+            android:textColor="@color/selector_rg"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/rg_my"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@drawable/selector_my"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="@string/my"
+            android:textColor="@color/selector_rg"
+            android:textSize="16sp" />
+    </RadioGroup>
+</RelativeLayout>
+
+
+2:创建活动
+public class RgActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
+
+    private ViewPager2 vpRg;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_rg);
+        //获取适配器
+        RgAdapter adapter = new RgAdapter(this);
+
+        //获取导航栏
+        RadioGroup rgVp = findViewById(R.id.rg_vp);
+        //获取viewpager2组件
+        vpRg = findViewById(R.id.vp_rg);
+
+        //导航栏选择变更监听
+        rgVp.setOnCheckedChangeListener(this);
+
+        //viewpager2组件绑定适配器
+        vpRg.setAdapter(adapter);
+
+        //适配器加入fragment
+        adapter.addFragment(new HomeFragment());
+        adapter.addFragment(new MessageFragment());
+        adapter.addFragment(new MyFragment());
+
+        //设置首次加载时显示第几个fragment
+        vpRg.setCurrentItem(0);
+
+
+
+        //监听变更选中样式
+        vpRg.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+
+                Log.d("onPageSelected", "变更导航栏样式");
+                switch (position) {
+                    case 0:
+                        ((RadioButton) findViewById(R.id.rb_home)).setChecked(true);
+                        break;
+                    case 1:
+                        ((RadioButton) findViewById(R.id.rb_msg)).setChecked(true);
+                        break;
+                    case 2:
+                        ((RadioButton) findViewById(R.id.rg_my)).setChecked(true);
+                        break;
+                }
+            }
+        });
+
+    }
+
+    //监听点击变化切换fragment
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+        Log.d("onCheckedChanged", "fragment切换");
+
+        switch (checkedId) {
+            case R.id.rb_home:
+                vpRg.setCurrentItem(0);
+                break;
+            case R.id.rb_msg:
+                vpRg.setCurrentItem(1);
+                break;
+            case R.id.rg_my:
+                vpRg.setCurrentItem(2);
+                break;
+        }
+    }
+}
+
+
+3:创建3个对应的fragment及样式
+
+
+4:创建适配器
+public class RgAdapter extends FragmentStateAdapter {
+
+    private List<Class> fragments;
+
+    public RgAdapter(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
+        if (fragments == null) {
+            fragments = new ArrayList<>();
+        }
+    }
+
+    public void addFragment(Fragment fragment) {
+        if (fragments != null) {
+            fragments.add(fragment.getClass());
+        }
+    }
+
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+        try {
+            return (Fragment) fragments.get(position).newInstance();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public int getItemCount() {
+        return fragments.size();
+    }
+}
+
+
+
+
+
+
+
+
+

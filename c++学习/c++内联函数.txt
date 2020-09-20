@@ -1,0 +1,18 @@
+C++ 内联函数是通常与类一起使用。如果一个函数是内联的，那么在编译时，编译器会把该函数的代码副本放置在每个调用该函数的地方。
+对内联函数进行任何修改，都需要重新编译函数的所有客户端，因为编译器需要重新更换一次所有的代码，否则将会继续使用旧的函数。
+
+#include <iostream>
+using namespace std;
+
+inline int Max(int x, int y){
+   return (x > y)? x : y;
+}
+
+// 程序的主函数
+int main( ){
+
+   cout << "Max (20,10): " << Max(20,10) << endl;
+   cout << "Max (0,200): " << Max(0,200) << endl;
+   cout << "Max (100,1010): " << Max(100,1010) << endl;
+   return 0;
+}

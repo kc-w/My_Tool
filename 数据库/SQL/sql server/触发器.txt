@@ -1,0 +1,33 @@
+use db
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi
+on book
+for insert,update--当表中插入数据或有数据更新时触发触发器
+as raiserror('数据变更',16,10)--向客户端显示一条信息
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi
+on book
+for insert,update,delete--当表中插入数据或有数据更新或数据删除时触发触发器
+as
+  print'触发触发器'
+go
+
+alter trigger chufaqi--修改触发器
+on book
+for insert
+as
+  print'修改后的触发器'
+go
+

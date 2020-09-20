@@ -1,0 +1,21 @@
+//列出可用的设备
+adb devices
+
+//只有一台设备使用以下命令进入系统
+adb shell
+
+//有多台设备使用以下命令进入系统
+adb -s 设备的序列号 shell
+
+//访问指定应用的数据库
+cd /data/data/应用的包名/databases
+//进入数据库
+sqlite3 数据库名
+
+//将linux中的sqlite3文件移到电脑D盘下的bit文件目录中
+adb pull /bin/sqlite3 E:\bit
+//将E盘的文件复制到linux系统的bin目录下
+adb root push E:\bit\sqlite3 /bin
+//如果出现Read-only file system错误,则需要进入shell中输入命令给与系统读写权限
+adb root shell mount -o rw,remount rootfs /
+

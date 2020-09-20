@@ -1,0 +1,117 @@
+YARN是一种新的 Hadoop 资源管理器，它是一个通用资源管理系统，可为上层应用提供统一的资源管理和调度，它的引入为集群在利用率、资源统一管理和数据共享等方面带来了巨大好处。
+
+解释:
+	YARN的基本思想是将JobTracker的两个主要功能（资源管理和作业调度/监控）分离，主要方法是创建一个全局的ResourceManager（RM）和若干个针对应用程序的ApplicationMaster（AM）。
+	这里的应用程序是指传统的MapReduce作业。
+	YARN 分层结构的本质是 ResourceManager。这个实体控制整个集群并管理应用程序向基础计算资源的分配。
+	在此上下文中，ApplicationMaster 承担了以前的 TaskTracker 的一些角色，ResourceManager 承担了 JobTracker 的角色。
+	ResourceManager还与ApplicationMaster（计算、内存、带宽等）一起分配资源与NodeManager一起启动和监视它们的基础应用程序。
+ 
+核心思想:
+	将JobTracker和TaskTracker进行分离，它由下面几大构成组件：
+		a. 一个全局的资源管理器 ResourceManager
+		b.ResourceManager的每个节点代理 NodeManager
+		c. 表示每个应用的 ApplicationMaster
+		d. 每一个ApplicationMaster拥有多个Container在NodeManager上运行
+		e.JobHistoryServer:每个集群每种计算框架一个,负责搜集归档所有的日志
+
+ResourceManager（RM）:
+	RM是一个全局的资源管理器，负责整个系统的资源管理和分配。它主要由两个组件构成：调度器和应用程序管理器。
+		调度器（Scheduler）:
+			调度器根据容量、队列等限制条件（如每个队列分配一定的资源，最多执行一定数量的作业等），将系统中的资源分配给各个正在运行的应用程序。
+		应用程序管理器Applications Manager）:
+			应用程序管理器应用程序管理器负责管理整个系统中所有应用程序，包括应用程序提交、与调度器协商资源以启动ApplicationMaster、监控ApplicationMaster运行状态并在失败时重新启动它等。
+
+ApplicationMaster（AM）:
+	与RM调度器协商以获取资源（用Container表示）；
+	将得到的任务进一步分配给内部的任务(资源的二次分配)；
+	与NM通信以启动/停止任务；
+	监控所有任务运行状态，并在任务运行失败时重新为任务申请资源以重启任务。
+	注：RM只负责监控AM，在AM运行失败时候启动它，RM并不负责AM内部任务的容错，这由AM来完成。
+	
+NodeManager（NM）:
+	NM是每个节点上的资源和任务管理器，它会定时地向RM汇报本节点上的资源使用情况和各个Container的运行状态；它接收并处理来自AM的Container启动/停止等各种请求。
+
+Container:
+	Container是YARN中的资源抽象，它封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，当AM向RM申请资源时，RM为AM返回的资源便是用Container表示。
+	YARN会为每个任务分配一个Container，且该任务只能使用该Container中描述的资源,CPU资源不够，任务会运行慢,内存资源不够，任务就有可能会运行失败,这些参数
+	都可以在cdh的管理界面或xml中去配置。
+	
+优点:
+	大大减小了 JobTracker（也就是现在的 ResourceManager）的资源消耗。
+	在Yarn中，ApplicationMaster是一个可变更的部分，用户可以写自己的ApplicationMaster，让更多类型的编程模型能够跑在Hadoop集群中。
+	ResourceManager中有一个模块叫做ApplicationsMasters( 不是 ApplicationMaster)，它是监测ApplicationMaster的运行状况，如果出问题，会将其在其他机器上重启。
+
+Yarn资源调度流程:
+	1.client向yarn提交job，首先找ResourceManager分配资源，
+	2.ResourceManager开启一个Container,在Container中运行一个Application manager
+	3.Application manager找一台nodemanager启动ApplicationMaster，计算任务所需的计算
+	4.ApplicationMaster向Application manager（Yarn）申请运行任务所需的资源
+	5.Scheduler将资源封装发给Application master
+	6.Application master将获取到的资源分配给各个nodemanager
+	7.各个nodemanager得到任务和资源开始执行map task
+	8.map task执行结束后，开始执行reduce task
+	9.map task和 reduce task将执行结果反馈给Application master
+	10.Application master将任务执行的结果反馈aplication manager
+
+
+
+Yarn各组件之间心跳信号:
+    ApplicationMaster与ResourceManager心跳
+        AM -> RM
+            • 对Container的资源需求(C+M)和优先级
+            • 已用完等待回收的Container列表
+        RM -> AM
+            • 新申请到的Container
+            • 已完成Container的状态
+    ApplicationMaster与NodeManager心跳
+        AM -> NM
+            • 发起启动Container请求
+        NM -> AM
+            • 汇报Container状态
+    NodeManager与ResourceMnager心跳
+        NM -> RM
+            • Node Manager上所有的Container状态
+        RM-> NM
+            • 已删除和等待清理的Container列表
+
+
+Yarn容错机制
+    失败类型
+        • 程序失败 进程崩溃 硬件问题
+    若作业失败
+        • 作业异常均会汇报给ApplicationMaster
+        • 通过心跳信号检查挂了的任务
+        • 一个作业的任务失败比例超过配置，就会认为该任务失败
+    若ApplicationMaster失败
+        • ResourceManager接收不到心跳信号时会重启ApplicationMaster
+    若NodeManager失败
+        • ResourceManager接收不到心跳信号时会将其移除
+        • ResourceManager通知ApplicationMaster，让AM决定任务如何处理
+        • 如果某个NodeManager失败任务次数过多，ResourceManager任务时不在其上运行任务
+    如果ResourceManager失败
+        • 通过checkpoint机制，定时将其状态保存到磁盘，失败的时候，重新运行
+        • 通过Zookeeper同步状态和实现透明的HA
+
+
+mapreduce和yarn的区别
+    在MapReduce V1中
+        • JobTracker = 资源管理器 + 任务调度器
+    在Yarn中做了切分
+        • 资源管理
+            让ResourceManager负责
+        • 任务调度
+            让ApplicationMaster负责,每个作业启动一个,根据作业切分任务tasks,向Resource Manager申请资源
+            与NodeManager协作，将分配申请到的资源给内部任务tasks,监控tasks运行情况，重启失败任务
+
+
+架构分类:
+	集中式架构:
+		集中式调度器的特点是，资源的调度和应用程序的管理功能全部放到一个进程中完成，开源界典型的代表是MRv1 JobTracker的实现。
+		这样设计的缺点很明显，扩展性差，集群规模受限，新的调度策略难以融入到现有代码中，比如之前仅支持MapReduce作业，现在要支持流式作业，而将流式作业的调度策略嵌入到中央调度器中是一项很难的工作。
+	双层调度架构:
+		它可看作是策略下放机制：双层调度器仍保留一个经简化的集中式资源调度器，具体任务的调度策略放到各个应用程序调度器完成。
+		双层调度器的特点是：各个框架调度器并不知道整个集群资源使用情况，只是被动地接受资源；
+		资源调度器仅将可用的资源推送给各个框架，而由框架自己选择是使用还是拒绝这些资源；
+		一旦框架接受到新资源，再进一步将资源分配给其内部的任务，进而实现双层调度。
+		然而这种调度器也是有缺点，主要表现在以下两个方面:1.各个框架无法知道整个集群的实时资源使用情况；采用悲观锁，并发粒度小。

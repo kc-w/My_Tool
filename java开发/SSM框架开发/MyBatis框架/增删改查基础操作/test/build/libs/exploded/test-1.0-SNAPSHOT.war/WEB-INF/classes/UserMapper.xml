@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace表示命名空间-->
+<mapper namespace="UserMapper">
+    <!--根据编号获取信息,id属性是select元素在映射文件中唯一标识,parameterType属性指定传入参数类型,resultType属性指定返回类型-->
+    <select id="findID" parameterType="Integer" resultType="com.wan.pojo.User">
+        <!--#{}表示一个占位符,#{id}表示该占位符只接受参数名称为id-->
+        SELECT * FROM a WHERE a_id=#{id}
+    </select>
+
+    <!--查询数据,id属性是select元素在映射文件中唯一标识,parameterType属性指定传入参数类型,resultType属性指定返回类型-->
+    <select id="findName" parameterType="String" resultType="com.wan.pojo.User">
+        <!--#{}表示一个占位符,#{id}表示该占位符只接受参数名称为id-->
+        SELECT * FROM a WHERE a_name like '%${value}%'
+    </select>
+
+    <!--插入数据,id属性是select元素在映射文件中唯一标识,parameterType属性指定传入参数类型-->
+    <insert id="addUser" parameterType="com.wan.pojo.User">
+        <!--#{}表示一个占位符,#{id}表示该占位符只接受参数名称为id-->
+        INSERT INTO a(a_id,a_name) VALUES (#{id},#{name})
+    </insert>
+
+    <!--更新数据-->
+    <update id="updateUser" parameterType="com.wan.pojo.User">
+        UPDATE a SET a_name=#{name} WHERE a_id=#{id}
+    </update>
+
+    <!--删除数据-->
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM a WHERE a_id=#{id}
+    </delete>
+</mapper>
+

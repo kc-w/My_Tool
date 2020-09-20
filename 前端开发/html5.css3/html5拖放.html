@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style type="text/css">
+   div{
+	   border:1px solid green;
+	   height:300px;
+	   width:300px;
+   }
+</style>
+<script>
+<!--阻止浏览器的默认事件-->
+   function allowdrop(ev){
+	   ev.preventDefault();
+   }
+<!--对元素进行拖动并获得id-->
+   function drag(ev){
+	   ev.dataTransfer.setData("Text",ev.target.id);
+   }
+<!--拖到指定地点-->
+   function drop(ev){
+	   ev.preventDefault();
+	   var data=ev.dataTransfer.getData("Text");
+	   ev.target.appendChild(document.getElementById(data));
+   }
+</script>
+</head>
+<body>
+   <div id="div1" ondrop="drop(event)" ondragover="allowdrop(event)">
+   </div>
+   <img id="img1" src="../image/1.jpg" draggable="true" ondragstart="drag(event)"><!--draggable属性设置为可拖动-->
+</body>
+</html>

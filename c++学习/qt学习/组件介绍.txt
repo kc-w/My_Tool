@@ -1,0 +1,159 @@
+QWidget:属性主要用来设置最大宽高和最小宽高,内部组件的伸缩
+常量                              描述
+QSizePolicy::Fixed                只能使用sizeHint()提供的值无法伸缩
+QSizePolicy::Minimum              sizeHint()提供的大小是最小的.部件可以被拉伸
+QSizePolicy::Maximum              sizeHint()提供的是最大大小，部件可以被压缩
+QSizePolicy::Preferred            sizeHint()提供的大小是最佳大小部件可以被压缩或拉伸
+QSizePolicy::Expanding            sizeHint()提供的是合适的大小，部件可以被压缩，不过它更倾向于被拉伸来获得更多的空间
+QSizePolicy::MinimumExpanding     sizeHint()提供的大小是最小的，部件倾向于被拉伸来获取更多的空间
+QSizePolicy::Ignored              sizeHint()的值被忽略部件将尽可能的被拉伸来获取更多的空间
+
+//动态在MainWindow中添加菜单
+QMenu * editMenu = ui ->menuBar ->addMenu( tr("编辑(&E)" ) ); // 添加编辑菜单
+QAction * action_Open = editMenu ->addAction(QIcon(" :/image/images/open.png"), tr("打开文件(&0)"));// 添加打开菜单
+action_Open ->setShortcut(QKeySequence( "Ctrl + O")); // 设置快捷键
+ui -> mainToolBar ->addAction(action_Open);
+
+
+
+QMainWindow
+
+菜单栏（QMenuBar）菜单栏包含了一个下拉菜单项的列表，这些菜单项由QAction动作类实现。菜单栏位于主窗口的顶部，一个主窗口只能有一个菜单栏。
+工具栏（QToolBar）工具栏一般用于显示一些常用的菜单项目.也可以插入其他窗口部件，并且是可以移动的。一个主窗口可以拥有多个工具栏
+中心部件（Central Widget）在主窗口的中心区域可以放入一个窗口部件作为中心部件,是应用程序的主要功能实现区域。一个主窗口只能拥有一个中心部件
+Dock部件（QDockWidget）Dock部件常被称为停靠窗口，因为可以停靠在中心部件的四周，用来放置一些部件来实现一些功能，就像个工具箱一样。一个主窗口可以拥有多个Dock部件。
+状态栏（QStatusBar）状态栏用于显示程序的一些状态信息.在主窗口的最底部。一个主窗口只能拥有一个状态栏。
+
+
+=======================================================================
+
+
+QFrame:绘制边框的宽度和样式
+常量                    描述
+QFrame::NoFrame        QFrame不进行绘制
+QFrame::Box            QFrame在它的内容四周绘制一个边框
+QFrame::Panel          QFrame绘制一个面板•使得内容表现为凸起或者凹陷
+QFrame::StyledPanel    绘制一个矩形面板、它的效果依赖于当前的GUI样式，可以凸起或凹陷
+QFrame::HLine          QFrame绘制一条水平线.没有任何框架(可以作为分离器〉
+QFrame::VLine          QFrame绘制一条垂直线.没有任何框架(可以作为分离器)
+QFrame::WinPanel       绘制一个类似于Windows2000中的矩形面板.可以凸起或者凹陷
+
+
+常量                   描述
+QFrame::Plain          边框和内容没有3D效果•与四周界面在同一水平面上
+QFrame::Raised         边框和内容表现为凸起•具有3D效果
+QFrame::Sunken         边框和内容表现为凹陷，具有3D效果
+
+代码设置:
+ui->frame-> setFrameStyle(QFrame::Box|QFrame::Sunken);
+ui ->frame ->setLineWidth(5);
+ui ->frame ->setMidLineWidth(10);
+
+=======================================================================
+
+
+QLabel:标签QLabel部件用来显示文本或者图片
+
+//在标签中设置文字
+QFont font;
+font.setFamily("华文行楷");
+font.setPointsize(20);
+font.setBold(true);
+font.setItalic(true);
+ui->label->setFont(font);
+
+QLabel属性栏中的wordWrap属性可以实现文本的自动换行。
+
+QFontMetrics类的elidedText()函数用来进行文本省略
+第一个参数用来指定要 省略的文本;
+第二个参数是省略模式，就是省略号出现的位置.包括Qt::ElideLeft出现在文本开头、Qt::ElideMiddle出现在文本中间，以及这里使用的Qt:: ElideRight出现在文本末尾;
+第三个参数是文本的长度，单位是像素，只要第一个参数 指定的文本的长度超过了这个值，就会进行省略。
+下面继续在构造函数中添加代码：
+QString string = tr("标题太长，需要进行省略！");
+QString str = ui ->label ->fontMetrics().elidedText(string, Qt::ElideRight, 180);
+ui ->label ->setText(str);
+
+
+
+//在标签中设置图片
+ui ->label ->setPixmap(QPixmap("ioc.png"));
+
+//在标签中添加gif动图
+QMovie * movie = new QMovie( " ioc. gif");
+ui ->label ->setMovie(movie);// 在标签中添加动画
+movie->start(); // 开始播放
+
+
+=======================================================================
+QLCDNumber部件可以让数码字符显示类似液晶数字一样的效果
+
+
+
+=======================================================================
+QStackedWidget类提供了一个部件栈，可以有多个界面（称为页面），每个界面可以拥有自己的部件，不过每次只能显示一个界面。
+这个部件需要使用QComboBox或 者QListWidget来选择它的各个页面。
+
+
+=======================================================================
+按钮部件
+
+QPushButton提供一个标准按钮
+
+=======================================================================
+
+QCheckBox,QRadioButton 和 QGroupBox
+
+复选框QCheckBox类提供了同时选择多项的功能，而QRadioButton提 供了只能选择一项的功能.一般要把一组按钮放到一个QGroupBox中来管理。
+可以选中Check Box的tristate属性，让它拥有不改变状态、 选中状态和未选中状态3种状态。
+对于选择按钮后的操作，可以关联它们的State- Changed()信号和自定义的槽.也可以使用isCheckedO函数查看一个按钮是否被选中。
+
+
+=======================================================================
+
+QLineEdit部件是一个单行的文本编辑器，
+
+4种显示模式,可以在echoMode属性中更改,分别是:
+Normal正常显示输入的信息;
+NoEcho不显示任何输入，这样可以保证 不泄露输入的字符位数;
+Password显示为密码样式，就是以小黑点或星号之类的字符 代替输入的字符;
+PasswordEchoOnEdit在编辑时显示正常字符，其他情况下显示为密 码样式;
+
+
+在QLineEdit中还可以使用验证器(validator)来对输入进行约束,QDoubleValidato设置浮点数
+//新建验证器.指定范围为100 - 999
+QValidator * validator = new QlntValidator(100, 999, this);
+//在行编辑器中使用验证器
+ui ->lineEdit3 ->setValidator(validator);
+
+//使用正则表达式
+QRegExp rx(" -? \\d{1,3}" );
+QValidator * validator = new QRegExpValidator(rx, this)；
+
+QLineEdit中也提供了强大的自动补全功能
+QStringList wordList;
+wordList<<"Qt"<<"Qt Creator"<<tr("你好");
+QCompleter * completer = new QCompleter( wordList, this); // 新建自动完成器
+completer ->setCaseSensitivity(Qt::Caseinsensitive); // 设置大小写不敏感
+ui ->lineEdit4 ->setCompleter(completer);
+
+
+=======================================================================
+QDateTimeEdit类提供了一个可以编辑日期和时间的部件
+
+//设置时间为现在的系统时间
+ui ->dateTimeEdit ->setDateTime(QDateTime::currentDateTime())；
+//设置时间的显示格式
+ui ->dateTimeEdit-> setDisplayFormat(tr("yyyy 年 MM 月 dd 日 ddd HH 时 mm 分 ss 秒"));
+
+=======================================================================
+QSpinBox 和 QDoubleSpinBox
+
+QSpinBox用来设置整数.QDoubleSpinBox用来设置浮点数
+在属性栏中看到spinBox的属性有：后缀suffix属性，可以设 置为“％”，这样就可以显示百分数了；前缀prefix属性，比如表示金钱时前面有“¥”字 符;
+
+
+=======================================================================
+
+
+
+

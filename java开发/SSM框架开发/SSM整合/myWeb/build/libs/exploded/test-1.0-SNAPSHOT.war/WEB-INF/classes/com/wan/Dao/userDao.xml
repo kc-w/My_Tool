@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wan.Dao.userDao">
+
+    <select id="jsonNumber" parameterType="String" resultType="user">
+        select * from user where user_number=#{number}
+    </select>
+
+    <select id="jsonEmail" parameterType="String" resultType="user">
+        select * from user where user_email=#{email}
+    </select>
+
+    <select id="jsonName" parameterType="String" resultType="user">
+        select * from user where user_name=#{name}
+    </select>
+
+    <insert id="register" parameterType="user">
+        insert into user(user_name,user_level,user_number,user_password,user_email,user_register) values(#{user_name},#{user_level},#{user_number},#{user_password},#{user_email},#{user_register})
+    </insert>
+
+    <select id="login" parameterType="String" resultType="user">
+        select * from user where user_number=#{number} and user_password=#{password}
+    </select>
+
+
+    <update id="change" parameterType="user">
+        update user
+        <set><!--使之可以更新需要更新的字段,自动去掉最后一个逗号-->
+            <if test="user_name!=null and user_name!=''">
+                user_name=#{user_name},
+            </if>
+            <if test="user_image!=null and user_image!=''">
+                user_image=#{user_image},
+            </if>
+            <if test="user_password!=null and user_password!=''">
+                user_password=#{user_password},
+            </if>
+            <if test="user_email!=null and user_email!=''">
+                user_email=#{user_email},
+            </if>
+        </set>
+        where user_id=#{user_id}
+    </update>
+
+
+    <insert id="addActive" parameterType="active">
+        insert into active(user_id,a_time,a_ip) values(#{user_id},#{a_time},#{a_ip})
+    </insert>
+
+    <insert id="addBlog" parameterType="Blog">
+        insert into blog(user_id,blog_title,blog_body,blog_time) values(#{user_id},#{blog_title},#{blog_body},#{blog_time})
+    </insert>
+
+    <delete id="deleteBlog" parameterType="Integer">
+        delete from blog where blog_id=#{blog_id}
+    </delete>
+
+    <select id="selectBlog" parameterType="Integer" resultType="blog" >
+        select * from blog where blog_id=#{blog_id}
+    </select>
+
+
+    <insert id="addComment" parameterType="comment">
+        insert into comment(user_id,blob_id,comment_body,comment_time) values(#{user_id},#{blob_id},#{comment_body},#{comment_time})
+    </insert>
+
+
+    <select id="selectBlogList" parameterType="Integer" resultType="blog" >
+        select * from blog where user_id=#{user_id}
+    </select>
+
+
+    <select id="selectBlogNumber" parameterType="Integer" resultType="Integer">
+        select count(*) from blog where user_id=#{user_id}
+    </select>
+
+
+    <select id="selectCommentList" parameterType="Integer" resultMap="BlogWithComment">
+        SELECT blog.* ,comment.* FROM blog,comment where comment.user_id=#{id} and comment.blog_id=blog.blog_id
+    </select>
+    <resultMap id="BlogWithComment" type="comment">
+        <id property="comment_id" column="comment_id"/>
+        <result property="user_id" column="user_id"/>
+        <result property="blog_id" column="blog_id"/>
+        <result property="comment_body" column="comment_body"/>
+        <result property="comment_time" column="comment_time"/>
+        <!--多对多关联映射-->
+        <collection property="blogList" ofType="blog">
+            <id property="blog_id" column="blog_id"/>
+            <result property="user_id" column="user_id"/>
+            <result property="blog_title" column="blog_title"/>
+            <result property="blog_body" column="blog_body"/>
+            <result property="blog_time" column="blog_time"/>
+        </collection>
+    </resultMap>
+
+</mapper>

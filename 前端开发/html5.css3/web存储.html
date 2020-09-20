@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<!--localStorage数据存储无时间限制-->
+<script type="text/javascript">
+   window.onload=function(){
+	   a=document.getElementById("a");
+	   //当localStorage.text存有数据时将数据交给文本域的value值
+	   if(localStorage.text){
+		   a.value=localStorage.text;
+	   }
+	   b=document.getElementById("b");
+	   //点击按钮触发将文本域的value交给localStorage.text保存
+	   b.onclick=function(){
+		   alert(a.value);
+		   localStorage.text=a.value;
+	   }
+   }
+</script>
+
+<!--sessionStorage数据存储对一个session进行数据存储，当用户关闭窗口时，数据也被删除-->
+<script type="text/jscript">
+   var num=0;
+   var b;
+   var c;
+   window.onload=function(){
+	   b=document.getElementById("b");
+	   c=document.getElementById("c");
+	   //判断sessionStorage.num是否存有数据，有则赋值给num，否则赋值0
+	   if(sessionStorage.num){
+		   num=sessionStorage.num;
+	   }else{
+		   num=0;
+	   }
+	   //当触发点击操作时，将num自增并交给sessionStorage.num存储，并调用showNum()函数改变文本值
+	   b.onclick=function(){
+		   num++;
+		   sessionStorage.num=num;
+		   showNum();
+	   }
+   }
+   function showNum(){
+	   c.innerHTML=num;
+   }
+</script>
+
+</head>
+<body>
+   <textarea id="a"></textarea>
+   <button id="b">保存</button>
+   <span id="c">0</span>
+</body>
+</html>

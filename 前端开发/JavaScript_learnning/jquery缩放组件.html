@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<link href="js/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+		<style>
+			#a,#b,#c,#d,#e,#f{
+				background-color:green;
+				width:200px;
+				height:200px;
+			}
+		</style>
+		<script>
+			$().ready(function(){
+				//调整后动态变化到最终尺寸
+				$("#a").resizable({animate:true});
+				//同步调整尺寸
+				$("#b").resizable({alsoResize:"#a"});
+				//禁止调整尺寸
+				$("#c").resizable({cancel:"#c"});
+				//指定可调整元素的边界
+				$("#d1").css({"width":"100px","height":"100px"}).resizable({containment:"#d"});
+				//将鼠标点击在边框200毫秒后才可以进行调整尺寸,防止操作失误
+				$("#e").resizable({delay:200});
+			})
+		</script>
+	</head>
+	<body>
+		<div id="a" class="ui-widget-content">
+			<h3>缩放a</h3>
+		</div>
+		<div id="b" class="ui-widget-content">
+			<h3>缩放b</h3>
+		</div>
+		<div id="c" class="ui-widget-content">
+			<h3>缩放c</h3>
+		</div>
+		<div id="d">
+			<div id="d1" class="ui-widget-content">
+				<h3>缩放d1</h3>
+			</div>
+		</div>
+		<div id="e" class="ui-widget-content">
+			<h3>缩放e</h3>
+		</div>
+		
+	</body>
+</html>

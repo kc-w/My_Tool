@@ -1,0 +1,29 @@
+------------------Spring JDBC模块主要由4个包组成-----------------------------
+
+core(核心包):包含了JDBC的核心功能，包括JdbcTemplate类、SimpleJdbclnsert类、SimpleJdbcCall类以及NamedParameterJdbcTemplate类
+datasource(数据源包):访问数据源的实用工具类，它有多种数据源的实现，可以在Java EE容器外部测试JDBC代码
+object(对象包):以面向对象的方式访问数据库，它允许执行查询并将返回结果作为业务对象，可以在数据表的列和业务对象的属性之间映射查询结果
+support(支持包):包含了core和object包的支持类,例如,提供异常转换功能的SQLException类
+
+
+DataSource:其主要功能是获取数据库连接，具体实现时还可以引入对数据库连接的缓冲池和分布式事务的支持，它可以作为访问数据库资源的标准接口。
+
+SQLExceptionTranslator:org.springframework.jdbc.support.SQLExceptionTranslator 接口负责对SQLException进行转译工作。通过必要的设置或者获取SQLExceptionTranslator中的方法，可以使JdbcTemplate在需要处理SQLException时，委托SQLExceptionTranslator的实现类来完成相关的转译工作。
+
+JdbcOperations接口定义了在JdbcTemplate类中可以使用的操作集合，包括添加、修改、查询和删除等操作。
+
+
+-------------------Spring JdbcTemplate的常用方法----------------------
+
+execute(String sql):该方法能够完成执行sql语句的功能.
+
+int update(string sql):该方法是最简单的update方法重载形式,它直接执行传入的SQL语句,并返回受影响的行数.
+int update(PreparedStatementCreator psc):该方法执行从PreparedStatementCreator返回的语句, 然后返回受影响的行数.
+int update(String sql,PreparedStatementSetter pss):该方法通过PreparedStatementSetter设置SQL语句中的参数,并返回受影响的行数.
+int update(String sql,Object...args)该方法使用Object...设置SQL语句中的参数，要求参数不能为NULL,并返回受影响的行数.
+
+List query(String sql,RowMapper rowMapper):执行String类型参数提供的SQL语句，并通过RowMapper返回一个List类型的结果
+List query(String sql,PreparedStatementSetter pss,RowMapper rowMapper):根据String类型参数提供的SQL语句创建PreparedStatement对象,通过RowMapper将结果返回到List中.
+List query(String sql,Object[] args,RowMapper rowMapper):使用Object[]的值来设置SQL语句中的参数值,采用RowMapper回调方法可以直接返回List类型的数据.
+queryForObject(String sql,RowMapper rowMapper,Object...args):将args参数绑定到SQL语句中,并通过RowMapper返回一个Object类型的单行记录
+queryForList(String sql,Object[] args,class<T> elementType):该方法可以返回多行数据的结果,但必须是返回列表,elementType参数返回的是List元素类型

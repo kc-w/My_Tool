@@ -1,0 +1,19 @@
+保存少量的数据，且这些数据的格式非常简单：字符串型、基本类型的值。
+比如应用程序的各种配置信息（如是否打开音效、是否使用震动效果、小游戏的玩家积分等），解锁口令密码等。
+
+核心原理：保存基于XML文件存储的key-value键值对数据，通常用来存储一些简单的配置信息。
+通过DDMS的File Explorer面板，展开文件浏览树,很明显SharedPreferences数据总是存储在/data/data/<package name>/shared_prefs目录下。
+SharedPreferences对象本身只能获取数据而不支持存储和修改,存储修改是通过SharedPreferences.edit()获取的内部接口Editor对象实现。
+SharedPreferences本身是一 个接口，程序无法直接创建SharedPreferences实例，
+只能通过Context提供的getSharedPreferences(String 存储的文件名, int mode)方法来获取SharedPreferences实例
+
+//把键值对数据存储到xml文件中
+SharedPreferences.Editor editor = getSharedPreferences("xml文件名", MODE_WORLD_WRITEABLE).edit();
+editor.putString("key", "value")
+//提交有apply()和commit()两种方法,apply()效率高,无返回值,commit()效率较低,有一个返回值
+editor.commit();
+
+//从xml文件中获取键值对
+SharedPreferences read = getSharedPreferences("xml文件名", MODE_WORLD_READABLE);
+//步骤2：获取文件中的值,如果没有设置该key的话,返回默认的value
+String value = read.getString("key", "默认返回的value");

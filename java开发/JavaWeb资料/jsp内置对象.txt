@@ -1,0 +1,139 @@
+【1】requst对象（该对象相当于用户请求的一个实例，它包含了用户请求的所有数据，因此可用通过相关的方法来获取想要的数据）。
+     常用方法:  1 getParameter()【该方法是取得请求中指定的参数，返回String类型的数据，如果有必要可以将取得的参数转化为合适的数据类型】
+                2 getParameterValues()【该方法是将同名称的参数一次性地读入到String类型的数组中】
+                3 getParameterName()【获取参数名称，返回枚举类型】
+                4 getMethod() 【获取客户提交信息的方式，是post或get】
+                5 getServletPath() 【获取jsp页面文件的目录】
+                6 getHeader() 【获取http头文件中的指定值，如：accept，user-agent，content-type，content-length】
+                7 getRemoteAddr() 【获取客户的ip地址】
+                8 getServerName() 【获取服务器名称】
+                9 getServerPort() 【获取服务器的端口号】
+                10 getContextPath() 【获取项目名称，如果项目为根目录，则得到空的字符串】
+                11 getHeaders() 【获取表头信息，返回枚举类型】
+                12 setCharacterEncoding()【设置从getParameter()取得值的编码，必须在getParameter()之前执行】
+----------------------------------------------
+requst对象有2种方法获取请求参数：详情看ex4_1.jsp和getParameter_1.jsp
+                1 getParameter()【该方法是取得请求中指定的参数，返回String类型的数据，如果有必要可以将取得的参数转化为合适的数据类型】
+                2 getParameterValues()【该方法是将同名称的参数一次性地读入到String类型的数组中】
+
+#注意：1、将中文字符的参数提交到指定文件后，在指定文件中使用getParameter()方法获取这个数据并进行显示时可能会出现乱码，这是因为请求信息使用的字符集和与页面使用的字符集不同。有三种方法可以解决（1.在接受请求的页面中添加语句request.setCharacterEncoding("UTF-8");2.将获取数据的格式写为String name=new String (request.getParameter("name").getBytes("ISO-8859-1"),"utf-8");3.通过编写一个Servlet过滤器解决处理字符集问题）
+-----------------------------------------------
+requst对象有3个方法获取表头信息：详情看getHeaders.jsp
+                1 String getHeader(String name)【获取字符串型的表头信息】
+                2 int getIntHeader(String name)【获取整型的表头信息】
+
+#注意：1、accept:客户端能接收的MIME类型；accept-language：浏览器的首选语言；user-agent：客户端程序的相关信息，如浏览器版本和操作系统类型；
+host：表示服务器的主机名和端口号；ua-cpu：cpu类型；connection：判断客户端是否可以持续性的连接http；accept-encoding：客户端能处理的编码类型；
+cookie：会话的信息，每个会话都有一个会话id或其他信息；referer：发起请求的地址；content-type：指明表单的MIME编码类型；content-length：提交请求的数据长度；cache-control：网页缓存控制，默认值为no-cache，表示每次访问都从服务器获取页面
+------------------------------------------------
+requst对象获取主机和客户机信息方法：详情看getHostInfo.jsp
+                         1.getRemoteAddr()【获取客户的ip地址】
+                         2.getRemoteHost()【获取客户的主机名称】
+                         3.getLocalAddr()【获取本地主机的ip地址】
+                         4.getLocalHost()【获取本地主机的名称】
+                         5.getServerName() 【获取服务器名称】
+                         6.getServerPort() 【获取服务器的端口号】
+
+#注意：一般而言，服务器主机和本地主机相同
+-------------------------------------------------
+
+【2】response对象（当用户访问一个页面时，就会产生一个http请求，服务器做出响应时调用的是response响应包，实现接口javax.servlet.http.HttpServletResponse）
+     常用方法: 1 addHeader(String 1,String 2)【向页面中添加头和对应的值】
+               2 addCookie(Cookie 1)【添加Cookie信息】
+               3 sendRedirect(String 1)【实现页面重定向】
+               4 setStatus(int 1)【设置页面的响应状态代码】
+               5 setContentType(String 1)【设定静态页面的MIME类型和字符集，必须在getWriter()方法或输出之前执行】
+               6 setCharacterEncoding("utf-8")【设置页面响应的编码类型】
+-------------------------------------------------
+response对象设置页面返回的头信息，如MIME类型、字符集、页面中的meta等信息：
+               1.setContentType(String type)【其中type值为"text/html;charset=utf-8"或其他值】
+               2.<%@ page language="java" import="java.util.*" contentType="text/html;charset=utf-8"%>【使用page指令设置MIME和页面字符集】
+               1.response.setHeader(cache-control,no-cache)【设置头mata头信息】
+               2.<meta http-equiv="pragma" content="no-cache">【禁止浏览器从本地机的缓存中调用页面内容，设定后离开网页就不能从Cache中再调用】
+	       3.<meta http-equiv="cache-control" content="no-cache">【请求和响应遵循的缓存机制策略】
+	       4.<meta http-equiv="expires" content="0">【用于设定网页的到期时间，一旦过期则必须到服务器中重新调用】
+	       5.<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">【向搜索引擎说明网页的关键字】
+	       6.<meta http-equiv="description" content="This is my page">【向搜索引擎说明网页的主要内容】
+#注意：jsp中页面设置字符集会破坏jsp容器自身的页面编码处理，所以不建议设置，但可以在Servelt中设定。使用page指令设置字符集相对简单。
+
+---------------------------------------------------
+response对象设置页面重定向，在一个页面接受到一个访问请求后，根据请求的URL重新跳转到其他页面：
+               1.response.sendRedirect(String URL)
+
+#注意：response.sendRedirect(String URL)中的跳转地址可以是绝对路径或相对路径。
+------------------------------------------------------
+
+【3】session对象（用来判断是否是同一用户，还可以用来记录客户的连接信息）
+       概念：1 会话【当用户打开浏览器进入一个网页到关闭浏览器这个过程称为一个会话。其实一打开一个浏览器就意味着打开了一个会话对象】
+             2 session生命周期【当用户打开浏览器进入一个网页到关闭浏览器，这段时间称为session生命周期】
+             3 session对象与线程【一个用户一个线程,保证了多个用户单击同一个页面时的session对象唯一性】
+             4 session对象与Cookie【session对象与Cookie对象是一一对应关系。jsp引擎会将创建好的session对象存放在对应的Cookie中】
+
+      常用方法：1.void setAttriute(String 1,String 2)【将参数名和参数值存放在session对象中】
+                2.Object getAttriute(String 1)【通过传入的参数获取参数值】
+                3.Enumeration getAttribteNmae()【一个用户一个线程】
+                4.String getId【获取session对象的ID值】
+                5.void removeAttribute(String 1)【移除指定session中的参数】
+                6.long getCreateTime()【获取对象创建的时间，返回结果是long型的毫秒数】
+                7.int getMaxInactiveInterval()【获取session对象的有效时间】
+                8.void setMaxInactiveInterval()【设置session对象的有效时间】
+                9.Boolean inNew()【用于判断是否是一个新客户】
+                10.void invalidate()【使session对象不合法即失效】
+
+----------------------------------------------------------
+获取session对象的ID可以判断会话是否是同一会话,用户可以通过会话中的信息进行相关的操作：
+
+#注意：一个web应用的session对象的id是唯一的，同一个应用中共用session对象的参数，两个应用之间的参数用session对象是获取不到值的。
+---------------------------------------------------------
+登陆用户信息的保存：详情看login_2.jsp
+
+#注意：例子只是简单使用，在开发中常常结合struts框架使用。
+----------------------------------------------------------
+
+【4】application对象(application对象实现接口javax.servlet.ServletContext。application对象的生命周期是application对象创建到服务器关闭，可视为web全局变量)
+     常用方法：1.getAttriute(String 1)【获取存放在application中的含有传入参数的对象】
+               2.setAttriute(String 1,Object 1)【将String参数指定的Object对象放入application对象中】
+               3.Enumeration getAttriuteNames()【获取application中参数的名字，返回值是枚举类型】
+               4.removeAttribute(String 1)【移除application在传入的参数值】
+               5.getServletInfo()【获取Servlet当前的版本信息】
+               6.getContext(String 1)【获取传入参数指定路径的context内容】
+               7.getRealPath(String 1)【获取指定文件的实际路径】
+               8.getMimeType(String 1)【获取指定的文件格式】
+----------------------------------------------------------
+获取指定页面的路径:详情看application.jsp
+----------------------------------------------------------
+设计一个网站计数器：详情看applicationCount.jsp
+
+#注意：application对象在web应用的运行时一直存在服务器中，因此保存这种全局变量相对来说比较占内存，只推荐在必要时使用。
+------------------------------------------------------------
+
+【5】out对象（out对象继承javax.servlet.jsp.JspWriter类的一个输出流对象。它包含很多IO流中的方法和特性。最常见的的就是输出内容到HTML中）
+     常用方法：1.append(char 1)【将字符添加到输出流中】
+               2.clear()【清空页面缓存中的内容】
+               3.close()【关闭网页流的输出】
+               4.flush【网页流的刷新】
+               5.println()【将内容直接打印在HTML标记中】
+               6.write()【与println()相似。区别在于println()可以输出各种类型的数据，而write()只能输出字符相关的数据，如：字符、字符数组、字符串】
+-------------------------------------------------------------
+清空客户输出流中写入的数据：详情看outclear.jsp
+
+#注意：在调用chear之前不要调用flush，否则会抛出IO异常。
+--------------------------------------------------------------
+
+【6】page对象（page对象实质上是java.lang.Object对象，他代表转译后的Servlaet。page对象指当前的jsp页面本身，并不常用）
+     常用方法：1.getClass()【返回当时被转译的Servlet类】
+               2.hashCode()【返回此时被转译的Servlet类的哈希代码】
+               3.toString()【将此时被转译的Servlet类转换成字符串】
+               4.equals(Object 1)【比较此时的对象是否与指定的对象相等】
+               5.clone()【将此时的对象复制到指定的对象中】
+               6.copy(Object 1)【对指定对象进行克隆】
+--------------------------------------------------------------
+page对象的应用：详情看page.jsp
+--------------------------------------------------------------
+【7】config对象（config对象实现了javax.servlet.ServletConfig接口，一般在页面初始化时传递参数）
+     常用方法：1.getInitParameter(String 1)【获得指定的初始值】
+               2.getServletName()【获得servlet名字】
+               3.getServletContext()【获得servletContext的值】
+               4.equals(Object 1)【比较此时的对象是否与指定的对象相等】
+               5.getInitParameterNames()【获得初始化值的枚举值】
+               6.toString()【获得此对象的值】

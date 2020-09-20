@@ -1,0 +1,162 @@
+ContentProvider是一种内容共享型组件，它通过Binder向其他组件乃至其他应用提供数据。
+当ContentProvider所在的进程启动时，ContentProvider会同时启动并被发布到AMS中需要注意的是，
+这个时候ContentProvider的onCreate要先于Application的onCreate而执行，这在四大组件中是一个少有的现象。
+系统预置了许多ContentProvider，比如通讯录信息、日程表信息等，要跨进程访问这些信息，
+只需要通过ContentResolver的query、update、insert和delete方法即可。
+
+在manifest.xml中的配置
+
+//该配置写在manifest标签内
+<instrumentation android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.ldw.selfContentProvider"></instrumentation>
+
+//该配置写在application标签内
+<uses-library android:name="android.test.runner"/>
+
+首先需要存在对应的数据库
+
+provider的配置如下:
+<provider android:name="com.ldw.selfContentProvider.poProvider"
+            android:authorities="com.ldw.po"
+            android:exported="true"></provider>
+
+authorities:是内容提供者的地址,通过这个地址可以访问内容提供者,精确的知道访问的是哪一个内容提供者
+exported:可以导出数据，获取到数据
+
+//可以在Uri后面添加参数来进一步限定访问哪一个数据表，比如下面的Uri是com.ldw.po限定访问的是table1表：
+Uri.parse("content://com.ldw.po/table1")
+
+
+
+
+//创建一个表
+public class MyOpenHelper extends SQLiteOpenHelper {
+
+	public MyOpenHelper(Context context, String name, CursorFactory factory,int version) {
+		super(context, name, factory, version);
+	}
+
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		db.execSQL("create table table1(_id integer primary key autoincrement, name char(10), money integer(20))");
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	}
+
+}
+
+
+
+
+public class MyProvider extends ContentProvider {
+
+	private MyOpenHelper my;
+	private SQLiteDatabase db;
+
+	//内容提供者创建的时候调用
+	@Override
+	public boolean onCreate() {
+		my = new MyOpenHelper(getContext(), "po.db", null, 1);
+		db = my.getWritableDatabase();
+		return false;
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection,String[] selectionArgs, String sortOrder) {
+		Cursor cursor = db.query("table1", projection, selection, selectionArgs, null, null, sortOrder, null);
+		return cursor;
+	}
+
+	@Override
+	public String getType(Uri uri) {
+		return null;
+	}
+
+	//这个方法提供其他的方法调用，用于往po数据库中插入数据
+	//values由其他的应用传入，封装需要被传入的数据，
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		db.insert("table1", null, values);
+		return uri;
+	}
+
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		//返回值是删除的行数
+		int i = db.delete("table1", selection, selectionArgs);
+		return i;
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
+		//返回值是更新的行数
+		int i = db.update("table1", values, selection, selectionArgs);
+		return i;
+	}
+
+}
+
+
+在activity中调用
+
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+
+
+    public void insert(View v){
+    	//通过内容提供者把数据插入数据库
+    	//拿到contentResolver
+    	ContentResolver cr = getContentResolver();
+    	ContentValues values = new ContentValues();
+
+    	values.put("name", "AAA");
+    	values.put("money", "15000");
+    	//Uri前面必须带前缀，是内容提供者的地址
+    	cr.insert(Uri.parse("content://com.ldw.po"), values);
+
+    	values.put("name", "BBB");
+    	values.put("money", "15000");
+    	cr.insert(Uri.parse("content://com.ldw.po"), values);
+
+    	values.put("name", "CCC");
+    	values.put("money", "15000");
+    	cr.insert(Uri.parse("content://com.ldw.po"), values);
+
+    	values.put("name", "DDD");
+    	values.put("money", "15000");
+    	cr.insert(Uri.parse("content://com.ldw.po"), values);
+    }
+
+    public void delete(View v){
+    	ContentResolver cr = getContentResolver();
+    	int i = cr.delete(Uri.parse("content://com.ldw.po"), "name = ?", new String[]{"AAA"});
+    	System.out.println(i);
+    }
+
+    public void update(View v){
+    	ContentResolver cr = getContentResolver();
+    	ContentValues values = new ContentValues();
+    	values.put("name", "aaa");
+    	int i = cr.update(Uri.parse("content://com.ldw.po"), values, "name = ?", new String[]{"AAA"});
+    	System.out.println(i);
+    }
+
+    public void query(View v){
+    	ContentResolver cr = getContentResolver();
+    	Cursor cursor = cr.query(Uri.parse("content://com.ldw.po"), null, null, null, null);
+    	while(cursor.moveToNext()){
+    		String name = cursor.getString(1);
+    		String money = cursor.getString(2);
+    		System.out.println("name:" + name + ";" + "money" + money);
+    	}
+
+    }
+
+}

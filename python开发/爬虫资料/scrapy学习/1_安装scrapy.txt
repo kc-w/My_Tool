@@ -1,0 +1,3 @@
+1:scrapy的安装
+方法一:windowns打开cmd或linux打开终端,输入"pip install scrapy"进行scrapy框架的安装,期间报错可百度解决方法:如缺乏缺乏其他模块可使用'pip install 依赖包路径名'进行安装.
+方法二:下载'Anaconda',然后安装'Anaconda',安装界面第一次出现的两个框都勾选.安装完成后打开cmd输入'conda install -c conda-forge scrapy'进行scrapy框架的安装.

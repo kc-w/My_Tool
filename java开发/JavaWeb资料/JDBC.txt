@@ -1,0 +1,38 @@
+连接数据库：
+MySQL      com.mysql.jdbc.Driver    jdbc:mysql://IP:3306/database        IP为连接的IP地址，默认端口是3306，database是连接的数据库
+
+Oracle     Oracle.jdbc.driver.OracleDriver     jdbc:oracle:thin:@IP:1521:database      IP为连接的IP地址,默认端口是1521,database是连接的数据库
+
+DB2        com.ibm.db2.jdbc.app.DB2      jdbc:db2://IP:6789/database        IP为连接的IP地址,默认端口是6789,database是连接的数据库
+
+SQLServer  com.microsoft.sqlserver.jdbc.SQLServerDriver  jdbc:sqlserver://IP:1433;databaseName=database  IP为IP地址,默认端口是1433,database是连接的数据库
+
+-------------------------------------------------------------------------------------------------------------
+
+MySQL乱码解决：（在MySQL控制台，显不数据和插入数据有时会出现乱码，出现乱码一般情况都是字符集设定的有问题。）
+MySQL从MySQL4开始支持UTF-8等几十种编码方式，其安装的时候默认是latinl编码方式，它不支持中文，因此需要修改编码方式。
+UTF-8字符集能够编码目前世界上所有的语言，一般的网站也是采用廿TF-8编码方式，它的缺点就是比较占空间，解析也比较复杂。但是为了能统一编码格式，都采用UTF-8进行编码。
+
+【1】从控制台修改编码：
+修改数据库编码，输入命令：ALTER DATABASE 数据库名 CHARACTER SET utf8;
+修改表编码，输入命令：ALTER TABLE 数据库名.表名 CHARACTER SET utf8;
+修改表字段编码，输入命令：ALTER TABLE 数据库名.表名 CHANGE 字段名 字段名 varchar(11) CHARACTER SET utf8; #注：varchar(11)是可以改为其他数据类型的
+
+从控制台查看数据库字符集：
+查看系统字符集命令：show variables like 'char%';
+查看数据库字符集命令：show create database 数据库名;
+查看数据表字符集命令：show full columns from 数据库名.表名;
+
+
+【2】从配置文件修改编码：
+找到MySQL安装目录下的my.ini文件(找不到可以使用搜索)，将如下语句的latinl都改为utf8,再重启MySQL:
+defaute-character-set=latinl和character-set-server=latinl
+
+【3】JDBC URL指定编码方法：
+在用JDBC URL连接时，也可以指定编码方式，方法是在连接JDBC URL后面添加：?unicode-true&characterEncoding=UTF-8，如下：
+jdbc:mysql://IP:3306/database?unicode-true&characterEncoding=UTF-8
+
+【一般情况下经过上述步骤是不会有乱码出现了，如果在程序显示中还有乱码，就检查在请求中是否进行了编码转换。如果是在控制台中还出现乱码或者插入不了中文数据，建议重装数据库，重装数据库时一定要删除干净MySQL文件夹。】
+
+-----------------------------------------------------------------------------------------------------------------
+

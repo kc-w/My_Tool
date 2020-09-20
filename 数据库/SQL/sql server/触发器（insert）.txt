@@ -1,0 +1,18 @@
+use db
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi
+  on book
+  for insert
+as
+  select id
+  from inserted--临时表inserted，临时创建，不被存储
+go
+
+insert into book values('小明','2999','水浒传',99)
+go

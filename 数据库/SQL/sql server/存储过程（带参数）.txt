@@ -1,0 +1,29 @@
+use db
+go
+
+if exists(select name
+          from sysobjects
+		  where name='cunchuguocheng'
+		  )
+drop procedure cunchuguocheng--如果条件成立，删除存储过程
+go
+
+create procedure cunchuguocheng--创建带参数的存储过程
+(@No1 varchar(10),
+ @No2 datetime,
+ @No3 varchar(10)='《大学》'--如果不传参数则使用默认值
+)
+as
+   insert into book(student,goschool,bookname)--插入一条记录
+   values(@No1,@No2,@No3)
+go
+
+declare @No1 varchar(10)--声明变量
+set @No1='新的'--变量赋值
+
+--执行存储过程
+exec cunchuguocheng
+    @No1,--将值传入student字段
+	'2017-1-1'--为goschool字段赋值
+select * from book
+go

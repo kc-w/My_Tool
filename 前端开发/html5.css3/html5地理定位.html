@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style type="text/css">
+   #div{
+	   width:1000px;
+	   height:1000px;
+	   margin:0 auto;
+   }
+</style>
+<!--引入google服务-->
+<script type="text/x-javascript" src="http://maps.google.com/maps/api/js?sensor=false"> 
+</script>
+<!--获取当前地理位置-->
+<script>
+   function home(){
+	   navigator.geolocation.getCurrentPosition(function(position){
+		   //创建对象,获取当前的经纬度
+		   var jingweidu=position.coords;
+		   //设置地图参数，将用户的当前经纬度设为地图中心点
+		   var dian=new google.maps.LatLng(jingweidu.latitude,jingweidu.longitude);
+		   //对地图的操作
+		   var caozuo ={
+			   //地图缩放
+			   zoom:14,
+			   //以用户当前的经纬度为中心
+			   center:dian,
+			   mapTypeId:google.maps.MapTypeId.ROADMAP
+		   };
+		   //创建地图在div中进行显示
+		   var div1=new google.maps.Map(document.getElementById("div"),caozuo);
+		   //在地图创建标记
+		   var biaoji=new google.maps.Marker({
+			      position:dian,
+				  map:div1
+		   });
+		   //设定标准窗口，并指定注释文字
+		   var wengzi=new google.maps.Infowindow({
+			   content:"当前位置"
+		   });
+		   //打开地图使用
+		   wengzi.open(div1,biaoji);
+	   })
+   }
+</script>
+</head>
+<body onLoad="home()">
+
+<div id="div"></div>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+EL标签运算符：
+算术运算符：+、-、*、/或div、%或mod
+逻辑运算符：&& 或 and、|| 或 or. ! 或 not
+关系运算符：=或eq、!=或ne、<或lt、>或gt、<=或le、>=或ge
+其他运算符：Empty运算符、条件运算符、()运算符、[]运算符
+加：${1+1}
+逻辑与：${1>2&&1<0}
+相等：${2==5}或${2 eq 5}
+name 是否为空：${empty name}
+输出name的name属性：${name.name}
+输出数组a的第一个值：${a[0]}
+2小于15就输出yes，否则输出no：${2<15? 'yes':'no'}
+
+隐含变量：
+pageScope、requestScope、sessionScope、applicationScope分别对应于JSP隐含变量pageContext、request、session、application，用JSP中对应的作用域发送请求的参数变量可以用相应的EL标签变量获取取参数值
+
+隐含变量param、paramValues包含请求参数集合变量，param是取得某一参数，paramValues是取得参数数组集合中的变量值。相当于JSP中的request.getParameter(String name)和request.getParameterValues(String name).
+
+隐含变量header、headerValues变量是获取请求HTTP的表头信息。header表示获取HTTP某表头信息，headerValues表示取得表头数组信息，分别对应于request.getHeader()和request.getHeaders()
+
+隐含变量cookie变量取得所有请求的cookie参数，要获取cookie中名为name的值，可以直接使用${cookie.name}来获取
+
+隐含变量initParam取得应用程序初始化参数，相当于application.getInitParameter()方法。一般页面初始化的方法String url=application.getInitParameter("url"),可以用${initParam.url}代替
+
+隐含变量pageContext
+${pageContext.request.queryStringj：取得请求的参数名
+${pageContext.request.requeStURL}取得请求的URL
+$(pageContext.request.contextPath}：取得服务应用的名称
+${pageContext,request.method}取得HTTP的提交方法
+${pageContext.request.protoco1}：取得使用的协议(HTTP/1.1、HTTP/1.O)
+${pageContext.request.remoteUser}获取登录用户名称
+${pageContext.request.remoteAddr」：获取登录用户IP地址
+${pageContext.session,new}：判断session是否为新的会话
+$$pageContext.session.id} : 取得 session 的 ID 号
+${pageContext.servletContext.serverInfo}：取得主机端的服务信息。

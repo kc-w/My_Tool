@@ -1,0 +1,197 @@
+可以说是一个增强版的ListView,不仅可以轻松实现和ListView同样的效果，还优化了 ListView中存在的各种不足之处。
+
+添加依赖
+implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha02'
+
+activity.xml布局
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
+
+
+列表项.xml布局
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorAccent"
+    android:layout_margin="5dp" >
+
+    <ImageView
+        android:id="@+id/fruit_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/fruit_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>
+
+
+数据类
+public class Fruit {
+
+    private String name;
+
+    private int imageId;
+
+    public Fruit(String name, int imageId) {
+        this.name = name;
+        this.imageId = imageId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getImageId() {
+        return imageId;
+    }
+
+}
+
+MainActivity活动
+public class MainActivity extends AppCompatActivity {
+
+    private List<Fruit> fruitList = new ArrayList<Fruit>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //把列表对象装入数组
+        initFruits();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        //实现列表显示控制
+        StaggeredGridLayoutManager layoutManager = new
+                StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        //对象数组装入适配器
+        FruitAdapter adapter = new FruitAdapter(fruitList);
+        //应用设置和适配器
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+    }
+    //数据
+    private void initFruits() {
+        Fruit apple = new Fruit("Apple", R.drawable.apple_pic);
+        fruitList.add(apple);
+        Fruit banana = new Fruit("Banana", R.drawable.banana_pic);
+        fruitList.add(banana);
+        Fruit orange = new Fruit("Orange", R.drawable.orange_pic);
+        fruitList.add(orange);
+        Fruit watermelon = new Fruit("Watermelon", R.drawable.watermelon_pic);
+        fruitList.add(watermelon);
+        Fruit pear = new Fruit("Pear", R.drawable.pear_pic);
+        fruitList.add(pear);
+        Fruit grape = new Fruit("Grape", R.drawable.grape_pic);
+        fruitList.add(grape);
+        Fruit pineapple = new Fruit("Pineapple", R.drawable.pineapple_pic);
+        fruitList.add(pineapple);
+        Fruit strawberry = new Fruit("Strawberry", R.drawable.strawberry_pic);
+        fruitList.add(strawberry);
+        Fruit cherry = new Fruit("Cherry", R.drawable.cherry_pic);
+        fruitList.add(cherry);
+        Fruit mango = new Fruit("Mango", R.drawable.mango_pic);
+        fruitList.add(mango);
+    }
+
+
+}
+
+
+适配器类
+public class FruitAdapter extends RecyclerView.Adapter<FruitAdapter.ViewHolder>{
+
+    private List<Fruit> mFruitList;
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        View fruitView;
+        ImageView fruitImage;
+        TextView fruitName;
+
+        public ViewHolder(View itemView) {
+            super(view);
+            fruitView = itemView;
+            fruitImage = (ImageView) view.findViewById(R.id.fruit_image);
+            fruitName = (TextView) view.findViewById(R.id.fruit_name);
+        }
+    }
+
+    public FruitAdapter(List<Fruit> fruitList) {
+        mFruitList = fruitList;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fruit_item, parent, false);
+        final ViewHolder holder = new ViewHolder(view);
+
+            //选项点击监听
+            holder.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = holder.getLayoutPosition();
+                    People people = peopleList.get(position);
+                    Toast.makeText(v.getContext(), "你点击了选项" + people.getName(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            //选项长按监听
+            holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    int position = holder.getLayoutPosition();
+                    People people = peopleList.get(position);
+                    Toast.makeText(v.getContext(), "你长按了选项" , Toast.LENGTH_SHORT).show();
+                    //返回true可以屏蔽掉setOnClickListener监听,防止冲突
+                    return true;
+                }
+            });
+
+
+        //视图点击监听
+        holder.fruitView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getLayoutPosition();
+                Fruit fruit = mFruitList.get(position);
+                Toast.makeText(v.getContext(), "你点击了view" + fruit.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        //图像点击监听
+        holder.fruitImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getLayoutPosition();
+                Fruit fruit = mFruitList.get(position);
+                Toast.makeText(v.getContext(), "你点击了image" + fruit.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        return holder;
+    }
+
+    @Override//用于对RecyclerView子项的数据进行赋值
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Fruit fruit = mFruitList.get(position);
+        holder.fruitImage.setImageResource(fruit.getImageId());
+        holder.fruitName.setText(fruit.getName());
+    }
+
+    @Override//返回列表中的数据长度
+    public int getItemCount() {
+        return mFruitList.size();
+    }
+
+}

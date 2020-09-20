@@ -1,0 +1,80 @@
+C 指针
+
+int    *ip;    /* 一个整型的指针 */
+double *dp;    /* 一个 double 型的指针 */
+float  *fp;    /* 一个浮点型的指针 */
+char   *ch;     /* 一个字符型的指针 */
+
+//访问指针指向的值
+*ip
+//打印指针地址
+ip
+
+C 中的 NULL 指针
+在变量声明的时候，如果没有确切的地址可以赋值，为指针变量赋一个 NULL 值。赋为 NULL 值的指针被称为空指针。
+
+int  *ptr = NULL;
+printf("ptr 的地址是 %p\n", ptr  );//ptr 的地址是 0x0
+在大多数的操作系统上，程序不允许访问地址为 0 的内存，因为该内存是操作系统保留的。
+然而，内存地址0有特别重要的意义，它表明该指针不指向一个可访问的内存位置。
+
+----------------------------------------------------------------------------------
+C 指针的算术运算
+C 指针是一个用数值表示的地址。因此，您可以对指针执行算术运算。可以对指针进行四种算术运算：++、--、+、-。
+
+假设 ptr 是一个指向地址 0x1000 的整型指针，是一个32(4字节)位的整数，让我们对该指针执行下列的算术运算：
+ptr++
+
+在执行完上述的运算之后，ptr 将指向位置 1004，因为 ptr 每增加一次，它都将指向下一个整数位置，即当前位置往后移 4 字节。
+如果 ptr 指向一个地址为 1000 的char(1字节)，上面的运算会导致指针指向位置 1001，因为下一个字符位置是在 1001。
+
+指针的比较
+指针可以用关系运算符进行比较，如 ==、< 和 >
+
+指针构成的数组
+int *ptr[5];//声明5个长度的int类型指针数组
+
+函数指针(函数指针是指向函数的指针变量)
+int max(int x, int y){
+    return x > y ? x : y;
+}
+
+main(void){
+    //p 是函数指针
+    int (* p)(int, int) = & max; // &可以省略
+    int a, b, c, d;
+
+    //输入三个数字
+    scanf("%d %d %d", & a, & b, & c);
+
+    //与直接调用函数等价，d = max(max(a, b), c)
+    d = p(p(a, b), c);
+
+    printf("最大的数字是: %d\n", d);
+
+}
+
+回调函数(函数指针作为某个函数的参数)
+// 回调函数
+void populate_array(int *array, size_t arraySize, int (*getNextValue)(void)){
+    for (size_t i=0; i<arraySize; i++)
+        array[i] = getNextValue();
+}
+
+// 获取随机值
+int getNextRandomValue(void){
+    return rand();
+}
+
+int main(void){
+    int myarray[10];
+    populate_array(myarray, 10, getNextRandomValue);
+    for(int i = 0; i < 10; i++) {
+        printf("%d ", myarray[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
+
+

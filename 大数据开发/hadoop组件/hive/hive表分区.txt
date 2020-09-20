@@ -1,0 +1,61 @@
+表分区####################分区的列名必须为表中不存在的(伪列)
+
+分区表的作用:
+1:避免全表扫描
+2:提升查询性能
+3:方便数据按分区写入
+4:方便管理
+
+t.txt
+1,大米,book-TV-code,beijing:chaoyang-shagnhai:pudong
+2,小米,book-code,nanjing:jiangning-taiwan:taibei
+3,糯米,music-book,heilongjiang:haerbin
+
+-----------------------创建静态分区表(静态分区字段要在动态前面)--------------------------
+
+create table if not exists test1.log(
+id int,
+name string,
+hobby array<string>,
+add map<String,string>
+)
+partitioned by(data string,address string)
+row format delimited fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+-------------把txt文件加载进表中,并指定分区------------
+load data local inpath '/1.txt' into table test1.log partition(data='2019-9-8',address='cn');
+load data local inpath '/2.txt' into table test1.log partition(data='2019-10-9',address='us');
+
+
+
+
+
+-----------------------创建动态分区表--------------------------
+create table if not exists test1.log1(
+id int,
+name string,
+hobby array<string>,
+add map<String,string>
+)
+partitioned by(data string,address string)
+row format delimited fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+
+-------------从其他表中把数据导入动态分区(静态分区字段要在动态前面)------------
+insert overwrite table log1 partition(data='2018-1-1',address) select id,name,hobby,add,address from log where data='2018-1-1';
+
+
+分区表动态加载数据参数
+
+防止空分区产生
+set hive.exec.dynamic.partition.mode=nonstrict ;
+set hive.exec.max.dynamic.partitions=2048;
+set hive.exec.max.dynamic.partitions.pernode=256;
+set hive.exec.max.created.files=10000;
+设置允许动态分区命令
+set hive.error.on.empty.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;

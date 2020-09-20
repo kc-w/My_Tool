@@ -1,0 +1,21 @@
+时间相减
+select count(t.time) from(select (unix_timestamp(max(action_time)) - unix_timestamp(min(action_time))) as time from active group by session_id) as t where t.time>=30 and t.time<60;
+
+
+select count(*) from (select session_id,count(session_id) as num from active group by session_id) as t1 where t1.num>=7 and t1.num<=9;
+
+
+分割字段为列表
+select t2.word,count(*) as num from(select explode(split(t1.click_product,'/')) as word from (select * from active  order by rand() limit 100) as t1) as t2 group by t2.word order by num desc;
+
+
+hive -e "use test; select count(*) from (select session_id,count(session_id) as num from active group by session_id) as t1 where t1.num>=1 and t1.num<=3" > /tmp/out.txt
+
+
+source /etc/profile;
+hive -e '
+select t2.id ,count(t2.id) num from
+(select explode(split(t1.pay_product_ids,'/')) id  from
+(select a.pay_product_ids from userinfo u,active a where u.age>=10 and u.age=<30 and u.city ='wuhan' and u.sex=%s and u.professional=%s and u.user_id=a.user_id) t1
+) t2 group by t2. id order by num desc limit 1 10;
+'>result1.txt

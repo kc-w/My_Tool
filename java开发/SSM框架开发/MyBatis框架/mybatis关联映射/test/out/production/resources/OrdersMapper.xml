@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace表示命名空间-->
+<mapper namespace="com.wan.test.OrdersMapper">
+
+    <!--多对多-->
+    <select id="findOrdersWithProduct" parameterType="Integer" resultMap="OrdersWithProduct">
+        SELECT orders.*,produte.* FROM orders,produte,ordersitem WHERE ordersitem.order_id=orders.id AND ordersitem.produte_id=produte.id AND orders.id=#{id}
+    </select>
+    <resultMap id="OrdersWithProduct" type="com.wan.pojo.orders">
+        <id property="id" column="id"/>
+        <result property="number" column="number"/>
+        <!--多对多关联映射-->
+        <collection property="products" ofType="com.wan.pojo.product">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="price" column="price"/>
+        </collection>
+    </resultMap>
+</mapper>

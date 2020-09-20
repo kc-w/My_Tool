@@ -1,0 +1,127 @@
+核心原理:
+Context提供了两个方法来打开数据文件里的文件IO流
+FileInputStream openFileInput(String name);
+FileOutputStream(String name , int mode);
+不能包含路径分隔符“/”,这两个方法第一个参数用于指定文件名,第二个参数指定打开文件的模式。
+创建的文件保存在/data/data/<package name>/files目录，如： /data/data/cn.tony.app/files/message.txt。
+
+MODE_PRIVATE：为默认操作模式，代表该文件是私有数据，只能被应用本身访问，在该模式下，写入的内容会覆盖原文件的内容。
+MODE_APPEND：模式会检查文件是否存在，存在就往文件追加内容，否则就创建新文件。
+MODE_WORLD_READABLE：表示当前文件可以被其他应用读取；
+MODE_WORLD_WRITEABLE：表示当前文件可以被其他应用写入。
+
+除此之外，Context还提供了如下几个重要的方法：
+getDir(String name , int mode):在应用程序的数据文件夹下获取或者创建name对应的子目录
+File getFilesDir():获取该应用程序的数据文件夹得绝对路径
+String[] fileList():返回该应用数据文件夹的全部文件
+
+public String read() {
+        try {
+            FileInputStream inStream = this.openFileInput("message.txt");
+            byte[] buffer = new byte[1024];
+            int hasRead = 0;
+            StringBuilder sb = new StringBuilder();
+            while ((hasRead = inStream.read(buffer)) != -1) {
+                sb.append(new String(buffer, 0, hasRead));
+            }
+
+            inStream.close();
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void write(String msg){
+        // 步骤1：获取输入值
+        if(msg == null) return;
+        try {
+            // 步骤2:创建一个FileOutputStream对象,MODE_APPEND追加模式
+            FileOutputStream fos = openFileOutput("message.txt",MODE_APPEND);
+            // 步骤3：将获取过来的值放入文件
+            fos.write(msg.getBytes());
+            // 步骤4：关闭数据流
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+读写sdcard上的文件
+1:调用Environment的getExternalStorageState()方法判断手机上是否插了sd卡,且应用程序具有读写SD卡的权限，如下代码将返回true
+Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)
+
+2:调用Environment.getExternalStorageDirectory()方法来获取外部存储器，也就是SD卡的目录,或者使用"/mnt/sdcard/"目录
+
+3:使用IO流操作SD卡上的文件,手机应该已插入SD卡,且必须在AndroidManifest.xml上配置读写SD卡的权限
+<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+
+// 文件写操作函数
+    private void write(String content) {
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) { // 如果sdcard存在
+            File file = new File(Environment.getExternalStorageDirectory()
+                    .toString()
+                    + File.separator
+                    + DIR
+                    + File.separator
+                    + FILENAME); // 定义File类对象
+            if (!file.getParentFile().exists()) { // 父文件夹不存在
+                file.getParentFile().mkdirs(); // 创建文件夹
+            }
+            PrintStream out = null; // 打印流对象用于输出
+            try {
+                out = new PrintStream(new FileOutputStream(file, true)); // 追加文件
+                out.println(content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    out.close(); // 关闭打印流
+                }
+            }
+        } else { // SDCard不存在，使用Toast提示用户
+            Toast.makeText(this, "保存失败，SD卡不存在！", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // 文件读操作函数
+    private String read() {
+
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) { // 如果sdcard存在
+            File file = new File(Environment.getExternalStorageDirectory()
+                    .toString()
+                    + File.separator
+                    + DIR
+                    + File.separator
+                    + FILENAME); // 定义File类对象
+            if (!file.getParentFile().exists()) { // 父文件夹不存在
+                file.getParentFile().mkdirs(); // 创建文件夹
+            }
+            Scanner scan = null; // 扫描输入
+            StringBuilder sb = new StringBuilder();
+            try {
+                scan = new Scanner(new FileInputStream(file)); // 实例化Scanner
+                while (scan.hasNext()) { // 循环读取
+                    sb.append(scan.next() + "\n"); // 设置文本
+                }
+                return sb.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (scan != null) {
+                    scan.close(); // 关闭打印流
+                }
+            }
+        } else { // SDCard不存在，使用Toast提示用户
+            Toast.makeText(this, "读取失败，SD卡不存在！", Toast.LENGTH_LONG).show();
+        }
+        return null;
+    }
+
+

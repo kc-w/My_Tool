@@ -1,0 +1,157 @@
+handler作用:传递消息Message
+
+
+
+
+2种创建消息方法
+//1.通过handler实例获取
+    Handler handler = new Handler();
+    Message message=handler.obtainMessage();
+
+//2.通过Message获取
+    Message message=Message.obtain();
+
+
+//源码中第一种获取方式其实也是内部调用了第二种：
+    public final Message obtainMessage(){
+        return Message.obtain(this);
+    }
+
+
+//传递的数据
+    Bundle bundle = new Bundle();
+    bundle.putString("msg", "传递我这个消息");
+//发送数据
+    Message message = Message.obtain();
+    //message.obj=bundle  传值也行
+    message.setData(bundle);
+    message.what = 0x11;
+    handler.sendMessage(message);
+
+
+
+//数据的接收
+    final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what == 0x11) {
+                    Bundle bundle = msg.getData();
+                    String date = bundle.getString("msg");
+                }
+            }
+    };
+
+
+例子:
+
+子线程通知主线程更新ui
+    //创建handler
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what == 0x11) {
+                    //更新ui
+
+                }
+            }
+        };
+    //子线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                message.what = 0x11;
+                handler.sendMessage(message);
+            }
+        }).start();
+
+
+常用api
+
+
+//消息
+    Message message = Message.obtain();
+//发送消息
+    new Handler().sendMessage(message);
+//延时1s发送消息
+    new Handler().sendMessageDelayed(message, 1000);
+//发送带标记的消息(内部创建了message,并设置msg.what = 0x1)
+    new Handler().sendEmptyMessage(0x1);
+//延时1s发送带标记的消息
+    new Handler().sendEmptyMessageDelayed(0x1, 1000);
+//延时1秒发送消息（第二个参数为：相对系统开机时间的绝对时间，而SystemClock.uptimeMillis()是当前开机时间）
+    new Handler().sendMessageAtTime(message, SystemClock.uptimeMillis() + 1000);
+
+//避免内存泄露的方法：
+//移除标记为0x1的消息
+    new Handler().removeMessages(0x1);
+//移除回调的消息
+    new Handler().removeCallbacks(Runnable);
+//移除回调和所有message
+    new Handler().removeCallbacksAndMessages(null);
+
+
+
+handler怎么使用会产生内存泄露?
+    public class MainActivity extends AppCompatActivity {
+
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                    ......
+            }
+        };
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            //activity被执行时,被延迟的这个消息存于主线程消息队列中1分钟,
+            //此消息包含handler引用，而handler由匿名内部类创建，持有activity引用，
+            //activity便不能正常销毁，从而泄露
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ......
+                }
+            }, 1000 * 60);
+        }
+    }
+
+如何避免handler的内存泄露?
+    public class MainActivity extends AppCompatActivity {
+        //创建静态内部类
+        private static class MyHandler extends Handler{
+            //持有弱引用MainActivity,GC回收时会被回收掉.
+            private final WeakReference<MainActivity> mAct;
+            public MyHandler(MainActivity mainActivity){
+                mAct =new WeakReference<MainActivity>(mainActivity);
+            }
+            @Override
+            public void handleMessage(Message msg) {
+                MainActivity mainAct=mAct.get();
+                super.handleMessage(msg);
+                if(mainAct!=null){
+                    //执行业务逻辑
+                }
+            }
+        }
+        private static final Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                //执行我们的业务逻辑
+            }
+        };
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            MyHandler myHandler=new MyHandler(this);
+            //延迟5分钟后发送
+            myHandler.postDelayed(myRunnable, 1000 * 60 * 5);
+        }
+    }
+

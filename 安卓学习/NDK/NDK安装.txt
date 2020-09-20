@@ -1,0 +1,15 @@
+NDK安装路径最好不带中文或空格
+
+开发环境准备
+1:
+打开Android Studio 的setting打开SDK Tool目录
+选中CMake,LLDB,NDK下载
+
+CMake：一个跨平台的编译构建工具，替代 Android.mk
+LLDB：一个高效的 C/C++ 的调试工具
+NDK：即我们需要下载的工具，会生成到 SDK 根目录下
+
+
+2:
+打开local.properties文件,添加ndk所在的目录如
+ndk.dir=D\:\\Android\\Sdk\\ndk\\21.0.6113669

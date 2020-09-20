@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!--配置  需要创建的对象  对象依赖关系的处理 -->
+<!-- 	<bean id="userdao" class="cn.spring.c_di2.UserDao"></bean>
+	
+	<bean id="userService" class="cn.spring.c_di2.UserService">
+		<property name="userDao" ref="userdao"></property>
+	</bean> -->
+	
+	<!-- 创建Action -->
+<!-- 	<bean id="userAction" class="cn.spring.c_di2.UserAction" scope="prototype">
+		<property name="userService" ref="userService"></property>
+	</bean>
+	
+	 -->
+	<!-- 2. 内部bean的方法     类似于内部类一样 -->
+<!-- 	<bean id="userAction" class="cn.spring.c_di2.UserAction">
+		<property name="userService">
+			<bean class="cn.spring.c_di2.UserService">
+				<property name="userDao">
+					<bean class="cn.spring.c_di2.UserDao"></bean>
+				</property>
+			</bean>
+		</property>
+	</bean> -->
+	
+	<!-- p名称空间给属性注入赋值 -->
+	<bean id="userDao" class="cn.spring.c_di2.UserDao"></bean>
+	<bean id="userService" class="cn.spring.c_di2.UserService" p:userDao-ref="userDao"></bean>
+	<bean id="userAction" class="cn.spring.c_di2.UserAction" p:userService-ref="userService"></bean>
+	
+	
+	
+</beans>      

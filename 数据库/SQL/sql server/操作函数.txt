@@ -1,0 +1,63 @@
+--create table #a(id int null)使用#开头可创建临时表
+--第一为要转换成的目标数据类型,第二为要转换的时间必须为日期格式的数据类型,第三为转换格式参数
+--日期转换函数convert(1,2,3)
+
+--第一为要转换成的目标数据类型,第二为要转换参数
+--convert(1,2)
+
+--获取当前时间2019-05-06 09:58:12.497
+select getdate()
+
+--转换为09:58:12:497格式
+select convert(varchar(100),getdate(),14) as a1
+
+--转换为2019-05-06 10:03:08格式
+select convert(varchar(100),getdate(),20) as a2
+
+--转换为2019-05-06 10:03:08.297格式
+select convert(varchar(100),getdate(),21) as a3
+
+--转换为2019-05-06格式
+select convert(varchar(100),getdate(),23) as a4
+
+--转换为10:03:08格式
+select convert(varchar(100),getdate(),24) as a5
+
+--转换为2019.05.06格式
+select convert(varchar(100),getdate(),102) as a6
+
+--转换为2019/05/06格式
+select convert(varchar(100),getdate(),111) as a7
+
+--转换为20190506格式
+select convert(varchar(100),getdate(),112) as a8
+
+select getdate() as 今天,
+day(getdate()) as 这个月的第几天,
+month(getdate()) as 今年的第几个月,
+datepart(qq,getdate()) as 今年的第几个季度,
+year(getdate()) as 哪一年
+
+
+--cast(字段 as 需要转换成的类型) 字符与数字转换
+
+select sum(t1) as sum,t2 from aaa group by t2
+select sum(cast(t2 as int)) as sum,t1 from aaa group by t1
+
+--substring(截取的字段,截取的开始位置,截取几位)
+select t2,substring(t2,5,2) from aaa
+select t2,substring(t2,charindex('9',t2)+1,len(t2)) from aaa
+
+
+--charindex(需要定位的字符,定位的字段) 定位位置,显示索引位置从1开始
+select charindex('9',t2),t2 from aaa
+
+
+--left(截取的字段,截取几位)从左开始截取
+select t2,left(t2,2) from aaa
+
+--right(截取的字段,截取几位)从右开始截取
+select t2,right(t2,1) from aaa
+
+--字符串去除左右空格ltrim(),rtrim()
+select ltrim(rtrim(t2)) from aaa

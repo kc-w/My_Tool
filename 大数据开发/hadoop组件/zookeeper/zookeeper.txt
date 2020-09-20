@@ -1,0 +1,100 @@
+ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Hadoop和Hbase的重要组件(HBase内置有ZooKeeper，也可以使用外部ZooKeeper。)。
+它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。
+
+ZooKeeper代码版本中，提供了分布式独享锁、选举、队列的接口。其中分布锁和队列有Java和C两个版本，选举只有Java版本。
+
+
+ZooKeeper是以Fast Paxos算法为基础的，Fast Paxos算法通过选举产生一个leader (领导者)。
+Fast Paxos算法存在活锁问题，当有多个proposer交错提交时，可能互相排斥导致没有一个proposer能提交成功，Fast Paxos作了一些优化，只有leader才能提交proposer
+
+zookeeper工作机制
+	Zookeeper的核心是原子广播，这个机制保证了各个server之间的同步。实现这个机制的协议叫做Zab协议。Zab协议有两种模式，它们分别是恢复模式和广播模式。
+	当服务启动或者在leader崩溃后，Zab就进入了恢复模式，当领导者被选举出来，且大多数server的完成了和leader的状态同步以后，恢复模式就结束了。
+    一旦leader已经和多数的follower进行了状态同步后，他就可以开始广播消息了，即进入广播状态。这时候当一个server加入zookeeper服务中，它会在恢复模式下启动，
+
+ZooKeeper的基本运转流程：
+1、选举Leader。
+2、同步数据。
+3、选举Leader过程中算法有很多，但要达到的选举标准是一致的。
+4、Leader要具有最高的执行ID，类似root权限。
+5、集群中大多数的机器得到响应并接受选出的Leader。
+
+zookeeper特点
+	1.一个leader，多个follower
+	2.只要有半数以上节点存活，集群正常工作
+	3.全局数据一致
+		每个server保存一份相同的数据副本，client无论连接到哪个server，数据都一样
+	4.更新请求顺序进行，来自同一个client的更新请求按其发送顺序依次执行
+	5.数据更新原子性，一次数据更新要么成功，要么失败
+	6.实时性，在一定时间范围内，client能读到最新数据
+
+zookeeper数据结构
+	树形结构
+	整体上看作是一棵树，每个节点称作一个ZNode，每个ZNode默认能够存储1MB的数据，每个ZNode都可以通过其路径唯一标识
+
+在Zookeeper中，znode是一个跟Unix文件系统路径相似的节点，可以往这个节点存储或获取数据。
+如果在创建znode时Flag设置为EPHEMERAL，当创建这个znode的节点和Zookeeper失去连接后，znode将不再存在在Zookeeper里，Zookeeper使用Watcher察觉事件信息。
+当客户端接收到事件信息，比如连接超时、节点数据改变、子节点改变，可以调用相应的行为来处理数据。
+
+
+zookeeper选举机制
+	1.半数机制
+		半数以上
+	2.自私制+大数制
+
+监听器原理
+	1.main()线程
+	2.创建zookeeper客户端，创建两个线程，connect和listener
+	3.通过connect线程将注册的监听时间发送给zookeeper
+	4.在zookeeper的注册监听器列表中将注册的监听时间添加到列表
+	5.zookeeper监听到有数据或路径变化，就会将消息发送给listener线程
+	6.listener线程内部调用process()方法，即自己编写的对应措施
+
+写数据的流程
+	1.client向server1发送一个写数据请求
+	2.若server1不是leader，server1会把接受到的请求进一步转发给leader
+		leader会将写请求广播给各个server，各个server写数据成功后会通知leader
+	3.若半数以上的server都写成功了，leader会认为数据都写成功了，并通知给server1
+	4.server1通知给client，数据写成功了
+
+节点类型
+	1.持久型persistent
+		客户端与服务器断开连接之后，创建的节点不删除
+		数据分为持久化目录节点和持久化顺序编号目录节点
+	2.短暂型ephemeral
+		客户端与服务端断开连接之后，创建的节点自己删除
+		数据分为临时目录节点和临时顺序编号目录节点
+		
+shell命令
+	1.zkCli.sh进入
+	2.help
+	3.ls /
+	4.ls2 /	查看详细信息
+	5.创建节点
+		create /bigdata?
+		create /bigdata "spark"
+		create /bigdata/hadoop "HDFS"
+	6.get /bigdata/hadoop
+	7.短暂节点
+		create -e /bigdata/Hive "Beeli"
+		退出之后，这个节点就会被删除
+	8.序号节点
+		create -s /bigdata/Impala "impalad"
+		create -s /bigdata/Impala "statestore"
+		create -s /bigdata/Impala "catelog"
+		
+
+
+
+			
+			
+			
+			
+			
+			
+			
+			
+		
+		
+		
+		

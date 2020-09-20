@@ -1,0 +1,28 @@
+use db
+go
+
+if exists(select name
+          from sysobjects
+		  where name='cunchuguocheng'
+		  )
+drop procedure cunchuguocheng--如果条件成立，删除存储过程
+go
+
+create procedure cunchuguocheng
+(
+   @1 int=1--默认值
+)
+as
+if(select id from book where id=@1)=1
+   return 1
+else
+   return 2
+go
+
+declare @2_id int
+execute @2_id=cunchuguocheng --将存储过程执行后的返回的数值赋给变量
+if @2_id=1
+   select'属于系统管理员'
+else
+   select'不属于系统管理员'
+go

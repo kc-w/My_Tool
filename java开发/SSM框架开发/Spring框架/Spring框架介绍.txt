@@ -1,0 +1,62 @@
+Spring是由Rod Johnson组织和开发的一个分层的Java SE/EE full-stack(一站式)轻量级开源框架，它以loc(Inversion of Control，控制反转)和AOP(Aspect Oriented Programming,面向切面编程)为内核，使用基本的JavaBean来完成以前只可能由EJB完成的工作，取代了EJB的臃肿、低效的开发模式。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Spring致力于Java EE应用各层的解决方案，在表现层它提供了Spring MVC以及与Struts框架的整合功能；在业务逻辑层可以管理事务、记录日志等；在持久层可以整合MyBatis,Hibernate、JdbcTemplate等技术。因此，可以说Spring是企业应用开发很好的选择。虽然Spring贯穿于表现层、业务逻辑层和持久层，但它并不想取代那些已有的框架，而是以高度的开放性与它们进行无缝整合。
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Spring具有简单、可测试和松耦合等特点，从这个角度出发，Spring不仅可以用于服务器端开发，也可以应用于任何Java应用的开发中。关于Spring框架优点的总结，具体如下.
+·非侵入式设计
+Spring是一种非侵入式(non-invasive)框架，它可以使应用程序代码对框架的依赖最小化。
+·方便解耦、简化开发
+Spring就是一个大工厂，可以将所有对象的创建和依赖关系的维护工作都交给Spring容器管理，大大地降低了组件之间的耦合性。
+·支持AOP
+Spring提供了对AOP的支持，它允许将一些通用任务，如安全、事务、日志等进行集中式处理，从而提高了程序的复用性。
+·支持声明式事务处理
+只需要通过配置就可以完成对事务的管理，而无须手动编程。
+·方便程序的测试
+Spring提供了对Junit4的支持，可以通过注解方便地测试Spring程序。
+·方便集成各种优秀框架
+Spring不排斥各种优秀的开源框架，其内部提供了对各种优秀框架(如Struts、Hibernate.MyBatis、Quartz等)的直接支持。
+·降低Java EE API的使用难度
+Spring对Java EE开发中非常难用的一些API(如JDBC、JavaMail等)，都提供了封装，使这些API应用难度大大降低。
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1.Core Container(核心容器)
+Spring的核心容器是其他模块建立的基础，它主要由Beans模块、Core模块、Context模块、Context-support模块和SpEL(Spring Expression Language,Spring表达式语言)模块组成，具体介绍如下。
+·Beans模块提供了BeanFactory，是工厂模式的经典实现，Spring将管理对象称为Bean.
+·Core核心模块：提供了Spring框架的基本组成部分，包括loc和Dl功能。
+·Context上下文模块：建立在Core和Beans模块的基础之上，它是访问定义和配置的任何对象的媒介。其中Applicationcontext接口是上下文模块的焦点。
+·Context-support模块：提供了对第三方库嵌入Spring应用的集成支持，比如缓存(Ehcache、Guava、JCache)、邮件服务(JavaMail)、任务调度(CommonJ、Quartz)和模板引擎(FreeMarker、JasperReports、速率)。
+·SpEL模块是：Spring 3.0后新增的模块，它提供了Spring Expression Language支持，是运行时查询和操作对象图的强大的表达式语言。
+
+2.Data Access/Integration(数据访问/集成)
+数据访问/集成层包括JDBC、ORM、OXM、JMS和Transactions模块，具体介绍如下。
+·JDBC模块：提供了一个JDBC的抽象层，大幅度地减少了在开发过程中对数据库操作的编码。
+·ORM模块：对流行的对象关系映射API，包括JPA、JDO和Hibernate提供了集成层支持.
+.OXM模块：提供了一个支持对象/XML映射的抽象层实现，如JAXB.Castor.XMLBeans.JiBX 和 XStream.
+.JMS模块：指Java消息传递服务，包含使用和产生信息的特性，自4.1版本后支持与Spring-message模块的集成。
+.Transactions事务模块：支持对实现特殊接口以及所有POJO类的编程和声明式的事务管理。
+
+3. Web
+Spring的Web层包括Websocket、Servlet、Web和Portlet模块，具体介绍如下。
+.Websocket模块：Spring 4.0以后新增的模块，它提供了Websocket和SockJS的实现，以及对STOMP的支持。
+.Servlet模块：也称为Spring-webmvc模块，包含了Spring的模型一视图一控制器和REST Web Services实现的Web应用程序。
+.Web模块：提供了基本的Web开发集成特性，例如多文件上传功能、使用Servlet监听器来初始化loc容器以及Web应用上下文。
+.Portlet模块：提供了在Portlet环境中使用MVC实现，类似Servlet模块的功能。
+
+
+4.其他模块
+Spring的其他模块还有AOP、Aspects、Instrumentation以及Test模块，具体介绍如下。
+.AOP模块：提供了面向切面编程实现，允许定义方法拦截器和切入点，将代码按照功能进行分离，以降低耦合性。
+.Aspects模块：提供了与AspectJ的集成功能，AspectJ是一个功能强大且成熟的面向切面编程(AOP)框架。
+.Instrumentation模块：提供了类工具的支持和类加载器的实现，可以在特定的应用服务器中使用。
+.Messaging模块：Spring 4,0以后新增的模块，它提供了对消息传递体系结构和协议的支持。
+.Test模块：提供了对单元测试和集成测试的支持。
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

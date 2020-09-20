@@ -1,0 +1,136 @@
+在android中,官方推荐ui需要在主线程activity中更新,在子线程中进行UI更新是线程不安全的,在子线程中更新UI时底层代码
+会判断当前更新线程是否为主线程,不是主线程的话会抛出异常,所以只能由子线程通知主线程更新数据
+
+
+
+类定义
+
+AsyncTask类属于抽象类，即使用时需实现子类
+public abstract class AsyncTask<Params, Progress, Result> {
+
+}
+
+// 类中参数为3种泛型类型
+// 整体作用：控制AsyncTask子类执行线程任务时各个阶段的返回类型
+// 具体说明：
+    // a. Params：开始异步任务执行时传入的参数类型，对应excute()中传递的参数
+    // b. Progress：异步任务执行过程中，返回下载进度值的类型
+    // c. Result：异步任务执行完成后，返回的结果类型，与doInBackground()的返回值类型保持一致
+// 注：
+    // a. 使用时并不是所有类型都被使用
+    // b. 若无被使用，可用java.lang.Void类型代替
+    // c. 若有不同业务，需额外再写1个AsyncTask的子类
+}
+
+
+          核心方法                       作用                           调用时刻                              备注
+
+execute(Params... params)               触发执行异步线程任务             手动调用                           必须在UI线程中调用
+                                                                                                            运行在主线程
+
+                                                                        执行线程任务前自动调用
+onPreExecute()                          执行线程任务前的操作             即执行execute()前自动调用           用于界面的初始化操作，
+                                                                        (不能手动调用，需让系统自动调用)    如显示进度条的对话框
+
+                                        接收输入参数                     执行线程任务时自动调用
+dolnBackground (Params params)          执行任务中的耗时操作             即onPreExecute()执行完成后自动调用   不能更改UI组件的信息
+                                        (必须复写，从而自定义线程任务)   (不能手动调用，需让系统自动调用)      执行过程中，可调用publishProgress （）更新进度信息
+                                        返回线程任务执行的结果
+
+onProgressUpdate (Progress values)      在主线程显示线程任务执行的进度   调用publishProgress(Progress... values)时自动调用                 /
+                                                                       (不能手动调用，需让系统自动调用)
+
+                                        接收线程任务执行结果                 线程任务结束时自动调用
+onPostExecute (Result result)           将执行结果显示到UI组件           (不能手动调用，需让系统自动调用)                             /
+                                        (必须复写，从而自定义UI操作)
+
+onCancelled ()                          将异步任务设置为：取消状态           异步任务被取消时即自动调用        该方法被调用时，onPostExecute()就不会被调用
+                                        （并不是真正的取消任务）          在dolnBackground()中判断终止任务
+
+
+类型                        具体执行顺序
+
+基础使用             (手动调用)execute() -» onPreExecute() -» dolnBackground() -» onPostExecute()
+
+需显示进度           (手动调用)execute() -» onPreExecute() -» dolnBackground() -» publishProgress() -» onPostExecute() -» onProgressUpdate()
+
+执行线程任务时需终止  (手动调用)execute() -» onPreExecute() -» dolnBackground() -» onCancelled()
+
+
+使用步骤
+/**
+  * 步骤1：创建AsyncTask子类
+  * 注：
+  *   a. 继承AsyncTask类
+  *   b. 为3个泛型参数指定类型；若不使用，可用java.lang.Void类型代替
+  *   c. 根据需求，在AsyncTask子类内实现核心方法
+  */
+
+  private class MyTask extends AsyncTask<Params, Progress, Result> {
+
+      // 方法1：onPreExecute（）
+      // 作用：执行 线程任务前的操作
+      // 注：根据需求复写
+      @Override
+      protected void onPreExecute() {
+           ...
+      }
+
+      // 方法2：doInBackground（）
+      // 作用：接收输入参数、执行任务中的耗时操作、返回 线程任务执行的结果
+      // 注：必须复写，从而自定义线程任务
+      @Override
+      protected String doInBackground(String... params) {
+
+            ...// 自定义的线程任务
+
+            // 可调用publishProgress（）显示进度, 之后将执行onProgressUpdate（）
+             publishProgress(count);
+
+       }
+
+      // 方法3：onProgressUpdate（）
+      // 作用：在主线程 显示线程任务执行的进度
+      // 注：根据需求复写
+      @Override
+      protected void onProgressUpdate(Integer... progresses) {
+            ...
+
+      }
+
+      // 方法4：onPostExecute（）
+      // 作用：接收线程任务执行结果、将执行结果显示到UI组件
+      // 注：必须复写，从而自定义UI操作
+      @Override
+      protected void onPostExecute(String result) {
+
+         ...// UI操作
+
+      }
+
+      // 方法5：onCancelled()
+      // 作用：将异步任务设置为：取消状态
+      @Override
+        protected void onCancelled() {
+        ...
+        }
+  }
+
+/**
+  * 步骤2：创建AsyncTask子类的实例对象（即 任务实例）
+  * 注：AsyncTask子类的实例必须在UI线程中创建
+  */
+  MyTask mTask = new MyTask();
+
+/**
+  * 步骤3：手动调用execute(Params... params) 从而执行异步线程任务
+  * 注：
+  *    a. 必须在UI线程中调用
+  *    b. 同一个AsyncTask实例对象只能执行1次，若执行第2次将会抛出异常
+  *    c. 执行任务中，系统会自动调用AsyncTask的一系列方法：onPreExecute() 、doInBackground()、onProgressUpdate() 、onPostExecute()
+  *    d. 不能手动调用上述方法
+  */
+  mTask.execute()；
+
+
+

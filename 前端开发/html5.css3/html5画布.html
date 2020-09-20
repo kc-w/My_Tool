@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style type="text/css">
+   .a{
+	   width:600px;
+	   height:600px;
+   }
+   .b{
+	   width:600px;
+	   height:600px;
+   }
+   .c{
+	   width:600px;
+	   height:600px;
+   }
+</style>
+</head>
+<body>
+<!--相当于一块空白的画布-->
+<canvas id="a">
+</canvas>
+<canvas id="b">
+</canvas>
+<canvas id="c">
+</canvas>
+<script>
+   var c=document.getElementById("a");<!--获取id并进行操作-->
+   var cxt=c.getContext("2d");<!--指定只能绘制2d图形-->
+   cxt.fillStyle="red";<!--挑选画笔的颜色-->
+   cxt.fillRect(0,0,100,100);<!--绘制一个长度和宽度都是100px的正方形-->
+</script>
+<script>
+   var c=document.getElementById("b");<!--获取id并进行操作-->
+   var cxt=c.getContext("2d");<!--指定只能绘制2d图形-->
+   cxt.fillStyle="red";<!--挑选画笔的颜色-->
+   cxt.beginPath();<!--路径开始绘制-->
+   cxt.arc(70,18,15,0,Math.PI*2,true);<!--绘制一个圆形-->
+   cxt.closePath();<!--关闭路径-->
+   cxt.fill();<!--进行渲染-->
+</script>
+<script>
+   var c=document.getElementById("c");<!--获取id并进行操作-->
+   var cxt=c.getContext("2d");<!--指定只能绘制2d图形-->
+   var img=new Image();
+   img.onload=function(){
+       cxt.drawImage(img,0,0);<!--将图片放入画布，并指定x和y坐标-->
+   }
+   img.src="../image/1.jpg";<!--图片地址-->
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace表示命名空间-->
+<mapper namespace="com.wan.test.UserMapper">
+
+    <select id="findU" parameterType="com.wan.pojo.User" resultType="com.wan.pojo.User">
+        SELECT * FROM a WHERE 1=1
+        <if test="name !=null and name !=''"><!--顺序执行-->
+            AND a_name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="age==null">
+            AND a_age =#{age}
+        </if>
+    </select>
+
+    <select id="findU1" parameterType="com.wan.pojo.User" resultType="com.wan.pojo.User">
+        SELECT * FROM a WHERE 1=1
+        <choose><!--分支语句,只执行其中一条-->
+            <when test="age==null">
+                AND a_age =1
+            </when>
+            <when test="name!=null and name!=''">
+                AND a_name LIKE concat('%',#{name},'%')
+            </when>
+            <otherwise>
+                AND a_age IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findU2" parameterType="com.wan.pojo.User" resultType="com.wan.pojo.User">
+        SELECT * FROM a
+        <where><!--自动补齐where-->
+            <if test="name !=null and name !=''">
+                AND a_name LIKE concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findU3" parameterType="com.wan.pojo.User" resultType="com.wan.pojo.User">
+        SELECT * FROM a
+        <trim prefix="where" prefixOverrides="and"><!--prefix表示语句需要添加的前缀,prefixOverrides白哦是需要去除的特殊字符-->
+            <if test="name !=null and name !=''">
+                AND a_name LIKE concat('%',#{name},'%')
+            </if>
+        </trim>
+    </select>
+
+    <update id="update1" parameterType="com.wan.pojo.User">
+        UPDATE a
+        <set><!--使之可以更新需要更新的字段,自动去掉最后一个逗号-->
+            <if test="name!=null and name!=''">
+                a_name=#{name},
+            </if>
+            <if test="age!=null">
+                a_age=#{age},
+            </if>
+        </set>
+        WHERE a_id=#{id}
+    </update>
+
+    <select id="findU4" parameterType="List" resultType="com.wan.pojo.User">
+        SELECT * FROM a WHERE a_id IN
+        <!--item配置的是循环列表中当前的元素,index配置的是当前元素在集合的下标,collection配置的list是传递过来的参数类型-->
+        <!--open和close配置的是以什么符号将这些集合元素包装起来,separator配置的是各个元素的间隔符-->
+        <foreach collection="list" item="id" index="index" open="(" separator="," close=")" >
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findU5" parameterType="com.wan.pojo.User" resultType="com.wan.pojo.User">
+        <bind name="n" value="'%'+name+'%'"/><!--防止sql注入,取代concat函数,适用范围更广-->
+        SELECT * FROM a WHERE a_name LIKE #{n}
+    </select>
+
+</mapper>
+

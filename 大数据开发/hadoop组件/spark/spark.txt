@@ -1,0 +1,137 @@
+Spark之前是一个单一的内存计算框架，发展至今成为一个独立的生态系统。
+相对于Spark来说，有一个相似的计算框架，Storm。Storm是一个纯粹的实时计算框架。
+Spark支持离线计算,通过SQL的方式进行数据处理、分析
+此外也具备Streaming的准实时计算方式
+
+为什么会出现Spark？
+    1.Hadoop
+        1.慢？其底层数据处理是基于磁盘I/O
+        2.数据处理只支持两个阶段的处理map、reduce
+        3.不支持迭代运算
+但是Spark不能替代Hadoop,其原因不在于技术框架，而是在于业务场景。
+
+
+Spark的主要组成部分
+
+    Spark Core(RDD)：
+        包含Spark的基本功能；尤其是定义RDD的API、操作以及这两者上的动作。
+        其他如Spark SQL或Spark Streaming库都是构建在RDD和Spark Core之上的,RDD(弹性分布式数据集)(并行化处理数据集的工具)
+    Spark SQL：
+        提供通过Apache Hive的SQL变体Hive查询语言（HiveQL）与Spark进行交互的API。
+        每个数据库表(Dataframe)被当做一个RDD，Spark SQL查询被转换为Spark操作。
+    Spark Streaming：
+        对实时数据流进行处理和控制。Spark Streaming允许程序能够像普通RDD一样处理实时数据
+    MLlib：
+        一个常用机器学习算法库，算法被实现为对RDD的Spark操作。
+        这个库包含可扩展的学习算法，比如分类、回归等需要对大量数据集进行迭代的操作。
+    GraphX：
+        控制图、并行图操作和计算的一组算法和工具的集合。
+        GraphX扩展了RDD API，包含控制图、创建子图、访问路径上所有顶点的操作
+
+
+钨丝计划(Spark极限压榨硬件性能)
+	在Spark1.3之前，所有的内存管理都是基于JVM
+	也就是说，所有关于Java对象的回收操作全部交由JVM管理
+	OOM(Out of Memory)
+
+	Spark1.3之后
+
+	JVM管理内存的第一个问题
+		1.JVM为了达到数据的通用性，通常会把UTF-8的数据在JVM层面转换为编码为UTF-16的形式，此外还会为每种数据类型加上12字节的header和8个字节的hashcode,总的字节总量会比原始内容的字节数量超出12倍左右。
+		2.JVM的垃圾回收机制
+
+	内存管理
+		在Spark1.3之前，所有的内存管理都是基于JVM，所有关于Java对象的回收操作全部交由JVM管理
+		在Spark1.3之后，所有的内存管理，基于Spark新增的内存管理器，所有的对象传输，都会进行对象序列化(默认基于Java的序列化算法)
+
+	缓存友好的计算
+		除了主机的内存之外，还利用了CPU上的三级缓存来进行计算的提速
+
+	代码生成
+		Spark SQL与DataFrame
+		Hive Catalyst(SQL优化器)
+
+	数据序列化
+		尽量使用Kryo类库进行序列化，其序列化的二进制数据大小与序列化速度是
+		Java默认序列化的10倍左右
+
+	内存优化
+		Spark中的Excutor的内存与Cache使用的内存是同一块区域。
+		Executor本身不执行Task，但其会对Task Set进行管理。
+		Task的执行内存与Cache内存会产生冲突。
+		当Excutor的使用总内存超过某一阈值R时，就会对Cache的内存进行回收。
+		如果配置不当，我们的Cache操作将会失效。
+		spark.memory.fraction
+			JVM配置给Excutor的内存空间(0.75)
+
+		spark.memory.storageFraction
+			Excutor中当总内存使用达到某个阈值时，开始对Cache数据进行驱逐。
+			默认(0.5)
+
+1.Spark资源调度
+	在Spark集群中，每一个Driver Program都会拥有一组独立的Excutor进程。
+	Excutor主要负责数据的存储与任务的启动。
+
+	资源分配的两种方式
+		1.静态资源分区
+			当我们启动一个Driver Program时，根据静态资源分区的策略。
+			我们的Driver Program会获得他们本地计算任务所有需要的所有资源。
+			其他的用户，在同一时间段提交Driver Program时，可以就会存在资源
+			不足的情况，Driver Program就会一直处于等待资源的状态。
+
+		2.动态资源分区(多用户共享一个Spark平台)
+			每一个Drvier Program在首次运行时，并不会立即获得全部的可用资源。
+			Spark如何知道，每个Driver Program需要分配多少资源？
+				资源分配策略
+					1.请求策略(向Master发出请求更多的资源的消息)
+						1.当队列的Task等待了多长时间时，会触发一次资源请求策略
+						2.只要Task队列存在等待的Task，每隔多长时间触发一个请求
+						  侧率
+
+					2.移除策略(向Master发出移除资源的消息)
+						Spark会对每个Excutor的空闲时间进行判断，
+						超过一定的空闲时间阈值，就会回收该Excutor对应的资源。
+
+2.Spark任务调度(Task该按照什么样顺序来执行)
+	在Spark中，每一个Executor对应一个进程
+	一个Executor中可以包含多个Task
+	而一个Task对应一个线程。
+	多个Task的运行就是存在多个线程的运行。
+	第二个Job的运行，需要等待一个Job执行完成。
+	但如果第一个Job很大，则后面的Job将会被延迟。
+	两种任务调度机制
+		1.FIFO(先进先出)
+		2.FAIR(公平调度)
+				1.schedulingMode(调度模式) (FIFO、FAIR)
+				2.weight(调度池的权重)	调度池的资源分配以及调度优先级
+				3.minShare(调度池的最小化资源分配) 最少要给我分配多少资源
+
+2.Spark源码分析
+	1.spark-shell
+		1.spark-shell脚本底层实际调用的就是spark-submit
+		2.加载org.apache.spark.repl.Main类
+		3.执行Main类的main方法
+		4.调用SparkILoop.process(args)
+		5.创建Scala的解释器
+		6.调用printWelcome()
+			1.打印当前Spark的版本
+			2.打印相关的:help指令提示
+		7.调用initializeSpark()
+		8.createSparkContext()
+		9.createSQLContext()
+		10.导入项目的依赖类以及隐式转换
+		11.等待输入
+
+	2.Spark集群启动底层执行过程
+		sbin/start-all.sh
+			1.start-Master.sh(启动Master)
+				org.apache.spark.deploy.master.Master
+				Master.main()
+
+			2.start-slave.sh(启动Worker)
+				org.apache.spark.deploy.worker.Worker
+				Worker.main()
+
+	3.Driver Program提交任务到Spark集群的底层过程
+	4.TaskScheduler的任务调度算法
+	5.DAG调度算法和Stage划分

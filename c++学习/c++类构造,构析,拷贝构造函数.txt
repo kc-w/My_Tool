@@ -1,0 +1,53 @@
+C++ 类构造函数 & 析构函数
+类的构造函数是类的一种特殊的成员函数，它会在每次创建类的新对象时执行。
+构造函数的名称与类的名称是完全相同的，并且不会返回任何类型，也不会返回 void。构造函数可用于为某些成员变量设置初始值。
+
+类的析构函数是类的一种特殊的成员函数，它会在每次删除所创建的对象时执行。
+析构函数只是在前面加了个波浪号（~）作为前缀，它不会返回任何值，也不能带有任何参数。析构函数有助于在跳出程序（比如关闭文件、释放内存等）前释放资源。
+
+拷贝构造函数是一种特殊的构造函数，它在创建对象时，是使用同一类中之前创建的对象来初始化新创建的对象。
+如果在类中没有定义拷贝构造函数，编译器会自行定义一个。如果类带有指针变量，并有动态内存分配，则它必须有一个拷贝构造函数。
+
+#include <iostream>
+using namespace std;
+
+class Line{
+   public:
+      int getLength( void );
+      Line( int len );             // 简单的构造函数
+      Line( const Line &obj);      // 拷贝构造函数
+      ~Line();                     // 析构函数
+
+   private:
+      int *ptr;
+};
+
+// 成员函数定义，包括构造函数
+Line::Line(int len){
+    cout << "start" << endl;
+    // 为指针分配内存
+    ptr = new int;
+    *ptr = len;
+}
+Line::Line(const Line &obj){
+    cout << "copy" << endl;
+    ptr = new int;
+    *ptr = *obj.ptr; // 拷贝值
+}
+Line::~Line(){
+    cout << "over" << endl;
+    delete ptr;
+}
+int Line::getLength( void ){
+    return *ptr;
+}
+void display(Line obj){
+   cout << "line value : " << obj.getLength() <<endl;
+}
+
+// 程序的主函数
+int main( ){
+   Line line(10);
+   display(line);
+   return 0;
+}

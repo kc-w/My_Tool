@@ -1,0 +1,65 @@
+use db
+go
+
+--隐性事务：将在提交或回滚当前事务后自动启动新事务。无须描述事务的开始，只需提交或回滚每个事务，生成连续的事务链
+
+drop table biao
+go
+
+create table biao
+(
+  id int primary key,
+  name varchar(8)
+)
+go
+
+--设置事务为隐性事务
+set implicit_transactions on
+go
+
+--开始第一个隐性事务
+insert into biao values(1,'张三')
+insert into biao values(2,'李四')
+go
+
+--提交第一个隐性事务
+commit transaction
+go
+
+--开始第二个隐性事务
+insert into biao values(3,'王五')
+go
+
+select * from biao
+go
+
+--提交第二个隐性事务
+commit transaction
+go
+
+--设置为自动提交事务：显示事务或隐性事务打开之前为默认自动提交事务
+set implicit_transactions off
+go
+
+------------------------------------------------------------------------------------------------------
+
+--begin transaction：标记一个显式事务的起始点
+--commit transaction：标志一个成功的隐性事务或用户定义事务的结束
+--rollback transaction：将显式事务或隐性事务回滚到事务起点或事务内的某个保存点
+--sava transaction：在事务内设置保存点
+
+--开始事务s1
+begin tran s1
+   update biao
+   set id=1
+   where name='张三'
+   --开始嵌套事务s2
+   begin tran s2
+      update biao
+	  set id=4
+	  where name='李四'
+   --提交事务s2
+   commit tran s2
+--提交事务s1
+commit tran s1
+go

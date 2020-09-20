@@ -1,0 +1,17 @@
+use db
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi
+  on book
+  for delete
+as
+  raiserror('记录被删除',10,1)
+go
+
+delete book  where bookname='水浒传'
+go

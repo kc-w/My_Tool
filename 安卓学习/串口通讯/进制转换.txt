@@ -1,0 +1,69 @@
+
+//字符串转换成16进制字符串
+public static String strToHex(String str) {
+    char[] chars = "0123456789ABCDEF".toCharArray();
+    StringBuilder sb = new StringBuilder("");
+    byte[] bs = str.getBytes();
+    int bit;
+    for (int i = 0; i < bs.length; i++) {
+        bit = (bs[i] & 0x0f0) >> 4;
+        sb.append(chars[bit]);
+        bit = bs[i] & 0x0f;
+        sb.append(chars[bit]);
+    }
+    return sb.toString();
+}
+
+
+
+
+
+//Hex字符串转byte
+//inHex 待转换的Hex字符串
+//返回转换后的byte
+public static byte hexToByte(String inHex){
+    return (byte)Integer.parseInt(inHex,16);
+}
+
+
+
+//16进制字符串转换为字节数组
+public static byte[] hexToByteArray(String inHex){
+    int hexlen = inHex.length();
+    byte[] result;
+    if (hexlen % 2 == 1){
+        //奇数
+        hexlen++;
+        result = new byte[(hexlen/2)];
+        inHex="0"+inHex;
+    }else {
+        //偶数
+        result = new byte[(hexlen/2)];
+    }
+    int j=0;
+    for (int i = 0; i < hexlen; i+=2){
+        result[j]=hexToByte(inHex.substring(i,i+2));
+        j++;
+    }
+    return result;
+}
+
+
+//整数转换数组,从低位到高位位数据转换(数据,字节数)
+public static byte[] InttoLH(int num,int i){
+
+    byte[] b = new byte[i];
+    for(int j=0;j<i;j++){
+        b[j] = (byte)(num >>j*8 & 0xff);
+    }
+
+    return b;
+}
+//高低位2字节转换成整数(高位,低位)
+public static int HLtoInt(int a,int b){
+
+    int value= (a<< 8) | (b & 0xFF);
+
+    return value;
+}
+

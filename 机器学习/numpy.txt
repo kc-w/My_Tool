@@ -1,0 +1,141 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+#创建矩阵
+arr1=np.array([[1,2,3],[1,2,3],[1,2,3]])
+arr2=np.array([[1,2,3],[1,2,3],[1,2,3]])
+
+#查看矩阵结构
+arr1.shape
+
+#矩阵相加
+arr1+arr2
+
+#矩阵点乘
+np.dot(arr1,arr2)
+arr1.dot(arr2)
+
+#将一维数组修改为3行3列的矩阵
+arr3=np.arange(1,10)
+arr3=arr3.reshape((3,3))
+
+#行列式,如果行列式为0,则该矩阵无法求逆
+arr4=np.linalg.det(arr3)
+print(arr4)
+
+#矩阵求逆
+arr5=np.linalg.inv(arr3)
+
+#绘制三角函数曲线
+x=np.linspace(-10,10,10000)#(横坐标的范围,横坐标的范围,间距数)
+cos_y=np.cos(x)#余弦曲线
+sin_y=np.sin(x)#正弦曲线
+plt.plot(x,cos_y,color='r',label='cos_y',linestyle='--')#曲线参数
+plt.plot(x,sin_y,color='b',label='sin_y',linestyle='-')#曲线参数
+plt.title("Trigonometric functions")#图标标题
+plt.xlabel('x')#x坐标轴标记
+plt.ylabel('y')#y坐标轴标记
+plt.legend()#曲线注释
+plt.show()#绘制曲线
+
+
+#绘制正太分布
+x=np.random.normal(0,1,10000)
+plt.hist(x,bins=100)
+plt.show()
+
+
+#绘制散点图
+x=np.random.randint(1,200,100)
+y=2*x*x+3
+plt.scatter(x,y)
+plt.show()
+
+
+
+#将数据集按数组包裹集合,集合包裹字典的格式写到excel中
+infos=[{'编号':1001,'名称':'小米','年龄':20},{'编号':1002,'名称':'小黑','年龄':24}]
+df=pd.DataFrame(infos)
+df.to_excel('D:\\info.xlsx')
+
+
+#给记录添加字段说明
+df1=pd.DataFrame([[1001,'小米',20],[1002,'小红',21],[1003,'小明',22]])
+df1.columns=['编号','姓名','年龄']
+
+#读取excel文件中的数据
+df2 = pd.read_excel('C:\\house_info.xlsx')
+#显示前10条记录
+df2.head(10)
+#显示后10条记录
+df2.tail(10)
+
+#只显示所有产权性质
+df2.产权性质
+#只显示所有产权性质和单价
+df2[['产权性质','单价']]
+#显示第1到10条产权性质和单价
+df2.loc[1:10,['产权性质','单价']]
+#显示第0到第10条间隔为2的记录,共(0,2,4,6,8,10)6条记录
+df2.reset_index(drop=True)
+print(df2.loc[:10:2])
+#显示DataFrame的组织结构
+df2.info()
+
+#describe函数（统计计数函数）describe函数总结数据集分布的中心趋势，分散和形状，不包括NaN值。
+df2.describe()
+#行列交换
+df2.describe().T
+
+#判断记录是否重复,ture or false
+df2.duplicated()
+#统计重复记录和不重复记录的数量
+df2.duplicated().value_counts()
+#去除重复记录
+df3 = df2.drop_duplicates()
+
+#查看有空值的字段,返回ture or false的矩阵
+df3.isnull()
+#查看有空值的字段,返回ture or false
+df3.isnull().any()
+#查看有空值的字段,返回空值个数
+df3.isnull().sum()
+
+#删除记录有空值的记录
+df4 = df3.dropna()
+
+
+#对某字段数据进行运算
+df4['首付'] = df4['首付'] * 10000
+#按元进行切割字符,取第一个
+df4['单价'] = df4['单价'].map(lambda e: e.split('元')[0])
+df4['建筑年代'] = df4['建筑年代'].map(lambda e: e.split('年')[0])
+df4['建筑面积'] = df4['建筑面积'].map(lambda e: e.split('平')[0])
+#按照特定格式取符合要求的数据,并创建新的字段附加到DataFrame中
+df4[['室','厅', '卫']] = df4['户型'].str.extract('(\d+)室(\d+)厅(\d+)卫')
+
+#数据字段转换为数值
+house_mapping = {
+    '个人产权':0,
+    '商品房':1,
+    '售后公房':2,
+    '普通商品房':3,
+    '使用权':4,
+    '经济适用房':5,
+    '单位产权':6
+}
+
+#将数据字段转换为数值
+df4['产权性质'] = df4['产权性质'].map(house_mapping)
+#统计产权性质有多少不同的字段值及对应的数量
+df4['产权性质'].value_counts()
+#将字符串转换为数字
+df4['产权性质'] = df4['产权性质'].astype('int')
+
+#自动对楼层字段进行独热编码
+df4.join(pd.get_dummies(df4['楼层']))
+#自动对所有字段进行独热编码
+pd.get_dummies(df4)
+
+#显示箱线图
+df4.boxplot()

@@ -1,0 +1,109 @@
+#include <iostream>
+using namespace std;
+
+class Box{
+   public:
+      double length;         // 长度
+
+      // 成员函数声明
+      double getLength(void);
+      void setLength( double len );
+};
+
+// 成员函数定义
+double Box::getLength(void){
+    return length;
+}
+
+void Box::setLength( double len ){
+    length = len;
+}
+
+// 程序的主函数
+int main( ){
+   Box Box1;                // 声明 Box1，类型为 Box
+   double len=0;
+   Box1.setLength(6.0);
+
+   // box 1 的长度
+   len = Box1.getLength();
+   cout << "Box1 的长度：" << len <<endl;
+   return 0;
+}
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class Line{
+   double width;//如果没有修饰则默认为private
+   public://public成员在程序中类的外部是可访问的
+      double length;
+      void setLength( double len );
+      double getLength( void );
+};
+
+// 成员函数定义
+double Line::getLength(void){
+    return length ;
+}
+
+void Line::setLength( double len ){
+    length = len;
+}
+
+// 程序的主函数
+int main( ){
+   Line line;
+
+   // 设置长度
+   line.setLength(6.0);
+   cout << "Length of line : " << line.getLength() <<endl;
+
+   // 不使用成员函数设置长度
+   line.length = 10.0; // OK: 因为 length 是公有的
+   cout << "Length of line : " << line.length <<endl;
+   return 0;
+}
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class Box{
+   protected:
+      double width;
+};
+
+// SmallBox 是派生类,在这里 width 成员可被派生类 smallBox 的任何成员函数访问
+class SmallBox:Box{
+   public:
+      void setSmallWidth( double wid );
+      double getSmallWidth( void );
+};
+
+// 子类的成员函数
+double SmallBox::getSmallWidth(void){
+    return width ;
+}
+
+void SmallBox::setSmallWidth( double wid ){
+    width = wid;
+}
+
+// 程序的主函数
+int main( ){
+   SmallBox box;
+
+   // 使用成员函数设置宽度
+   box.setSmallWidth(5.0);
+   cout << "Width of box : "<< box.getSmallWidth() << endl;
+
+   return 0;
+}
+
+

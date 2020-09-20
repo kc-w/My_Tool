@@ -1,0 +1,134 @@
+所谓监听器就是应用监听事件来监听请求中的行为而创建的一组类。HttpServletRequest、HttpSession、ServletContext对象在web容器中遵循生成、运行、销毁这样的生命周期。当触发相关的监听事件，服务器就会调用监听器上的方法，做出对应的时间处理。
+
+监听接口和监听事件：
+
+     类别                        监听接口                              监听事件
+———————————————————————————————————————————————————————
+[与ServletContext相关            | ServletContextListener              | ServletContextEvent                 ]
+[                                | ServletContextAttributeListener     | ServletContextAttributeEvent        ]
+———————————————————————————————————————————————————————
+[                                | HttpSessionListener                 |                                     ]
+[ 与HttpSession相关              | HttpSessionActivationListener       | HttpSessionEvent                    ]
+[                                | HttpSessionAttributeListener        | HttpSessionAttributeEvent           ]
+[                                | HttpSessionBindingListener          |                                     ]
+———————————————————————————————————————————————————————
+[ 与ServletRequest相关           | ServletRequestListener              | ServletRequestEvent                 ]
+[                                | ServletRequestAttributeListener     | ServletRequestAttributeEvent        ]
+———————————————————————————————————————————————————————
+
+【】ServletContext监听器：
+ServletContextListener被称为“ServletContext生命周期监听器”，可以用来监听web程序初始化或者结束时响应的动作事件。
+ServletContextListener接口的方法：
+(1)public void contextInitialized(ServletContextEvent sec)该方法用于通知监听器，已经加载web应用和初始化参数。
+(2)public void contextDestroyed(ServletContextEvent sec)该方法用于通知监听器，web应用即将关闭。
+
+在web应用程序启动时，会自动开始监听，首先调用的是contextInitialized()方法，并传入ServletContextEvent参数，它封装了ServletContext对象，可以通过ServletContextEvent的getServletContext()方法获得ServletContext对象，通过getInitParameter()方法取得初始化参数，实现数据库连接、读取应用程序设置等。
+
+在web应用关闭时，会自动调用contextDestroyed()方法，同样会传入ServletContextEvent参数，释放数据库资源。
+
+xml配置监听类：
+<listener>
+   <listener-class>
+      com.eshore.MyServletContextListener
+   </listener-class>
+</listener>
+<context-param>
+   <param-name>user_name</param-name>
+   <param-value>linlong</param-value>
+</context-param>
+注入监听类：
+@WebListener
+public class MyServletContextListener implements ServletContextListener{}
+
+
+
+ServletContextAttributeListener被称为“ServletContext属性监听器”，可以用来监听Application属性的添加、移除或者替换时响应的动作事件。
+ServletContextAttributeListener接口的方法：
+(1)public void attributeAdded(ServletContextAttributeEvent scab)该方法用于通知监听器，有对象或者属性被添加到Application中。
+(2)public void attributeRemoved(ServletContextAttributeEvent scab)该方法用于通知监听器，有对象或者属性被移除到Application中。
+(3)public void attributeReplaced(ServletContextAttributeEvent scab)该方法用于通知监听器，有对象或者属性被更改到Application中。
+
+xml配置监听类：
+<listener>
+   <listener-class>
+      com.eshore.MyServletContextAttributeListener
+   </listener-class>
+</listener>
+<context-param>
+   <param-name>user_name</param-name>
+   <param-value>linlong</param-value>
+</context-param>
+注入监听类：
+@WebListener
+public class MyServletContextAttributeListener implements ServletContextAttributeListener{}
+
+
+
+
+【】HttpSession监听器：
+HttpSessionListener是“HttpSession生命周期监听器”，可以用来监听HttpSession对象初始化或结束时响应的动作事件。
+HttpSessionListener接口的方法：
+(1)public void sessionCreated(HttpSessionEvent se)该方法用于通知监听器，产生新的会话。
+(2)public void sessionDestroyed(HttpSessionEvent se)该方法用于通知监听器，已经消除一个会话。
+
+在HttpSession对象初始化或结束前，会自动调用sessionCreated()方法和ssessionDestroyed()方法，并传入HttpsessionEvent参数，它封装了Httpsession对象，可以通过
+HttpsessionEvent的getSession()方法获得Httpsession对象。
+
+<listener>
+   <listener-class>
+      com.eshore.MyHttpSessionListener
+   </listener-class>
+</listener>
+<context-param>
+   <param-name>user_name</param-name>
+   <param-value>linlong</param-value>
+</context-param>
+注入监听类：
+@WebListener
+public class MyHttpSessionListener implements HttpSessionListener{}
+
+
+
+
+HttpSessionAttributeListener是“HttpSession属性改变监听器”可以用来监听HttpSession对象加入属性、移除属性或者替换属性时响应的动作事件。
+HttpSessionAttributeListener接口的方法：
+(1)public void attributeAdded(HttpSessionBindingEvent se)该方法用于通知监听器，已经在Session中添加一个对象或者变量。
+(2)public void attributeRemoved(HttpSessionBindingEvent se)该方法用于通知监听器，已经在Session中移除一个对象或者变量。
+(3)public void attributeReplaced(HttpSessionBindingEvent se)该方法用于通知监听器，已经在Session中替换一个对象或者变量。
+当对session范围的对象或者变量进行操作时，web容器会自动调用实现接口类相对应的方法。HttpSessionBindingEvent是一个对象，可以利用其getName()方法得到操作对象或者变量的名称，利用getValue()方法得到操作对象或者变量的值。
+
+
+
+
+HttpSessionBindingListener是“HttpSession对象绑定监听器”，可以用来监听HttpSession中，设置成HttpSession属性或者从HttpSession中移除时，得到Sesion的通知。
+HttpSessionBindingListener接口的方法：
+(1)public void valueBound(HttpSessionBindingEvent event)该方法用于通知监听器，已经绑定一个session范围对象或者变量。
+(2)public void valueUnbound(HttpSessionBindingEvent event)该方法用于通知监听器，已经解绑一个session范围对象或者变量。
+参数HttpSessionBindingEvent是一个对象，可以通过getSession()方法得到当前用户的sesion，getName()方法得到操作的对象或者变量名称，getValue()方法得到操作的对象或者变量值。
+
+
+
+
+HttpSessionActivationListener是“HttpSession对象转移监听器”，可以用来实现它对同一会话在不同的JVM中转移，例如，在负载均衡中，web的集群服务器中的JVM位于网络中的多台机器中。当session要从一个JVM中转移至另一个JVM时,必须先在原来的JVM上序列化所有的属性对象，若属性对象实现HttpSessionActivationListener，就调用sessionWillPassivate()方法，而转移后，会调用sessionDidActivate()方法
+HttpSessionActivationListener接口的方法：
+(1)public void sessionDidActivate(HttpSessionEvent se)该方法用于通知监听器，该会话已变为有效状态。
+(2)public void sessionWillPassivate(HttpSessionEvent se)该方法用于通知监听器，该会话已变为无效状态。
+
+
+
+【】HttpServletRequest监听器：
+ServletRequestListener是“Request对象生命周期监听器”，可以用来监听Request对象初始化或者结束时响应的动作事件
+ServletRequestListener接口的方法：
+(1)public void requestInitialized(ServletRequestEvent event)该方法用于通知监听器，产生了新的Request对象。
+(2)public void requestDestroyed(ServletRequestEvent event)该方法用于通知监听器，已经消除一个Request对象。
+
+在Request对象初始化或结束前，会自动调用requestInitialized()方法和requestDestroyed()方法，并传入ServletRequestEvent参数，它封装了ServletRequest对象，可以通过ServletRequestEvent的getServletContext()方法取得Servlet上下文对象，getServletRequest()方法得到请求对象
+
+
+
+ServletRequestAttributeListener是“Request属性改变监听器”，可以用来监听Request对象加入属性、移除属性或替换属性时响应的动作事件。
+ServletRequestAttributeListener接口的方法：
+(1)public void attributeAdded(ServletRequestAttributeEvent event)该方法用于通知监听器，已经在Request中添加一个对象或者变量。
+(2)public void attributeRemoved(ServletRequestAttributeEvent event)该方法用于通知监听器，已经在Request中移除一个对象或者变量。
+(3)public void attributeReplaced(ServletRequestAttributeEvent event)该方法用于通知监听器，已经在Request中替换一个对象或者变量。
+当对request范围的对象或者变量进行操作时，web容器会自动调用实现接口类相对应的方法。ServletRequestAttributeEvent是一个对象，可以利用其getName()方法得到操作对象或者变量的名称，利用getValue()方法得到操作对象或者变量的值。

@@ -1,0 +1,18 @@
+use db
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi
+  on book
+  for update
+as
+  if update(id)
+  raiserror('id修改',10,1)
+go
+
+update book set id=188  where bookname='水浒传'
+go

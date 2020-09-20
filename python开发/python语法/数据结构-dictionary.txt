@@ -1,0 +1,74 @@
+字典
+理解字典的最佳方式是把它看做无序的键值对集合。在同一个字典之内，关键字必须是互不相同。一对大括号创建一个空的字典：{}
+
+Python字典包含了以下内置方法：
+
+dict.clear() #删除字典内所有元素
+dict.copy() #返回一个字典的浅复制
+dict['']=''  #向字典中添加新的键值对
+dict.fromkeys() #创建一个新字典，以序列seq中元素做字典的键，val为字典所有键对应的初始值
+dict.get(key, default=None) #返回指定键的值，如果值不在字典中返回default值
+key in dict #如果键在字典dict里返回true，否则返回false
+dict.items() #以列表返回可遍历的(键, 值) 元组数组
+dict.keys() #以列表返回一个字典所有的键
+dict.setdefault(key, default=None) #和get()类似, 但如果键不存在于字典中，将会添加键并将值设为default
+dict.update(dict2) #把字典dict2的键/值对更新到dict里
+dict.values() #以列表返回字典中的所有值
+dict.pop(key[,default]) #删除字典给定键 key 所对应的值，返回值为被删除的值。key值必须给出。 否则，返回default值。
+dict.popitem() #删除字典末尾中的一对键和值
+len(dict) #计算键的总数
+
+
+
+dict = {}
+dict['one'] = "1 - 菜鸟教程"
+dict[2]     = "2 - 菜鸟工具"
+tinydict = {'name': 'runoob','code':1, 'site': 'www.runoob.com'}
+print (dict['one'])       # 输出键为 'one' 的值
+print (dict[2])           # 输出键为 2 的值
+print (tinydict)          # 输出完整的字典
+print (tinydict.keys())   # 输出所有键
+print (tinydict.values()) # 输出所有值
+
+
+字典的运用
+>>> tel = {'jack': 4098, 'sape': 4139}
+>>> tel['guido'] = 4127
+>>> tel
+{'sape': 4139, 'guido': 4127, 'jack': 4098}
+>>> tel['jack']
+4098
+>>> del tel['sape']
+>>> tel['irv'] = 4127
+>>> tel
+{'guido': 4127, 'irv': 4127, 'jack': 4098}
+>>> list(tel.keys())
+['irv', 'guido', 'jack']
+>>> sorted(tel.keys())
+['guido', 'irv', 'jack']
+>>> 'guido' in tel
+True
+>>> 'jack' not in tel
+False
+
+
+构造函数 dict() 直接从键值对元组列表中构建字典
+>>> dict([('sape', 4139), ('guido', 4127), ('jack', 4098)])
+{'sape': 4139, 'jack': 4098, 'guido': 4127}
+
+>>> dict(sape=4139, guido=4127, jack=4098)
+{'sape': 4139, 'jack': 4098, 'guido': 4127}
+
+
+字典的遍历
+>>> knights = {'gallahad': 'the pure', 'robin': 'the brave'}
+>>> for k, v in knights.items():
+...     print(k, v)
+...
+gallahad the pure
+robin the brave
+
+
+字典推导式
+>>> {x: x**2 for x in (2, 4, 6)}
+{2: 4, 4: 16, 6: 36}

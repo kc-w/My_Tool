@@ -1,0 +1,46 @@
+import java.util.Properties
+
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.{DataFrame, SQLContext}
+
+object T_T {
+
+  //jdbc读取数据转换为DataFrame,需要导入mysql驱动jar包
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+
+    //创建properties对象来添加对应的参数
+    val prop = new Properties()
+    //设置用户名
+    prop.setProperty("user","root")
+    //设置密码
+    prop.setProperty("password","999999999")
+    //设置设置数据库url地址,指定表名,传入用户名和密码
+    val data=sqlContext.read.jdbc("jdbc:mysql://localhost:3306/test","t1",prop)
+
+    //读取数据
+    data.select($"a",$"b",($"c")).show()
+
+    //对表数据进行修改,c字段加上100
+    val newData=data.select($"a",$"b",($"c"+100))
+    val storeData=newData.collect()
+    val schema=StructType(
+      Array(
+        StructField("a",IntegerType),
+        StructField("b",IntegerType),
+        StructField("c",IntegerType)
+      )
+    )
+    val result=sqlContext.createDataFrame(sc.parallelize(storeData),schema)
+    //执行修改
+    result.write.mode("overwrite").jdbc("jdbc:mysql://localhost:3306/test","t1",prop)
+
+  }
+
+}

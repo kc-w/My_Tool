@@ -1,0 +1,425 @@
+1:InnoDB
+支持事务,对于InnoDB每一条SQL语言都默认封装成事务,自动提交,这样会影响速度,所以最好把多条SQL语言放在begin和commit之间,组成一个事务;
+支持外键;
+使用B+Tree作为索引结构;
+聚集索引(数据文件是和（主键）索引绑在一起的),通过主键索引效率很高,但是辅助索引需要两次查询,先查询到主键,然后再通过主键查询到数据,因此,主键不应该过大,主键太大,其他索引也都会很大.
+
+2:MyISAM
+不支持事务,不支持外键;
+使用B+Tree作为索引结构;
+非聚集索引,索引和数据文件是分离的，索引保存的是数据文件的指针。主键索引和辅助索引是独立的。
+
+
+InnoDB不保存表的具体行数，执行select count(*) from table时需要全表扫描。
+MyISAM用一个变量保存了整个表的行数，执行上述语句时只需要读出该变量即可，速度很快（注意不能加有任何WHERE条件）；
+
+InnoDB支持表、行(默认)级锁，而MyISAM支持表级锁
+InnoDB的行锁是实现在索引上的，而不是锁在物理行记录上。潜台词是，如果访问没有命中索引，也无法使用行锁，将要退化为表锁。
+InnoDB表必须有主键（用户没有指定的话会自己找或生产一个主键），而Myisam可以没有
+Innodb：frm是表定义文件，ibd是数据文件
+Myisam：frm是表定义文件，myd是数据文件，myi是索引文件
+
+
+如果要支持事务选择innodb，如果不需要可以考虑MyISAM;
+表中绝大多数都只是读查询，可以考虑MyISAM，如果既有读也有写，请使用InnoDB;
+系统奔溃后，MyISAM恢复起来更困难，能否接受;
+MySQL5.5版本开始Innodb已经成为Mysql的默认引擎(之前是MyISAM)，说明其优势是有目共睹的，如果你不知道用什么，那就用InnoDB，至少不会差;
+
+
+
+
+
+
+
+mysql分区=========================================================(插入数据时会更加分区字段插入到对应的区)
+
+RANGE分区:(适合日期类型)基于属于一个给定连续区间的列值，把多行分配给分区。这些区间要连续且不能相互重叠
+LIST分区:(适合固定取值的列,插入数据的列值不在list中则数据丢失)基于列值匹配一个离散值集合中的某个值来进行选择
+
+CREATE TABLE `t_send_message_send` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fake` bit(1) DEFAULT b'0',
+  `date_push` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `date_push` (`date_push`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE创建分区
+
+删除原有主键，创建联合主键(想要分区要不不创建主键,要不创建联合主键)
+ALTER TABLE `t_send_message_send` DROP PRIMARY KEY,ADD PRIMARY KEY (id, date_push);
+
+
+创建分区
+ALTER TABLE `t_send_message_send` PARTITION by RANGE COLUMNS (date_push)
+(partition p2016 values less than ('2017-01-01') ENGINE = InnoDB,
+ partition p2017 values less than ('2018-01-01') ENGINE = InnoDB,
+ partition p2018 values less than ('2019-01-01') ENGINE = InnoDB,
+ partition p2019 values less than ('2020-01-01') ENGINE = InnoDB,
+ partition p2020 values less than ('2021-01-01') ENGINE = InnoDB);
+
+如果数据库中存在date_push大于2021-01-01的记录，将会报错，因为没有可以用来存放该条记录的分区,新增分区
+ALTER TABLE `t_send_message_send` add partition (partition p2021 values less than('2022-01-01'));
+
+
+
+CREATE TABLE创建分区
+
+create table `t_send_message_send` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fake` bit(1) DEFAULT b'0',
+  `date_push` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`,`date_push`),
+  KEY `date_push` (`date_push`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+partition by range columns(date_push)(
+partition p2016 values less than ('2017-01-01') ENGINE = InnoDB,
+partition p2017 values less than ('2018-01-01') ENGINE = InnoDB,
+partition p2018 values less than ('2019-01-01') ENGINE = InnoDB,
+partition p2019 values less than ('2020-01-01') ENGINE = InnoDB,
+partition p2020 values less than ('2021-01-01') ENGINE = InnoDB);
+
+
+
+
+1. 基于range(范围)
+create table range_datetime(
+    id int,
+    hiredate datetime
+)
+partition by range (TO_DAYS(hiredate) ) (
+    partition p1 values less than ( TO_DAYS('20151202') ),
+    partition p2 values less than ( TO_DAYS('20151203') ),
+    partition p3 values less than ( TO_DAYS('20151204') ),
+    partition p4 values less than ( TO_DAYS('20151205') ),
+);
+
+
+insert into range_datetime select * from test;
+
+
+//表分区查看
+explain partitions select * from range_datetime where hiredate >= '20151207124503' and hiredate<='20151210111230';
+
+
+
+2. 基于range columns(可以直接基于列，而无需像上述range那种，分区的对象只能为整数)
+create table range_columns (
+    id int,
+    hiredate datetime
+)
+partition by range columns(hiredate) (
+    partition p1 values less than ( '20151202' ),
+    partition p2 values less than ( '20151203' ),
+    partition p3 values less than ( '20151204' ),
+    partition p4 values less than ( '20151205' ),
+);
+
+
+
+
+针对timestamp的分区方案
+
+create table range_timestamp (
+    id int,
+    hiredate timestamp
+)
+partition by range ( UNIX_TIMESTAMP(hiredate) ) (
+    partition p1 values less than ( UNIX_TIMESTAMP('2015-12-02 00:00:00') ),
+    partition p2 values less than ( UNIX_TIMESTAMP('2015-12-03 00:00:00') ),
+    partition p3 values less than ( UNIX_TIMESTAMP('2015-12-04 00:00:00') ),
+    partition p4 values less than ( UNIX_TIMESTAMP('2015-12-05 00:00:00') ),
+);
+
+
+
+
+========使用存储过程自动分区========
+
+
+use test;
+
+DELIMITER ||
+-- 删除存储过程
+drop procedure if exists 事件名称 ||
+-- 注意：使用该存储过程必须保证相应数据库表中至少有一个手动分区
+-- 创建存储过程[通过数据库名和对应表名]-建多少个分区，分区时间间隔为多少
+-- databasename：创建分区的数据库
+-- tablename：创建分区的表的名称
+-- partition_number：一次创建多少个分区
+-- partitiontype：分区类型[0按天分区，1按月分区，2按年分区]
+-- gaps：分区间隔，如果分区类型为0则表示每个分区的间隔为 gaps天；
+-- 如果分区类型为1则表示每个分区的间隔为 gaps月
+-- 如果分区类型为2则表示每个分区的间隔为 gaps年
+create procedure 事件名称 (in databasename varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,in tablename varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci, in partition_number int, in partitiontype int, in gaps int)
+L_END:
+begin
+    declare max_partition_description varchar(255) default '';
+    declare p_name varchar(255) default 0;
+    declare p_description varchar(255) default 0;
+    declare isexist_partition varchar(255) default 0;
+ declare i int default 1;
+
+ -- 查看对应数据库对应表是否已经有手动分区[自动分区前提是必须有手动分区]
+    select partition_name into isexist_partition from information_schema.partitions where table_schema = databasename  and table_name = tablename limit 1;
+    -- 如果不存在则打印错误并退出存储过程
+    if isexist_partition <=> "" then
+       select "partition table not is exist" as "ERROR";
+       leave L_END;
+    end if;
+
+    -- 获取最大[降序获取]的分区描述[值]
+    select partition_description into max_partition_description  from information_schema.partitions where table_schema = databasename  and table_name = tablename order by partition_description desc limit 1;
+
+    -- 如果最大分区没有,说明没有手动分区,则无法创建自动分区
+    if max_partition_description <=> "" then
+       select "partition table is error" as "ERROR";
+       leave L_END;
+    end if;
+
+    -- 替换前后的单引号[''两个引号表示一个单引号的转义]
+    -- set max_partition_description = REPLACE(max_partition_description, '''', '');
+    -- 或使用如下语句
+    set max_partition_description = REPLACE(max_partition_description-1, '\'', '');
+
+    -- 自动创建number个分区
+    while (i <= partition_number) do
+                 if (partitiontype = 0) then
+                     -- 每个分区按天递增,递增gaps天
+                     set p_description = DATE_ADD(FROM_DAYS(max_partition_description), interval i*gaps day);
+                 elseif (partitiontype = 1) then
+                     -- 每个分区按月递增,递增gaps月
+                     set p_description = DATE_ADD(FROM_DAYS(max_partition_description), interval i*gaps month);
+                 else
+                     -- 每个分区按年递增,递增gaps年
+                     set p_description = DATE_ADD(FROM_DAYS(max_partition_description), interval i*gaps year);
+                 end if;
+                 -- 删除空格
+                 set p_name = REPLACE(p_description, ' ', '');
+                 -- 例如10.20的记录实际是less than 10.21
+                 set p_description = DATE_ADD(p_description, interval 1 day);
+                 -- 如果有横杆替换为空
+          set p_name = REPLACE(p_name, '-', '');
+                 -- 删除时间冒号
+                 set p_name = REPLACE(p_name, ':', '');
+                 -- alter table tablename add partition ( partition pname values less than ('2019-05-22 23:59:59') );
+          set @sql=CONCAT('ALTER TABLE ', tablename ,' ADD PARTITION ( PARTITION p', p_name ,' VALUES LESS THAN (TO_DAYS(\'', p_description ,'\')))');
+                 -- set @sql=CONCAT('ALTER TABLE ', tablename ,' ADD PARTITION ( PARTITION p', p_name ,' VALUES LESS THAN (TO_DAYS(\'', p_description ,'\')))');
+                 -- 打印sql变量
+          -- select @sql;
+                 -- 准备sql语句
+          PREPARE stmt from @sql;
+                 -- 执行sql语句
+          EXECUTE stmt;
+                 -- 释放资源
+          DEALLOCATE PREPARE stmt;
+                 -- 递增变量
+          set i = (i + 1) ;
+
+    end while;
+end ||
+-- 恢复语句中断符
+DELIMITER ;
+
+
+
+
+
+call 事件名称 ('数据库名', '分区表名', 1, 0, 1);
+
+
+
+
+
+
+mysql分表=======================================================(总表插入数据默认插入最后一个表中,分表插入数据,查询数据可以使用取余的方式来确定具体的表)
+
+CREATE TABLE user1 (
+id BIGINT( 20 ) NOT NULL ,
+name VARCHAR( 200 ) NOT NULL ,
+PRIMARY KEY ( id )
+) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci
+
+CREATE TABLE user2 (
+id BIGINT( 20 ) NOT NULL ,
+name VARCHAR( 200 ) NOT NULL ,
+PRIMARY KEY ( id )
+) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci
+
+CREATE TABLE user3 (
+id BIGINT( 20 ) NOT NULL ,
+name VARCHAR( 200 ) NOT NULL ,
+PRIMARY KEY ( id )
+) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci
+
+
+
+CREATE TABLE user (
+id BIGINT( 20 ) NOT NULL ,
+name VARCHAR( 200 ) NOT NULL ,
+PRIMARY KEY ( id )
+) ENGINE=MRG_MyISAM DEFAULT CHARSET=utf8 INSERT_METHOD=0 UNION=(user1,user2,user3);
+
+
+CREATE TABLE idtable (
+id BIGINT( 20 ) NOT NULL AUTO_INCREMENT PRIMARY KEY
+) ENGINE = MYISAM
+
+
+
+
+
+创建存储过程==================================================================
+
+delimiter ;
+drop procedure if exists insertData1;
+create procedure insertData1()
+begin
+	insert into task select * from task_temp where start_time < curdate() - interval 3 month;
+	delete from task_temp where start_time < curdate() - interval 3 month;
+end ;
+
+
+drop procedure if exists insertData2;
+create procedure insertData2()
+begin
+    declare num int;
+    set num=1;
+    while num<=10000000 do
+		insert into task(name,content,start_id,start_time,preset_time,execute_people,assist_people,agree_id,agree_time,finish_time,state) values('测试','&nbsp;<audio controls="controls" src="http://192.168.1.126:8080/TaskForWeb/file/万康晨20200807105954_7289.mp3" style="margin-top:10px;width:100%"></audio>&nbsp;<br><br></br></br></br>',3,'2020-08-06 08:54:54','2020-08-27 00:00:00','{"彭婷":"已确认","杨宏":"已确认"}','{"全体员工":"未确认"}',1,'2020-07-20 11:57:54','2020-07-20 11:57:54','已完成');
+		set num=num+1;
+	end while;
+end ;
+
+
+
+//执行存储过程
+call insertData1();
+call insertData2();
+
+
+
+
+
+//存储过程创建表
+DELIMITER //
+CREATE PROCEDURE create_table_sys_oper_log_month()
+BEGIN
+DECLARE `@suffix` VARCHAR(15);
+DECLARE `@sqlstrcreate` VARCHAR(2560);
+DECLARE `@sqlstrupdate` VARCHAR(2560);
+SET `@suffix` = DATE_FORMAT(NOW(),'%Y%m');
+
+SET @sqlstrupdate = CONCAT(
+"alter table sys_oper_log rename to sys_oper_log_",
+@suffix
+);
+
+SET @sqlstrcreate = CONCAT(
+"CREATE TABLE `sys_oper_log` (
+  `id` int(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `oper_id` int(20) DEFAULT NULL COMMENT '操作人id',
+  `title` varchar(100) DEFAULT NULL COMMENT '操作模块',
+  `business_type` int(2) DEFAULT NULL COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `req_method` varchar(200) DEFAULT NULL COMMENT '请求方法',
+  `request_method` varchar(50) DEFAULT NULL COMMENT '请求方式',
+  `operator_type` int(2) DEFAULT NULL COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `oper_name` varchar(30) DEFAULT NULL COMMENT '操作人名称',
+  `dept_name` varchar(30) DEFAULT NULL COMMENT '部门名称',
+  `oper_url` varchar(100) DEFAULT NULL COMMENT '请求url',
+  `oper_ip` varchar(20) DEFAULT NULL COMMENT '操作ip',
+  `oper_location` varchar(20) DEFAULT NULL COMMENT '操作地点',
+  `oper_param` varchar(300) DEFAULT NULL COMMENT '请求参数',
+  `json_result` longtext CHARACTER SET utf8mb4 COMMENT '返回参数',
+  `req_status` int(2) DEFAULT NULL COMMENT '操作状态（0正常 1异常）',
+  `error_msg` varchar(2000) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '错误信息',
+  `oper_time` datetime DEFAULT NULL COMMENT '操作时间',
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`) USING HASH,
+  KEY `oper_url` (`oper_url`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=358859 DEFAULT CHARSET=utf8 COMMENT='系统日志表';
+"
+);
+PREPARE stmtupdate FROM @sqlstrupdate;
+EXECUTE stmtupdate;
+PREPARE stmtcreate FROM @sqlstrcreate;
+EXECUTE stmtcreate;
+END
+
+
+
+
+
+
+
+
+
+定时器=====================================================================================
+
+
+每10秒执行一次存储过程
+create event 定时器名 on schedule every 10 second do call 存储过程();
+2天后执行一次存储过程
+create event 定时器名 on schedule at current_timestamp + interval 2 day do call 存储过程();
+指定时间执行一次存储过程
+create event 定时器名 on schedule at timestamp '2017-08-01 00:00:00' do  call 存储过程();
+每天执行一次存储过程
+create event 定时器名 on schedule every 1 day do call 存储过程();
+每天定时执行，5天后停止执行
+create event 定时器名 on schedule every 1 day end current_timestamp + interval 5 day do call 存储过程();
+5天后开启每天执行，一个月后停止执行
+create event 定时器名 on schedule every 1 day starts current_timestamp+ interval 5 day end current_timestamp+ interval 1 month do call 存储过程();
+每隔1个月执行一次存储过程,从2017-08-01 00:00:00开始执行
+create event 定时器名 on schedule every 1 month starts timestamp '2017-08-01 00:00:00' do call 存储过程();
+
+
+删除定时器
+drop event if exists 定时器名;
+
+暂停定时器
+alter event 定时器名 disable;
+
+启动定时器
+alter event 定时器名 enable;
+
+修改定时器
+alter event 定时器名 on schedule every 5 day;
+
+
+创建定时器
+drop event if exists timer1;
+create event timer1 on schedule every 10 second do call insertData();
+
+
+alter event timer1 enable;  -- 开户事件任务
+alter event timer1 disable; -- 关闭事件任务
+
+将事件计划开启（为no表示已开启为off表示关闭）
+set global event_scheduler = 1;  -- 启动定时器
+set global event_scheduler = 0;  -- 停止定时器
+
+
+//查看全局的event状态(event_scheduler = ON 表示定时器开启)
+show variables like 'event_scheduler';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

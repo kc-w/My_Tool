@@ -1,0 +1,49 @@
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+
+//读取文件转换为DataFrame
+object SparkSQL{
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+
+    val sc = new SparkContext(conf)
+    //Spark SQL
+    //后续的所有Spark SQL的相关操作都是基于SqlContext
+    val sqlContext = new SQLContext(sc)
+    //通过sqlContext的隐式转换可以将 $"name" 隐式转换为df("name")
+    import sqlContext.implicits._
+
+
+
+    //----读取csv文件通过进行操作,还需导入spark-csv_2.11-1.4.0.jar和commons-csv-1.6.jar
+    val df = sqlContext.read
+      .option("header", "true")
+      .option("InferSchema", "true")
+      .format("com.databricks.spark.csv")
+      .load("C:\\Users\\Administrator\\Desktop\\test.csv")
+    //读取所有数据并显示
+    df.select("*").show()
+    //查询读取到的数据中字段的详细信息
+    df.printSchema()
+
+    //---读取文件将结果转化为临时表进行查询
+    val df = sqlContext.read.json("C:\\Users\\Wkc23\\Desktop\\people.json")
+    //将DataFrame注册为临时表(people)
+    df.registerTempTable("people")
+    val result = sqlContext.sql("select * from people")
+    result.show()
+
+    //读取文件并进行查询(该``符号不为单引号,为TAB键上方的符号)
+    val df = sqlContext.sql("select * from json.`C:\\Users\\Wkc23\\Desktop\\people.json`")
+    df.show()
+
+
+    //读取hdfs上的parquet文件
+    val df = sqlContext.read
+      .option("mergeSchema", "true")
+      .load("hdfs://192.168.2.121:8020//wan/users.parquet")
+    df.show
+  }
+}

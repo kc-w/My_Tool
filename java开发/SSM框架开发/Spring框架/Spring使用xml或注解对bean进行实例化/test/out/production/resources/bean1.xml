@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+      http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+
+
+    <context:annotation-config/><!--使用context命名空间,在配置文件中开启相应的注解处理器-->
+    <context:component-scan base-package="com.wan.demo1"/><!--使用context命名空间,通知Spring扫描指定包下所有Bean类,进行注解解析-->
+
+    <!--分别定义3个Bean实例-->
+        <bean id="userDao" class="com.wan.demo1.UserDaoImpl"/>
+        <bean id="userService" class="com.wan.demo1.UserServiceImpl" autowire="byName"/>
+        <bean id="userController" class="com.wan.demo1.UserController" autowire="byName"/>
+
+</beans>

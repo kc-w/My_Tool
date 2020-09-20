@@ -1,0 +1,231 @@
+﻿HBase是一个分布式的、面向列的开源数据库，该技术来源于 Fay Chang 所撰写的Google论文“Bigtable：一个结构化数据的分布式存储系统”。
+就像Bigtable利用了Google文件系统（Google File System）所提供的分布式数据存储一样，HBase在Hadoop之上提供了类似于Bigtable的能力。
+
+介绍:
+	HBase是一个高可靠性、高性能、面向列、可伸缩的分布式存储系统，利用HBase技术可在服务器上搭建起大规模结构化存储集群。
+	HBase位于结构化存储层，HDFS为HBase提供了高可靠性的底层存储支持，MapReduce为HBase提供了高性能的计算能力，Zookeeper为HBase提供了稳定协调服务和failover机制。
+	Pig和Hive还为HBase提供了高层语言支持，使得在HBase上进行数据统计处理变的非常简单。 
+	Sqoop则为HBase提供了方便的RDBMS数据导入功能，使得传统数据库数据向HBase中迁移变的非常方便。
+
+数据模型相关概念：
+    表：
+        HBase采用表来组织数据，表由行和列组成，列划分为若干个列族。
+    行：
+        每个HBase表都由若干行组成，每个行由行键（row key）来标识。
+    列族：
+        一个HBase表被分组成许多“列族”（Column Family）的集合，它是基本的访问控制单元。
+    列限定符：
+        列族里的数据通过列限定符（或列）来定位。
+    单元格：
+        在HBase表中，通过行、列族和列限定符确定一个“单元格”（cell），单元格中存储的数据没有数据类型，总被视为字节数组byte[]。
+    时间戳：
+        每个单元格都保存着同一份数据的多个版本，这些版本采用时间戳进行索引。
+
+Column Family(列族)：
+    ColumnFamily是Region的一个物理存储单元。同一个Region下面的多个ColumnFamily，位于不同的路径下面。
+    ColumnFamily信息是表级别的配置。也就是说，同一个表的多个Region，都拥有相同的ColumnFamily信息。
+
+Region：
+    开始只有一个Region，后来不断分裂Region拆分操作非常快，因为拆分之后的Region读取的仍然是原存储文件，直到“合并”过程把存储文件异步地写到独立的文件之后，才会读取新文件。
+    每个Region默认大小是100MB到200MB（2006年以前的硬件配置）
+    每个Region的最佳大小取决于单台服务器的有效处理能力。
+    目前每个Region最佳大小建议1GB-2GB（2013年以后的硬件配置）。
+    同一个Region不会被分拆到多个Region服务器.
+    每个Region服务器存储10-1000个Region.
+
+Region的定位:
+    元数据表又名.META.表，存储了Region和Region服务器的映射关系.用来帮助Client定位到具体的Region。
+    当HBase表很大时，元数据也会被切分为多个Regina，Region的元数据信息保存在Zookeeper中。
+    根数据表，又名-ROOT-表，记录所有元数据的具体位置。
+    -ROOT-表只有唯一一个Region，名字是在程序中被写死的。
+    Zookeeper文件记录了-ROOT-表的位置。
+
+HBase的三层结构中各层次的名称和作用：
+    第一层：Zookeeper文件，记录以-ROOt-表的位置信息。
+    第二层：-ROOT-表，记录了.META.表的Region位置信息。-ROOT-表只能一个Region。通过-ROOT-表，就可以访问.META。表中的数据。
+    第三层：.META.表，记录了用户数据表的Region位置息，.META.表可以有多个Region，保存了HBase中所有用户数据表的Region位置信息。
+
+HBase功能组件：
+    1:库函数：链接到每个客户端
+    2:一个Master主服务器
+    3:许多个Region服务器
+
+    Master:
+        主服务器Master负责管理和维护HBase表的分区信息，维护Region服务器列表，分配Region，负载均衡。
+    Region:
+        将一个数据表按Key值范围横向划分为一个个的子表，实现分布式存储。
+        这个子表，在HBase中被称作“Region”。
+        Region是HBase分布式存储的最基本单元。
+        每一个Region都关联一个Key值范围，即一个使用StartKey和EndKey描述的区间，事实上，每一个Region仅仅记录StartKey就可以，因为它的EndKey就是下一个Region的StartKey。
+        Region服务器负责存储和维护分配给自己的Region，处理来自客户端的读写请求。
+
+        Region分为元数据Region以及用户Region两类:
+            Meta Region记录了每一个User Region的路由信息。
+            读写Region数据的路由，包括如下几步：
+                寻找Meta Region地址。
+                再由Meta Region寻找User Region地址。
+
+    客户端并不是直接从Master主服务器上读取数据，而是在获得Region的存储位置信息后，直接从Region服务器上读取数据。
+    客户端并不依赖Master，而是通过Zookeeper来获得Region位置信息，大多数客户端甚至从来不和Master通信，这种设计方式使得Master负载很小。
+
+
+Zookeeper为HBase提供：
+    分布式锁的服务：
+        多个HMaster进程都会尝试着去Zookeeper中写入一个对应的节点，该结点只能被一个HMaster进程创建成功，创建成功的HMaster进程就是Active。
+    事件监听机制：
+        主HMaster进程宕掉之后，备HMaster在监听对应的Zookeeper节点。主HMaster进程宕掉之后，该节点会被删除，其他的备HMaste就可以收到响应的消息。
+    微型数据库角色：
+        Zookeeper中存放了Region Server的地址，此时，可以将它理解成一个微型数据库。
+
+
+HBase系统架构：
+    客户端:
+        客户端包含访问HBase的接口，同时在缓存中维护着已经访问过的Region位置信息，用来加快后续数据访问过程。
+    Zookeeper服务器:
+        Zookeeper可以帮助选举出一个Master作为集群的总管，并保证在任何时刻总有唯一一个Master在运行，这就避免了Master的“单点失效”问题 。
+    Master（HMaster）:
+        主服务器Master主要负责表和Region的管理工作：
+        管理用户对表的增加、删除、修改、查询等操作。
+        实现不同Region服务器之间的负载均衡。
+        在Region分裂或合并后，负责重新调整Region的分布。
+        对发生故障失效的Region服务器上的Region进行迁移。
+
+        HMaster进程有主备角色。集群可以配置两个HMaster角色，集群启动时，这些HMaster角色通过竞争获得主HMaster角色。
+        主HMaster只能有一个，备HMaster进程在集群运行期间处于休眠状态，不干涉任何集群事务。
+    RegionServer：
+        Region服务器是HBase中最核心的模块，是HBase的数据服务进程负责处理用户的数据的读写请求。
+        Region由RegionServer管理。所有用户数据的读写请求，都是和RegionServer上的Region进行交互。
+        Region可以在RegionServer之间迁移。
+
+RegionServer工作原理：
+    Store:
+        一个Region(分布式存储和负载均衡的最小单位)由一个或多个Store组成。每个Store对应图中的一个Column Family。
+    MemStore：
+        一个Store包含一个MemStore，MemStore缓存客户端向Region插入的数据。
+    StoreFile：
+        MemStore的数据Flush到HDFS后成为StoreFile。
+    Hfile：
+        Hfile定义了StoreFile在文件系统中的存储格式，它是当前HBase系统汇总StoreFile的具体实现。
+    Hlog：
+        HLog日志保证了当RegionServer故障的情况下用户写入的数据不丢失。RegionServer的多个Region共享一个相同的Hlog。
+
+    Region服务器向HDFS文件系统中读写数据：
+        用户读写数据过程：
+            用户写入数据时，被分配到相应Region服务器去执行。
+            用户数据首先被写入到MemStore和Hlog中。
+            只有当操作写入Hlog之后，commit()调用才会将其返回给客户端。
+            当用户读取数据时，Region服务器会首先访问MemStore缓存，如果找不到，再去磁盘上面的StoreFile中寻找。
+
+        缓存的刷新：
+            系统会周期性地把MemStore缓存里的内容刷写到磁盘的StoreFile文件中，清空缓存，并在Hlog里面写入一个标记。
+            每次刷写都生成一个新的StoreFile文件，因此，每个Store包含多个StoreFile文件。
+            每个Region服务器都有一个自己的HLog 文件，每次启动都检查该文件，确认最近一次执行缓存刷新操作之后是否发生新的写入操作；
+            如果发现更新，则先写入MemStore，再刷写到StoreFile，最后删除旧的Hlog文件，开始为用户提供服务。
+
+        StoreFile的合并（Compaction）：
+            Hfile文件数目越来越多，读取时延也越来越大。
+            每次刷写都生成一个新的StoreFile，数量太多，影响查找速度。
+            调用Store.compact()把多个合并成一个。
+            合并操作比较耗费资源，只有数量达到一个阈值才启动合并。
+
+        Store工作原理：
+            Store是Region服务器的核心。
+            多个StoreFile(比如64M)合并成一个。
+            单个StoreFile(比如512M)过大时，又触发分裂操作，1个父Region被分裂成两个子Region(256M)。
+
+        HLog工作原理：
+            分布式环境必须要考虑系统出错。HBase采用HLog保证系统恢复。
+            HBase系统为每个Region服务器配置了一个HLog文件，它是一种预写式日志（Write Ahead Log）。
+
+            用户更新数据必须首先写入日志后，才能写入MemStore缓存，并且，直到MemStore缓存内容对应的日志已经写入磁盘，该缓存内容才能被刷写到磁盘。
+            Zookeeper会实时监测每个Region服务器的状态，当某个Region服务器发生故障时，Zookeeper会通知Master。
+            Master首先会处理该故障Region服务器上面遗留的HLog文件，这个遗留的HLog文件中包含了来自多个Region对象的日志记录。
+            系统会根据每条日志记录所属的Region对象对HLog数据进行拆分，分别放到相应Region对象的目录下，然后，再将失效的Region重新分配到可用的Region服务器中，并把与该Region对象相关的HLog日志记录也发送给相应的Region服务器。
+            Region服务器领取到分配给自己的Region对象以及与之相关的HLog日志记录以后，会重新做一遍日志记录中的各种操作，把日志记录中的数据写入到MemStore缓存中，然后，刷新到磁盘的StoreFile文件中，完成数据恢复。
+
+            共用日志优点：
+                提高对表的写操作性能；
+            ​ 缺点：
+                恢复时需要分拆日志。
+
+        写流程：
+            （1）客户端发起写数据请求。
+            （2）定位Regoin。定位到需要写到的RegionServer，Region，Rowkey。
+            （3）数据分组：整个数据分组，涉及到两步。
+                “分篮子”操作：
+                    根据mete表找到标记的Region信息，此时也得到了对应的RegionServer信息。根据rowkey，将数据写到指定的region中。
+                每个RegionServer上的数据会一起发送。发送数据中，都是已经按照Region分好组了。
+            （4）往RegionServer发送请求。
+                利用HBase自身封装的RPC框架，来完成数据发送操作。
+                往多个RegionServer发送请求是并行的。
+                客户端发送完写数据请求后，会自动等待请求处理结果。
+                如果客户端没有捕获到任何的异常，则认为所有数据都已经被写入成功。如果全部写入失败，或者部分写入失败，客户端能过获知详细的失败key值列表。
+            （5）Region写数据流程。
+                获取Region操作锁。（读写锁）
+                一次获取各行行锁。
+                写入到MemStore中。（一个内存排序集合）
+                释放以获取的行锁。
+                写数据到WAL中。（Write-Ahead-Log）
+                释放Region锁。
+        读流程：
+            （1）客户端发起读数据请求：
+                Get操作在精准的Key值的情形下，读取单行用户数据。
+                Sacn操作时为了批量扫描限定KEy值范围的用户数据。
+            （2）定位Region,定位到该数据所在的RegionServer，Region，Rowkey。
+            （3）OpenScanner：OpenScanner过程中，会创建两种不同的Scanner来读取Hfile、MemStore的数据。
+                HFile 对应的Scanner为StoreFileScanner。
+                MemStore对应的Scanner为对应的MemStoreScanner。
+            （4）Next：
+                每一个Scanner中，都有一个指针，指向接下来要读取的用户数据KeyValue是哪一个。
+                同一级的Scanner，被放在同一个优先级队列中。通过不断的对比每一个Scanner的指针所指向的KeyValue，将这些Scanner进行排序。
+                每一次next请求，都是从该优先级队列中，Poll出一个Scanner，然后，读取该Scanner的当前指针所指向的KeyValue即可。
+                每读一个Scanner，指针都会我那个下移一个KeyValue。而后，该Scanner被返还到队列中。如果已经读完，则直接关闭。
+            （5）Filter允许在Scan设定一定的过滤条件。符合条件的用户数据才返回。当前包含的一些典型的Filter有：
+                RowFilter
+                SingleColumnValueFilter
+                KeyOnlyFilter
+                FilterList
+                使用Filter时，可能会扫描大量的用户数据，才可以找到所期望的满足条件的数据。因此，一些场景下性能是不可预估的。
+            （6）BloomFilter：
+                BloomFilter用来优化一些随机读取的场景，即Get场景。它可以被用来快速的判断一条用户数据在一个大的数据集合（该数据集合的大部分数据都没法加载到内存中）中是否存在。
+                BloomFilter在判断一个数据是否存在时，拥有一定的误判率。但对于“用户数据XXX不存在”的判断结果是可信的。
+                HBase的BLoomFilter的相关数据，被保存在HFile中。
+
+HBase实际应用中的性能优化方法：
+    行键（Row Key）
+        行键是按照字典序存储，因此，设计行键时，要充分利用这个排序特点，将经常一起读取的数据存储到一块，将最近可能会被访问的数据放在一块。
+        举个例子：如果最近写入HBase表中据是最可能被访问的，可以考虑将时间戳作为行键的一部分，由于是字典序排序，所以可以使用Long.MAX_VALUE - timestamp作为行键，这样能保证新写入的数据在读取时可以被快速选中。
+    InMemory
+        创建表的时候，可以通过HColumnDescriptor.setInMemory(true)将表放到Region服务器的缓存中，保证在读取的时候被cache命中。
+    Max Version
+        创建表的时候，可以通过HColumnDescriptor.setMaxVersions(int maxVersions)设置表中数据的最大版本，如果只需要保存最新版本的数据，那么可以设置setMaxVersions(1)。
+    Time TO Live：
+        创建表的时候，可以通过HColumnDescriptor.setTimeToLive(int timeToLive)设置表中数据的存储生命期，过期数据将自动被删除，例如如果只需要存储最近两天的数据，那么可以设置setTimeToLive(2 24 60 * 60)。
+
+表的设计:
+    HBase是一个分布式数据库，其性能的好坏主要取决于内部表的设计和资源的分配是否合理。
+    Rowkey设计:
+        rowkey是HBase实现分布式的基础，HBase通过rowkey范围划分不同的region，分布式系统的基本要求就是在任何时候，系统的访问都不要出现明显的热点现象，
+        所以rowkey的设计至关重要，一般我们建议rowkey的开始部分以hash或者MD5进行散列，尽量做到rowkey的头部是均匀分布的。
+        禁止采用时间、用户id等明显有分段现象的标志直接当作rowkey来使用。
+    列簇设计:
+        HBase的表设计时，根据不同需求有不同选择，需要做在线查询的数据表，尽量不要设计多个列簇，
+        我们知道，不同的列簇在存储上是被分开的，多列簇设计会造成在数据查询的时候读取更多的文件，从而消耗更多的I/O。
+    TTL设计:
+        选择合适的数据过期时间也是表设计中需要注意的一点，HBase中允许列簇定义数据过期时间，数据一旦超过过期时间，可以被major compact进行清理。
+        大量无用历史数据的残余，会造成region体积增大，影响查询效率。
+    Region设计:
+        一般地，region不宜设计成很大，除非应用对阶段性性能要求很多，但是在将来运行一段时间可以接受停服处理。
+        region过大会导致major compact调用的周期变长，而单次major compact的时间也相应变长。
+        major compact对底层I/O会造成压力，长时间的compact操作可能会影响数据的flush，compact的周期变长会导致许多删除或者过期的数据不能被及时清理，对数据的读取速度等都有影响。
+
+        相反，小的region意味着major compact会相对频繁，但是由于region比较小，major compact的相对时间较快，而且相对较多的major compact操作，会加速过期数据的清理。
+
+        当然，小region的设计意味着更多的region split风险，region容量过小，在数据量达到上限后，region需要进行split来拆分，其实split操作在整个HBase运行过程中，是被不怎么希望出现的，
+        因为一旦发生split，涉及到数据的重组，region的再分配等一系列问题。所以我们在设计之初就需要考虑到这些问题，尽量避免region的运行过程中发生split。
+        HBase可以通过在表创建的时候进行region的预分配来解决运行过程中region的split产生，
+        在表设计的时候，预先分配足够多的region数，在region达到上限前，至少有部分数据会过期，通过major compact进行清理后， region的数据量始终维持在一个平衡状态。
+        region数量的设计还需要考虑内存上的限制，通过前面的介绍我们知道每个region都有memstore，memstore的数量与region数量和region下列簇的数量成正比：
+        一个RS下memstore内存消耗：
+        Memory = memstore大小 * region数量 * 列簇数量
+        如果不进行前期数据量估算和region的预分配，通过不断的split产生新的region，容易导致因为内存不足而出现OOM现象。

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!doctype taglib>
+<taglib>
+   <tlib-version>1.0</tlib-version>//标签版本
+   <jsp-version>1.2</jsp-version>//jsp版本
+   <short-name>lms</short-name>//标签简称
+
+   <!--页面引用的url地址-->
+   <uri>/lms-tags</uri>
+   
+   <tag>
+      <name>page</name>//标签名称
+      <tag-class>com.common.model.pageTag</tag-class>//标签处理类
+      <body-content>jsp</body-content>//
+      <description>分页</description>//标签描述
+
+      <!--标签属性-->
+      <attribute>
+         <name>object</name>//标签属性名称
+         <required>true</required>//标签属性是否为必须，true或false
+         <type>com.common.model.pageobject</type>//标签属性对应的处理类
+         <description>pageobject对象</description>//标签属性描述
+      </attribute>
+
+   </tag>
+</taglib>

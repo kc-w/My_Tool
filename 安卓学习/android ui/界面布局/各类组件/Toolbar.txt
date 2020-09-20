@@ -1,0 +1,104 @@
+Toolbar 是 Android 5.0 推出的一个 Material Design 风格的导航控件 ,用来取代之前的 Actionbar 。
+与 Actionbar 相比，Toolbar 明显要灵活的多。它不像 Actionbar 一样，一定要固定在Activity的顶部，
+而是可以放到界面的任意位置。
+
+
+新建一个工程时，默认是有导航栏的,那是因为默认app主题自带了导航栏(AndroidManifest.xml的application的theme有设置)
+
+把系统自带的actionBar改为Theme.AppCompat.Light.NoActionBar(取消系统自带标题)
+
+在xml中添加toolbar控件
+
+<android.support.v7.widget.Toolbar
+    android:id="@+id/toolbar_normal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"<toolbar控件背景颜色>
+    app:collapseIcon="@mipmap/ic_launcher"<设置折叠视图的图标>
+    app:buttonGravity="bottom"
+    app:navigationIcon=""<左上角返回按钮图标>
+    app:popupTheme="@style/Animation.AppCompat.Dialog"
+    app:logoDescription=""
+    app:maxButtonHeight="50dp"
+    app:navigationContentDescription=""
+    app:collapseIcon=""<折叠视图图标>
+    app:title=""<标题>
+    app:titleTextColor=""<标题颜色>
+    app:subtitle=""<子标题>
+    app:subtitleTextColor=""<子标题颜色>
+    app:logo=""><添加标题logo>
+
+</android.support.v7.widget.Toolbar>
+
+
+toolbar_menu.xml
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--搜索框-->
+    <item
+        android:id="@+id/search"
+        android:title="search"
+        android:icon="图标(可以不指定,系统会有默认图标)"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView"/>
+
+    <item
+        android:id="@+id/item_one"
+        android:title="按钮3"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_two"
+        android:title="按钮4"
+        app:showAsAction="never" />
+</menu>
+
+orderInCategory
+设置菜单项的排列顺序,必须设置大于等于0的整数值。数值小的排列在前,如果值相等,则按照xml中的顺序展现。
+title
+菜单项的标题。
+icon
+菜单项的图标。
+showAsAction(该属性有五个值，可以混合使用)
+always：总是显示在Toolbar上。
+ifRoom：如果Toolbar上还有空间，则显示，否则会隐藏在溢出列表中。
+never：永远不会显示在Toolbar上，只会在溢出列表中出现。
+withText：文字和图标一起显示。
+collapseActionView：操作视窗被折叠到一个按钮,用户选择按钮时,这个操作视窗展开要配合ifRoom一起使用才会有效
+
+
+//初始化视图
+    //找到标题栏控件
+    toolbar=findViewById(R.id.toolbar_edit);
+    //将标题栏设置为自定义toolbar组件
+    this.setSupportActionBar(toolbar);
+    //决定左上角图标是否可以点击
+    getSupportActionBar().setHomeButtonEnabled(true);
+    //给左上角自动加上一个返回图标,默认id为android.R.id.home
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    //设置是否显示toolbar的标题
+    getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+
+//重写方法,如果返回true,菜单将被显示出来,如果返回false菜单将不被显示
+public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.main,menu);
+    return true;
+}
+
+//重写菜单点击监听
+public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    switch (item.getItemId()){
+        case R.id.item_one:
+            Toast.makeText(this,"add_item!",Toast.LENGTH_SHORT).show();
+            break;
+        case R.id.item_two:
+            Toast.makeText(this,"remove_item!",Toast.LENGTH_SHORT).show();
+            break;
+    }
+    return true;
+}
+
+

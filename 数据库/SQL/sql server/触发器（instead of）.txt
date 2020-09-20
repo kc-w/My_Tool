@@ -1,0 +1,17 @@
+use db
+go
+
+if exists(select name from sysobjects--如果满足条件则删除触发器
+          where name='chufaqi')
+	drop trigger chufaqi
+go
+
+create trigger chufaqi--创建instead of触发器:可以取消所有触发动作，原来的触发动作不在发生，并进行替代
+on shitu
+instead of delete
+as
+  print'删除视图'
+go
+delete shitu
+go
+

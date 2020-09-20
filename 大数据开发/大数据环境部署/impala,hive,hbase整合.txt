@@ -1,0 +1,61 @@
+首先，我们使用HBase Shell创建一个表
+
+create '表名', '列族名'
+
+
+在Hive中创建外部表,与hbase进行映射
+
+CREATE EXTERNAL TABLE 数据库名.外部表名(
+主键(rowkey) string,
+子列1 string,
+子列2 string,
+子列3 string,
+子列4 string,
+子列5 string
+)
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' 
+WITH SERDEPROPERTIES
+("hbase.columns.mapping" = ":key, 列族名:子列1,列族名:子列2,列族名:子列3,列族名:子列4,列族名:子列5")
+TBLPROPERTIES("hbase.table.name" = "表名"); 
+
+
+Impala共享Hive的Metastore，这时需要同步元数据，可以通过在impala-shell中执行同步命令：
+
+invalidate metadata;
+
+切换到具有对hdfs操作权限的用户
+
+su hdfs
+
+
+将tsv文件转成hfile文件(hfileoutput:文件导出目录,job:表名,job.tsv:hdfs需要转换为hfile的文件)
+
+HADOOP_CLASSPATH=`/opt/cloudera/parcels/CDH/bin/hbase mapredcp` \
+yarn jar /opt/cloudera/parcels/CDH/lib/hbase/hbase-server-1.2.0-cdh5.15.1.jar importtsv \
+-Dimporttsv.columns=HBASE_ROW_KEY,\
+列族名:子列1,列族名:子列2,列族名:子列3,列族名:子列4,列族名:子列5 \
+-Dimporttsv.bulk.output=hdfs://192.168.1.131:8020/test/hfileoutput \
+job \
+hdfs://192.168.1.131:8020/test/job.tsv
+
+
+给导入文件夹赋权限
+
+hadoop fs -chmod -R 777 /test/hfileoutput
+
+
+将hfile文件导入hbase
+
+HADOOP_CLASSPATH=`/opt/cloudera/parcels/CDH/bin/hbase mapredcp` \
+yarn jar /opt/cloudera/parcels/CDH/lib/hbase/hbase-server-1.2.0-cdh5.15.1.jar completebulkload \
+hdfs://192.168.1.131:8020/test/hfileoutput \
+job
+
+
+这时可以使用impala-shell对hbase进行操作
+
+select * from 数据库名.表名
+
+如果查询报client connection to 192.168.1.131:27000: unable to find SASL plugin: PLAIN,则在节点输入
+yum install gcc python-devel cyrus-sasl* -y
+

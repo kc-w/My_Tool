@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			window.onload=function(){
+				var a=document.getElementById("a");
+				if(a.addEventListener){
+					a.addEventListener("click",f,false);
+				}
+			}
+		    function f(e){
+		    	if(!confirm("是否跳转")){
+		    		if(e.preventDefault){
+		    			e.preventDefault();
+		    		}else{
+		    			e.returnValue=false;
+		    		}
+		    	}
+		    }
+		</script>
+	</head>
+	<body>
+		<a id="a" href="http://kc-w.top">aaa</p>
+	</body>
+</html>
+

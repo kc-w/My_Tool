@@ -1,0 +1,15 @@
+1.反编译apk,dex
+2.包名树状图
+3.查看指定类的smali代码
+4.转换成java语言
+5.java代码中双击函数 进入函数方法的定义 ，查看方法的调用
+6.查看AndroidManifest.xml
+
+
+解压JEB软件,双击打开jeb_wincon.bat,将要反编译的apk拖入
+双击Bytecode打开smali代码
+
+点击Bytecode/Hierarchy窗口即可查看包名树状图 树状图排列: 包名->类名
+
+
+想把指定区域的smali代码转换成java代码,只需右键点击解析即可

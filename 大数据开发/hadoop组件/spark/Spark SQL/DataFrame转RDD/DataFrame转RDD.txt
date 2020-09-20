@@ -1,0 +1,35 @@
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+
+/**
+  * 基于反射来构建DataFrame
+  */
+object ConvertRDDToDataFrame {
+
+  //
+  case class Person(name: String, age: Int)
+  def main(args: Array[String]): Unit = {
+    val conf = new SparkConf()
+      .setAppName("spark-sql")
+      .setMaster("local")
+
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    import sqlContext.implicits._
+
+
+    //读取文件
+    val df = sc.textFile("C:\\Users\\Wkc23\\Desktop\\文件夹2\\people.txt")
+        .map(_.split(","))
+        .map(x => Person(x(0).trim,x(1).trim.toInt))
+        .toDF//转换为DataFrame
+
+
+    //将DataFrame转成RDD
+    val rdd = df.rdd
+    rdd.foreach(x => {
+      println("name: " + x.getString(0) + " age: " + x.getInt(1))
+    })
+
+  }
+}

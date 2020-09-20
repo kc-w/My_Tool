@@ -1,0 +1,17 @@
+apktool的使用
+
+这里有两个命令需要记住
+1.apktool d test.apk 解包test.apk
+2.apktool b test.apk 重打包test.apk
+
+把apktool.jar和apktool.bat一起放到C:\Windows目录下
+
+打开cmd命令窗口 输入apktool 不报错则配置完成
+
+cd 进入apk所在目录 输入解包命令解包成功会在当前目录下生成app-debug文件夹
+apktool d app-debug.apk
+
+输入重新打包命令
+apktool b app-debug -o new_app.apk
+
+重打包后的apk没有签名,需要对重打包后的apk进行签名,打开Android Killer 点工具-APK签名 将要签名的apk拖拉到软件中进行签名 点执行后将会在当前目录生成test_sign.apk

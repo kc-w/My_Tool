@@ -1,0 +1,76 @@
+use db
+go
+
+alter database db--开启db数据库的递归触发器，如果嵌套触发器关闭，递归触发器无论是否开启都会被禁止,最高32级递归
+  set recursive_triggers on
+go
+/*直接递归触发器：一个触发器执行中使自己再次触发，如修改1表中的数据触发了a触发器，而a触发器又修改了1表中的数据，则再次触发a触发器,如此继续*/
+/*间接触发器：1表中的a触发器被触发修改了2表中的数据，使得2表中的b触发器被触发又修改了1表中的数据，如此往复*/
+
+drop table emp_mgr
+go
+
+create table emp_mgr(
+emp char(30) primary key,
+mgr char(30) null foreign key references emp_mgr(emp),
+no int default 0
+)
+go
+
+--创建emp_gmr表上的insert触发器
+create trigger emp_chufaqi1
+on emp_mgr
+for insert
+as
+  declare @e char(30),@m char(30)
+  declare c1 cursor for
+     select emp_mgr.emp
+	 from emp_mgr,inserted
+	 where emp_mgr.emp=inserted.emp
+  open c1
+  fetch next from c1 into @e
+  while @@fetch_status=0
+  begin
+     update emp_mgr
+	 set emp_mgr.no=emp_mgr.no+1--更新emp_mgr中的记录
+	 where emp_mgr.emp=@e
+	 fetch next from c1 into @e
+  end
+  close c1
+  deallocate c1
+go
+
+--创建表emp_mgr上的update触发器
+create trigger emp_chufaqi2 on emp_mgr for update
+as
+if update(mgr)
+begin
+  update emp_mgr
+  set emp_mgr.no=emp_mgr.no+1--更新emp_mgr表
+  from inserted
+  where emp_mgr.emp=inserted.mgr
+  update emp_mgr
+  set emp_mgr.no=emp_mgr.no
+  from deleted
+  where emp_mgr.emp=deleted.mgr
+end
+go
+
+--插入数据
+insert emp_mgr(emp,mgr)values('1',null)
+insert emp_mgr(emp,mgr)values('2','1')
+insert emp_mgr(emp,mgr)values('3','2')
+insert emp_mgr(emp,mgr)values('4','2')
+insert emp_mgr(emp,mgr)values('5','4')
+go
+
+select * from emp_mgr
+go
+
+--更新数据激活update触发器
+update emp_mgr set mgr='1'
+where emp='5'
+go
+
+select * from emp_mgr
+go

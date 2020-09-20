@@ -1,0 +1,171 @@
+systemctl start network
+systemctl enable network
+使用ftp将package包上传至根目录
+
+
+
+安装jdk
+tar -zxvf /home/jdk-*-linux-x64.tar.gz  -C /usr/local/
+echo "export JAVA_HOME=/usr/local/jdk1.8.0_181/" >>/etc/profile
+echo 'export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar' >>/etc/profile
+echo 'export PATH=$PATH:$JAVA_HOME/bin' >>/etc/profile
+source /etc/profile
+
+
+安装python
+yum -y install libffi-devel zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
+tar -zxvf /home/Python-3.7.0.tgz -C /home
+mkdir /usr/local/python3
+cd /home/Python-3.7.0
+./configure --prefix=/usr/local/python3
+make && make install
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
+
+
+安装httpd
+SSH登至服务器，安装httpd，完成后会生成/var/www/html文件夹，就是httpd的工作目录。由于当前服务器都不能联互联网，这里安装httpd只能先用rpm方式安装。
+cd /home/Packages
+rpm -ivh apr-1.4.8-3.el7_4.1.x86_64.rpm
+rpm -ivh apr-util-1.5.2-6.el7.x86_64.rpm
+rpm -ivh httpd-tools-2.4.6-80.el7.centos.x86_64.rpm
+rpm -ivh mailcap-2.1.41-2.el7.noarch.rpm
+rpm -ivh httpd-2.4.6-80.el7.centos.x86_64.rpm
+
+启动httpd进程，并设置开机启动
+
+systemctl   start    httpd
+systemctl   enable   httpd
+
+安装createrepo
+createrepo是一个用来构建软件仓库的工具，后面会用到，这里先安装，需要注意命令顺序不要改变。
+
+rpm -ivh deltarpm-3.6-3.el7.x86_64.rpm
+rpm -ivh python-deltarpm-3.6-3.el7.x86_64.rpm
+rpm -ivh libxml2-python-2.9.1-6.el7_2.3.x86_64.rpm
+rpm -ivh libxml2-2.9.1-6.el7_2.3.x86_64.rpm
+rpm -ivh createrepo-0.9.9-28.el7.noarch.rpm
+
+创建软连接到硬盘中的包文件夹
+由于http工作目录是/var/www/html/，但是软件包又在硬盘上，所以需要建一个类似于快捷方式的文件，把软件包“放”到http的工作目录。该工作目录的权限至少需要600，建议为755。
+
+mkdir  /var/www/html/CentOS7.5/
+ln -s  /home/Packages   /var/www/html/CentOS7.5/Packages
+chmod 755 -R /var/www/html/CentOS7.5/Packages
+
+创建仓库(在这里要等一会才会显示结束)
+createrepo  /var/www/html/CentOS7.5/Packages
+
+集群中所有主机都需关闭防火墙,设置setenforce 0 ,暂时禁用selinux，如果没有这一步会报错
+setenforce 0
+systemctl stop firewalld
+systemctl disable firewalld.service
+
+打开浏览器访问 http://虚拟机的ip地址/CentOS7.5/Packages/，可以点击下载，表示http搭建成功。
+如果无法访问页面的解决步骤为：
+1
+检查httpd进程是否启动：systemctl   status    httpd
+2
+检查该主机上防火墙是否关闭：systemctl   status    firewalld
+3
+检查Selinux是否禁用(getenforce为permissive或disable即为禁用)：getenforce
+
+
+所有主机配置repo文件
+
+1、备份CentOS原来的repo。把CentOS自带的repo文件移动到bak下，使之无效。
+cd /etc/yum.repos.d/
+mkdir  bak
+mv CentOS-*.repo  bak/
+
+2、创建自己的repo文件，目的是让baseurl指向前面搭建的http的Packages文件夹。
+vi  base.repo
+
+[base]
+name=CentOS-Packages
+baseurl=http://192.168.2.111/CentOS7.5/Packages/
+gpgkey=
+path=/
+enabled=1
+gpgcheck=0
+
+3、检查本地源是否配置成功，执行命令如下：
+yum clean all ##清理yum缓存；
+yum makecache ##重新构建yum缓存；
+yum list|grep vim ##在可用的源（base.repo）中查找可用的vim；
+
+9,所有主机设置时区，统一时间
+timedatectl set-timezone "Asia/Shanghai"
+yum install ntp
+cp /etc/ntp.conf /etc/ntp.conf.bak
+
+
+4、修改主机名：(【说明】：配置主机名称这一步骤必须在配置ssh免密登录之前，因为在ssh生成的id_rsa.pub文件最后会绑定使用ssh的用户和当前的主机名称，如果先生成id_rsa.pub文件再修改主机名称，会导致ssh绑定的主机名称和当前实际的主机名称不一致，很有可能会造成后续的ssh免密登录失败或者出错。)
+hostnamectl --static set-hostname 主机名
+vi /etc/hosts ##配置主机名文件(虚拟机间凭借主机名可相互访问)
+127.0.0.1   localhost
+192.168.1.131 hadoop1
+192.168.1.132 hadoop2
+192.168.1.133 hadoop3
+
+
+7,关闭THP(该设置会影响集群性能所以要关闭)
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+8,所有主机修改swappiness(设置为0则最大限度使用内存)
+echo "vm.swappiness=0" >> /etc/sysctl.conf
+sysctl -p  ##使配置生效
+cat /proc/sys/vm/swappiness
+
+
+
+6,禁用SELinux
+setenforce 0 ##先临时禁用SELinux
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g'   /etc/selinux/config ##再修改 /etc/selinux/config中的为 SELINUX=disabled
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g'   /etc/sysconfig/selinux
+reboot ##重启生效
+
+
+5,在所有主机配置ssh免密登录
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak ##备份配置文件
+sed -i 's/\#RSAAuthentication/RSAAuthentication/g' /etc/ssh/sshd_config ##再修改配置文件
+/bin/systemctl restart  sshd.service  1>/dev/null ##修改/etc/ssh/sshd_config重启服务
+ssh-keygen ##所有的主机执行如下命令生成key，连续输入三次enter
+ssh-copy-id 主机名 ##配置id
+
+
+10,选定主服务器作为TimeServer，其他所有主机都与主服务器进行时间同步，集群环境时间以主服务器的时间为准。
+vi /etc/ntp.conf
+# server 0.centos.pool.ntp.org iburst
+# server 1.centos.pool.ntp.org iburst
+# server 2.centos.pool.ntp.org iburst
+# server 3.centos.pool.ntp.org iburst
+server 127.127.1.1
+
+systemctl restart ntpd
+systemctl enable ntpd
+
+
+11,在其他节点上指定以主服务器为准来进行时间校准
+ntpdate hadoop1
+vi /etc/ntp.conf
+# server 0.centos.pool.ntp.org iburst
+# server 1.centos.pool.ntp.org iburst
+# server 2.centos.pool.ntp.org iburst
+# server 3.centos.pool.ntp.org iburst
+server 192.168.1.131
+
+systemctl start ntpd
+systemctl enable ntpd
+
+
+
+
+##更改默认jdk
+update-alternatives --install /usr/bin/java  java /usr/local/jdk1.8.0_181/bin/java 300
+update-alternatives --install /usr/bin/javac  javac /usr/local/jdk1.8.0_181/bin/javac 300
+update-alternatives --install /usr/bin/jar   jar /usr/local/jdk1.8.0_181/bin/jar 300
+update-alternatives --install /usr/bin/javah javah /usr/local/jdk1.8.0_181/bin/javah 300
+update-alternatives --install /usr/bin/javap javap /usr/local/jdk1.8.0_181/bin/javap 300
+update-alternatives --config java
