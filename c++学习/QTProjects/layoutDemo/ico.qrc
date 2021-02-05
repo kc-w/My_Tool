@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>ico.png</file>
+        <file>background.png</file>
+        <file>logo.png</file>
+    </qresource>
+    <qresource prefix="/new/qss">
+        <file>my1.qss</file>
+        <file>my2.qss</file>
+    </qresource>
+</RCC>

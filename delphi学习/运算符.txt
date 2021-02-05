@@ -1,0 +1,76 @@
+program ConsoleDemo1;//声明项目名称(程序头)
+//Delphi中程序的主模块的源文件格式为.dpr
+//一个完整的程序 ＝ 一个.dpr 文件 + 0 或多个.pas文件
+{$APPTYPE CONSOLE}//声明程序类型
+
+{$R *.res}
+
+//在程序主文件中使用到的所有.pas 文件的名称必需列在 uses 从句中
+uses
+  System.SysUtils;
+
+var
+  test1: Integer;
+  test2: char;
+  test3: string;
+
+
+
+begin
+  try
+
+  test1 := 5;
+  test2 := 'b';
+  test3 := '字符串';
+
+  //有序运算符
+  Writeln(ord(test2));//ord:返回字符集中的序数,不接受 Int64 类型的参数
+  Writeln(pred(8));//pred:返回字符集中的前一个,不接受 Int64 类型的参数
+  Writeln(succ(8));//succ:返回字符集中的下一个,不接受 Int64 类型的参数
+  Writeln(high(test3));//high:返回变量能够 表示的的最大值或数据类型的上界
+  Writeln(low(test3));//low:返回变量能够表示的的最小值或数据类型的下界
+
+  //数学运算符
+  Writeln(5 + 1);//加运算
+  Writeln(5 - 1);//减运算
+  Writeln(5 * 2);//乘运算
+  Writeln(5 / 2);//除运算
+  Writeln(5 div 2);//整除
+  Writeln(5 mod 2);//求模
+
+  //逻辑运算符
+  Writeln(not(true));
+  Writeln(True and True);
+  Writeln(True or True);
+  Writeln(True xor  True);//当 A、B 值相同时，A xor B = False，当 A、B 的值不同时，A xor B＝True
+
+
+  //位运算符
+  //not
+  //anf
+  //or
+  //xor
+  //shl
+  //xhr
+
+  //集合运算符
+  S1+S2 //并集运算
+  S1*S2 //交集运算
+  S1-S2 //差集运算
+  S1＝S2 //判断集合是否相等
+  S1<>S2 //判断集合不相等
+  S1>=S2 //判断是否包含
+  X in S1 //判断单个元素是否在集合中
+
+  //指针运算符
+  //“＝”运算符用于验算两个指针是否指向了同一个对象，若是则返回 True。
+  //“<>”运算符用于验算两个指针是否指向了不同的对象，若是则返回 True
+  //“+”仅用于一个字符指针与一个整数相加的情形,表示指针的起始地址加上 n*I 个字节后得到的新位置
+  //“-”仅用于两个字符指针相减或一个字符指针减去一个整数,从P1起始的地址减去 n*I 个字节
+  Readln;
+
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+end.

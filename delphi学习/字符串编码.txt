@@ -1,0 +1,7 @@
+AnsiString:它由AnsiChar字符组成,其长度没有限制,同时与null结束的字符串相兼容
+WideString:功能上类似于AnsiString,但它是由WideChar字符（UniCode字符集）组成的。引入这种类型,主要是为了支持OLE编程
+PChar:指向null结束的Char字符串的指针,类似于C的char*或lpstr类型
+PAnsiChar:指向null结束的AnsiChar字符串的指针
+PWideChar:指向null结束的WideChar字符串的指针
+AnsiChar:以 8 位表示 (共有 256 个不同的符号)
+WideChar:以 16 位表示 (共有 64,000 个不同的符号)

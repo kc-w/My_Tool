@@ -1,0 +1,53 @@
+//表明这个项目使用的模块
+//core:Qt的核心功能其他所有模块都依赖于这个模块
+//gui:提供了窗口系统集成、事件处理、OpenGL和OpenGL ES集成、2D图形、基本图像、字体和文本等功能
+//multimedia:处理音频与视频
+QT += core gui multimedia
+
+//表明pro文件创建的版本,并添加模块widgets,提供了经典的界面UI元素集合，QT的用户界面部件都在该模块中
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+//编译后生成exe的名称,自动创建pro文件时,默认为项目的名称，可以自行修改为另外的名称。
+TARGET = appName
+
+//工程的编译模板类型,app(单独的应用程序),lib(静态和动态库),subdirs(递归编译)
+//Subdirs可以用来编译子目录里的目标文件
+TEMPLATE = app
+
+//当TEMPLATE变量为Subdirs时才需要指定SUBDIRS变量导入子目录
+//qmake会搜寻以目录名命名的.pro文件,并且会编译该工程
+SUBDIRS += subdirectory1   
+SUBDIRS += subdirectory2
+
+
+//指定C++编译器搜索头文件路径,在程序中可以找到目录下的文件
+INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/api
+INCLUDEPATH += $$PWD/form
+INCLUDEPATH += $$PWD/qextserialport
+
+//引入子模块,找到指定目录下的pri文件
+include ($$PWD/api/api.pri)
+include ($$PWD/form/form.pri)
+include ($$PWD/qextserialport/qextserialport.pri)
+
+
+//编译生成的exe文件存放目录
+DESTDIR     = $$PWD/comtool
+
+
+
+//指定需要rcc处理的qrc资源文件
+RESOURCES   += other/main.qrc
+
+
+
+//源代码
+SOURCES  += main.cpp\
+         mainwindow.cpp
+		
+		
+HEADERS  += mainwindow.h
+
+//生成的ui文件
+FORMS    += mainwindow.ui

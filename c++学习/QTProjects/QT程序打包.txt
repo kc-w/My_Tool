@@ -1,0 +1,8 @@
+release运行程序之后来到exe文件生成的目录,新建一个文件夹把exe文件拖入
+在搜索栏搜索qt找到编译终端打开,cd到新建的文件夹下
+输入windeployqt *.exe命令打包文件
+
+打开打包程序选择要打包的exe文件
+
+将打包文件所需要的dll文件及文件夹选中拖入到Files框内,打开Files Options勾选Compress Files减小压缩包体积
+点击Process完成打包

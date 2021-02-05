@@ -1,0 +1,8 @@
+1:创建项目
+2:选择“其他项目”分类中的“Qt4设计师自定义控件”
+3:设置项目名为mydesignerplugin,控件类名自定义为MyDesignerPlugin
+4:在右侧指定控件的图标文件的路径,其他保持默认一直下一步
+5:进入mydesignerplugin.cpp添加控件实现代码
+6:进行Releas构建
+7:将构建好的dll文件复制到D:\Qt\Qt5.14.2\5.14.2\mingw73_64\plugins\designer目录下
+8:单独打开Qt Designer就可以看到自定义控件MyDesignerPlugin,打开QtCreator的设计模式中无法看到及使用
