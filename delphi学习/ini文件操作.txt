@@ -1,0 +1,111 @@
+uses
+	ini1Files;
+
+procedure TForm1.FormCreate(Sender: TObject);
+
+var
+  ini1: TiniFile;
+  ini2: TMemIniFile;   //将ini文件读到内存中
+  path: string;     //ini1 文件路径
+  Section,Key: string;  //分别表示 ini1 文件的小节与关键字
+
+
+  List: TStrings;
+
+begin
+  path := ChangeFileExt(ParamStr(0),'.ini');
+  ini1 := TiniFile.Create(path);  //ini1 对象建立需要文件路径参数, 如果缺少路径会默认Windows目录
+
+  Section := 'item1';
+
+  Key := 'key1';
+  ini1.WriteString(Section,Key,'value1');
+
+  Key := 'key2';
+  ini1.WriteInteger(Section,Key,111);
+
+  Key := 'key3';
+  ini1.WriteBool(Section,Key,True);
+
+  Key := 'key4';
+  ini1.WriteDate(Section,Key,Now);
+
+  Key := 'key5';
+  ini1.WriteTime(Section,Key,Now);
+
+  Key := 'key6';
+  ini1.WriteDateTime(Section,Key,Now);
+
+  Key := 'key7';
+  ini1.WriteFloat(Section,Key,Pi);
+
+
+  Section := 'item2';
+
+  Key := 'key1';
+  ini1.WriteString(Section,Key,'value1');
+
+  Key := 'key2';
+  ini1.WriteInteger(Section,Key,222);
+
+  Key := 'key3';
+  ini1.WriteBool(Section,Key,True);
+
+  Key := 'key4';
+  ini1.WriteDate(Section,Key,Now);
+
+  Key := 'key5';
+  ini1.WriteTime(Section,Key,Now);
+
+  Key := 'key6';
+  ini1.WriteDateTime(Section,Key,Now);
+
+  Key := 'key7';
+  ini1.WriteFloat(Section,Key,Pi);
+
+
+  //读取item2小节里的BString的值,如果没有则默认为''
+  Memo1.Lines.Add(ini1.ReadString('item2','key1',''));
+
+  //读取所有小节
+  List := TStringList.Create;
+  ini1.ReadSections(List);
+  ShowMessage(List.Text);
+  List.Free;
+
+  //读取指定小节的所有关键字
+  List := TStringList.Create;
+  ini1.ReadSection('item1',List);
+  ShowMessage(List.Text);
+  List.Free;
+
+  //读取指定小节的所有关键字和值
+  List := TStringList.Create;
+  ini1.ReadSectionValues('item2',List);
+  ShowMessage(List.Text);
+
+  //删除关键字
+  ini1.DeleteKey('item2','key1');
+  //删除小节
+  ini1.EraseSection('item1');
+  //修改item1的key4的值
+  ini1.WriteInteger('item2','key4',111111);
+
+  //判断某个小节是否存在
+  ini1.SectionExists('item3');
+  //判断某个关键字的值是否存在
+  ini1.ValueExists('item1','key1');
+  //获取文件名
+  path := ini1.FileName;
+
+  //释放ini1文件
+  ini1.Free;
+  
+  
+  
+  //内存操作ini文件
+  ini2 := TMemIniFile.Create(GetCurrentDir+'\P_commdebuger.ini');
+  //中间的增删改查api与ini1相同
+  ini2.UpdateFile;  //因为 TMemIniFile 是内存操作, 这样才能保存到文件
+
+end;

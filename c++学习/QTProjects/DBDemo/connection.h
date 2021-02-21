@@ -25,11 +25,15 @@ static bool createConnection1()
         return false;
     }
     QSqlQuery query;
-    query.exec("create table student (id int primary key, "
-               "name varchar(20))");
+    query.exec("create table student (id int primary key,name varchar(20))");
     query.exec("insert into student values(0, '小红')");
     query.exec("insert into student values(1, '小蓝')");
     query.exec("insert into student values(2, '小黑')");
+
+    query.exec("create table studentX (id int primary key,name varchar(20),Uid int)");
+    query.exec("insert into studentX values(0, '小A',0)");
+    query.exec("insert into studentX values(1, '小B',1)");
+    query.exec("insert into studentX values(2, '小C',1)");
     return true;
 }
 

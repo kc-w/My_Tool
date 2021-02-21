@@ -4,10 +4,16 @@
 #include <QStringList>
 #include <QVariant>
 #include "connection.h"
+#include "mainwindow.h"
+#include "mainwindow1.h"
+#include "mainwindow2.h"
+#include "mainwindow3.h"
+#include "mysax.h"
 #include <QSqlDriver>
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QSqlError>
+#include <QXmlStreamReader>
 
 int main(int argc, char *argv[])
 {
@@ -161,5 +167,91 @@ int main(int argc, char *argv[])
 
 
 
+
+
+
+//    //数据库操作
+//    MainWindow w;
+//    MainWindow1 w;
+//    MainWindow2 w;
+
+
+
+    //DOM创建和操作XML文档,一次性读入和存储整个XML文档,会消耗大量内存,但是操作文档方便
+    MainWindow3 w;
+    w.show();
+
+    //SAX2解析器解析xml文档,不对文档进行操作，只读取整个XML文档
+    MySAX sax;
+    sax.readFile("../DBDemo/my1.xml");
+
+
+    //xml流解析xml文档
+    QFile file("../DBDemo/my1.xml");
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        qDebug()<<"错误:无法开启文件!";
+        return 1;
+    }
+
+    QXmlStreamReader reader;
+
+    // 设置文件，这时会将流设置为初始状态
+    reader.setDevice(&file);
+
+    // 如果没有读到文档结尾，而且没有出现错误
+    while (!reader.atEnd()) {
+        // 读取下一个记号，它返回记号的类型
+        QXmlStreamReader::TokenType type = reader.readNext();
+
+        // 下面便根据记号的类型来进行不同的输出
+        if (type == QXmlStreamReader::StartDocument)
+            qDebug() << reader.documentEncoding() << reader.documentVersion();
+        if (type == QXmlStreamReader::StartElement) {
+            qDebug() << "<" << reader.name() << ">";
+            if (reader.attributes().hasAttribute("id"))
+                qDebug() << reader.attributes().value("id");
+        }
+        if (type == QXmlStreamReader::EndElement)
+            qDebug() << "</" << reader.name() << ">";
+        if (type == QXmlStreamReader::Characters && !reader.isWhitespace())
+            qDebug() << reader.text();
+    }
+
+    // 如果读取过程中出现错误，那么输出错误信息
+    if (reader.hasError()) {
+        qDebug() << "错误: " << reader.errorString();
+    }
+
+    file.close();
+
+
+
+    //xml流写入xml文档
+    QFile file1("../DBDemo/my2.xml");
+    if (!file1.open(QFile::WriteOnly | QFile::Text))
+    {
+        qDebug()<<"错误:无法开启文件!";
+        return 1;
+    }
+
+    QXmlStreamWriter stream(&file1);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+    stream.writeStartElement("bookmark");
+    stream.writeAttribute("href", "http://www.qt.io/");
+    stream.writeTextElement("title", "Qt Home");
+    stream.writeEndElement();
+    stream.writeEndDocument();
+
+    file1.close();
+
+    qDebug() << "xml流写入完成!";
+
+
     return a.exec();
 }
+
+
+
+
