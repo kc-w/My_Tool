@@ -1,0 +1,29 @@
+在一个架构的cpu上编译另一个架构的cpu可执行的代码,如在x86的cpu上编译arm的代码,编译出的代码可以在arm上执行
+
+1:在linux根目录新建linux文件夹
+cd /
+mkdir linux
+
+2:在linux文件夹下新建tool文件存放交叉编译工具
+cd /linux
+mkdir tool
+
+3:将交叉编译工具移到tool目录下
+
+
+4:在usr的local下创建arm目录
+mkdir /usr/local/arm
+
+5:将tool下的交叉编译工具拷贝到arm目录下
+cp gcc*.xz /usr/local/arm
+
+6:解压arm目录下的交叉编译工具
+cd /usr/local/arm
+tar -xvf gcc*.xz
+
+7:将交叉编译器添加到环境变量
+echo 'export PATH=$PATH:/usr/local/arm/gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf/bin' >>/etc/profile
+source /etc/profile
+
+
+

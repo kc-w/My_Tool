@@ -1,0 +1,149 @@
+测试:单独写一个名为main.c的文件进行编译
+gcc main.c -o main		对main.c进行编译,生成名为main的可执行文件
+
+
+编译流程
+GCC 编译器的编译流程是：预处理、编译、汇编和链接。
+
+预处理:
+	展开所有的头文件、替换程序中的宏、解析条件编译并添加到文件中
+编译:
+	将经过预编译处理的代码编译成汇编代码，也就是我们常说的程序编译
+汇编:
+	将汇编语言文件编译成二进制目标文件
+链接:
+	将多个二进制目标文件链接在一起,形成可执行文件,链接的时候还会涉及到静态库和动态库等问题
+	
+
+使用gcc编译多个c文件,这种编译方式无论c文件是否修改都会重新编译一次,比较浪费时间
+gcc main.c calcu.c input.c -o main
+
+将 main.c、input.c 和 calcu.c 编译成对应的.o 文件,然后在将所有的.o 文件链接成可执行文件
+gcc -c main.c
+gcc -c input.c
+gcc -c calcu.c
+gcc main.o input.o calcu.o -o main
+
+如果只改了calcu.c文件只需要重新编译calcu.c再进行链接为可执行文件
+gcc -c calcu.c
+gcc main.o input.o calcu.o -o main
+
+
+make:
+	解决大工程编译的工具
+Makefile:
+	描述哪些文件需要编译、哪些需要重新编译的文件
+	
+	
+当修改的文件过多时会使用Makefile来进行描述(其中的空格必须为tab键空格,否则可能会报错)
+
+#目标 : 依赖文件集合
+main: main.o input.o calcu.o
+	#命令
+	gcc -o main main.o input.o calcu.o
+main.o: main.c
+	gcc -c main.c
+input.o: input.c
+	gcc -c input.c
+calcu.o: calcu.c
+	gcc -c calcu.c
+
+#使用make clean命令时清除文件
+clean:
+	rm *.o
+	rm main
+
+使用make命令会自动在当前目录查找Makefile文件进行编译并生成可执行文件(使用make clean可以清除所有.o文件和main执行文件)
+
+Makefile语法
+
+#Makefile 变量的使用
+objects = main.o input.o calcu.o
+main: $(objects)
+	gcc -o main $(objects)	
+
+
+#赋值符“=”,使用make print命令后输出字符串zuozhongkai(只有最后赋值生效)
+name = zzk
+curname = $(name)
+name = zuozhongkai
+
+print:
+	@echo curname: $(curname)	
+
+
+#赋值符“:=”,使用make print命令后输出字符串zzk(只有第一次赋值生效)
+name = zzk
+curname := $(name)
+name = zuozhongkai
+
+print:
+	@echo curname: $(curname)	
+
+
+#赋值符“?=”,使用make print命令后输出字符串zuozhongkai(只有第一次赋值生效)
+name ?= zzk
+curname = $(name)
+name ?= zuozhongkai
+
+print:
+	@echo curname: $(curname)
+	
+#变量追加“+=”
+objects = main.o inpiut.o
+objects += calcu.o
+
+
+#通配符和自动化变量
+objects = main.o input.o calcu.o
+main: $(objects)
+	gcc -o main $(objects)
+
+%.o : %.c
+	gcc -c $<
+
+#声明clean为伪目标,这样在执行make claen时会忽略同级目录下有一个名为clean文件而造成的清理失败
+.PHONY : clean
+clean:
+	rm *.o
+	rm main
+	
+自动化变量  描述
+$@			规则中的目标集合，在模式规则中，如果有多个目标的话，“$@”表示匹配模式中定义的目标集合。
+$%			当目标是函数库的时候表示规则中的目标成员名，如果目标不是函数库文件，那么其值为空。
+$<			依赖文件集合中的第一个文件，如果依赖文件是以模式(即“%”)定义的，那么“$<”就是符合模式的一系列的文件集合。
+$? 			所有比目标新的依赖目标集合，以空格分开。
+$^			所有依赖文件的集合，使用空格分开，如果在依赖文件中有多个重复的文件，“$^”会去除重复的依赖文件，值保留一份。
+$+ 			和“$^”类似，但是当依赖文件存在重复的话不会去除重复的依赖文件。
+$*			这个变量表示目标模式中"%"及其之前的部分，如果目标是 test/a.test.c，目标模式为 a.%.c，那么“$*”就是 test/a.test。
+
+#条件判断
+
+
+
+
+#函数使用
+
+#函数 subst(将字符串<text>中的<from>内容替换为<to>，函数返回被替换以后的字符串)
+$(subst <from>,<to>,<text>)
+$(subst zzk,zz,my name is zzk)		返回my name is zz
+
+#函数 patsubst(此函数查找字符串<text>中的单词是否符合模式<pattern>，如果匹配就用<replacement>来替换掉)
+$(patsubst <pattern>,<replacement>,<text>)
+$(patsubst %.c,%.o,a.c b.c c.c)		返回a.o b.o c.o
+
+#函数 dir(用来获取文件名的目录部分,不包含文件名)
+$(dir <names…>)
+$(dir </src/a.c>)      返回/src
+
+#函数 notdir(在目录中提取文件名)
+$(notdir <names…>)
+$(notdir </src/a.c>)		返回a.c
+
+#函数 foreach
+(把<list>中的单词逐一放到<var>中,再执行<text>的表达式。每次返回一个字符串,以空格隔开,最后返回所有字符串)
+$(foreach <var>, <list>,<text>)
+
+#函数 wildcard(通配符“%”只能用在规则中,如果在变量定义和函数使用时，通配符就会失效,要用到wildcard)
+$(wildcard PATTERN…)
+$(wildcard *.c)		获取当前目录下所有的.c 文件
