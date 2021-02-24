@@ -1,0 +1,39 @@
+-g:产生调试信息
+-c:要编译的源文件,不链接
+-编译成的文件
+
+GBD能对调试信息进行代码调试
+
+编译为.o文件
+arm-linux-gnueabihf-gcc -g -c leds.s -o leds.o
+
+将.o文件进行链接为elf可执行文件
+链接就是将所有.o文件链接在一起,并且链接到指定的地方,链接起始地址就是代码运行的起始地址
+Cortex-M系列芯片内部有flash,可以直接进行链接地址指定,并且MDK开发工具设置里自动设定了链接的起始地址
+对于Cortex-A系列芯片来说内部没有flash,只能只想RAM地址,RAM分为内部RAM和外部RAM
+
+存储地址:
+    就是可执行文件存储在哪里，可执行文件的存储地址可以随意选择
+运行地址
+    就是代码运行的时候所处的地址，这个我们在链接的时候就已经确定好了，代码要运行，那就必须处于运行地址处，否则代码肯定运行出错
+
+I.MX6U 支持 SD 卡、 EMMC、 NAND 启动，因此代码可以存储到 SD 卡、 EMMC 或者 NAND 中，
+但是要运行的话就必须将代码从 SD 卡、 EMMC 或者NAND 中拷贝到其运行地址(链接地址)处，“存储地址”和“运行地址”可以一样
+
+上电以后 I.MX6U 的内部 boot rom 程序会将可执行文件拷贝到链接地址处，
+这个链接地址可以在 I.MX6U 的内部 128KB RAM 中(0X900000~0X91FFFF)，也可以在外部的 DDR 中
+
+MX6U-ALPHA 开发板的 DDR 容量有两种： 512MB 和256MB，起始地址都为 0X80000000，只不过 512MB 的终止地址为 0X9FFFFFFF，而 256MB 容
+量的终止地址为 0X8FFFFFFF。选择 0X87800000 这个地址是因为后面的 Uboot 其链接地址就是 0X87800000，这样统一使用 0X87800000
+
+
+arm-linux-gnueabihf-ld -Ttext 0X87800000 leds.o -o leds.elf
+
+
+将 led.elf 文件转换为.bin 文件
+arm-linux-gnueabihf-objcopy -O binary -S -g leds.elf leds.bin
+
+
+
+有时候需要查看其汇编代码来调试代码，因此就需要进行反汇编,可以将 elf 文件反汇编
+arm-linux-gnueabihf-objdump -D leds.elf > leds.dis
