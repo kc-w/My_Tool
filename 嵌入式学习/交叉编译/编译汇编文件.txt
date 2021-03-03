@@ -52,3 +52,30 @@ leds.bin:leds.s
     arm-linux-gnueabihf-objdump -D leds.elf > leds.dis
 clean:
     rm -rf *.o leds.bin leds.elf leds.dis
+	
+
+(6ULL芯片支持jlink,jtag烧写,但是没有烧写算法所有无法烧写,但是可以通过jtag将bin文件下载到内部ram,奇怪的是6ULL的jtag口和sai复用
+sai连接了wm8960音频dac,这样就会有冲突,官方的做法是在jtag和wm8960之间有连有个0欧的电阻,如果要用jtag就把0欧的电阻拆掉)
+
+烧写文件:
+	将imxdownload烧写工具拷贝到工程根目录下(该工具会向bin文件的头部添加一些东西)，和led.bin 处于同一个文件夹下,并给该文件权限
+	将读卡器插入到电脑,使用df -h查找到具体的盘区
+	使用 imxdownload 向 SD 卡烧写 led.bin 文件:  ./imxdownload leds.bin /dev/sdb1
+	最终烧写到 SD 卡里面的就是目录下新生成的load.imx 文件
+	
+开机读取驱动的流程
+1:开机检测启动方式,这里检测为sd卡启动
+2:读到添加在sd卡的头部信息(头部的大小,考到什么位置,初始化的外设)
+
+
+启动方式:
+1:BOOT_MODE0和BOOT_MODE1,这两个启动方式是2个IO来控制的
+
+
+
+
+
+
+
+
+

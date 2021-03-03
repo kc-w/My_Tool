@@ -49,6 +49,9 @@ touch  file.txt   创建一个空文件
 echo "my baby1" > file.txt  利用重定向“>”的功能，将一条指令的输出结果写入到一个文件中，会覆盖原文件内容
 echo "my baby2" >> file.txt     将一条指令的输出结果追加到一个文件中，不会覆盖原文件内容
 
+(解决vi编辑器方向键问题)
+sudo apt-get remove vim-common
+sudo apt-get install vim
 
 用vi文本编辑器来编辑生成文件
 vi  file.txt
@@ -139,10 +142,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-eth0		修改IP(重启后永久生效Cent
 
 vi /etc/netplan/01-network-manager-all.yaml			修改IP(重启后永久生效Ubuntu修改ip)
 
-ubuntu的ip设置
-(解决vi编辑器方向键问题)
-sudo apt-get remove vim-common
-sudo apt-get install vim
+
 
 
 

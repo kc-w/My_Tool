@@ -1,0 +1,9 @@
+启动头文件
+1:boot rom:
+	设置内核时钟为396MHZ,使能MMU和Cache,使能L1 cache,L2 cache,MMU,目的就是为了加速启动.
+	从BOOT_CFG设置的外置存储中,读取image,然后做相应处理
+	
+2:IVT和Boot Data数据
+	Bin文件前面要添加头部,烧写到sd卡中的load.imx文件在sd卡的起始地址是0x400,也就是1024
+	头部大小为3KB,加上偏移的1KB,一共是4KB,因此在sd卡中bin文件的起始地址为4096
+	IVT大小为32B/4=8条

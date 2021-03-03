@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>resource/img/connection.png</file>
+        <file>resource/img/initialize.png</file>
+        <file>resource/img/about.png</file>
+        <file>resource/img/edit.png</file>
+        <file>resource/img/home.png</file>
+        <file>resource/img/login.png</file>
+        <file>resource/img/query.png</file>
+        <file>resource/img/start.png</file>
+        <file>resource/img/system.png</file>
+        <file>resource/img/Experiment_editor.png</file>
+        <file>resource/img/Liquid_parameters.png</file>
+        <file>resource/img/Maintain_Settings.png</file>
+        <file>resource/img/Position_calibration.png</file>
+        <file>resource/img/Quality_management.png</file>
+        <file>resource/img/Reagent_management.png</file>
+        <file>resource/img/System_settings.png</file>
+        <file>resource/img/View_log.png</file>
+    </qresource>
+</RCC>

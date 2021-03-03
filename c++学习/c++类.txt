@@ -107,3 +107,8 @@ int main( ){
 }
 
 
+
+类的实例化方式
+SqliteDBAOperator db =SqliteDBAOperator();
+SqliteDBAOperator * db = new SqliteDBAOperator();
+SqliteDBAOperator db;

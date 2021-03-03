@@ -1,5 +1,10 @@
-开启ssh服务
+服务器连接准备工作
+
+安装ssh服务
 apt install openssh
+
+apt-get install gcc
+apt-get install build-essential
 
 
 在一个架构的cpu上编译另一个架构的cpu可执行的代码,如在x86的cpu上编译arm的代码,编译出的代码可以在arm上执行
