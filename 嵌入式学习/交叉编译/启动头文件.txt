@@ -1,9 +1,66 @@
-启动头文件
+idm的启动头文件
 1:boot rom:
 	设置内核时钟为396MHZ,使能MMU和Cache,使能L1 cache,L2 cache,MMU,目的就是为了加速启动.
 	从BOOT_CFG设置的外置存储中,读取image,然后做相应处理
 	
 2:IVT和Boot Data数据
-	Bin文件前面要添加头部,烧写到sd卡中的load.imx文件在sd卡的起始地址是0x400,也就是1024
-	头部大小为3KB,加上偏移的1KB,一共是4KB,因此在sd卡中bin文件的起始地址为4096
-	IVT大小为32B/4=8条
+	Bin文件前面要添加头部,烧写到sd卡中的load.imx文件在sd卡的起始地址是0x400(因为sd卡内部存储有分区信息,不能烧写,否者卡报废)
+	也就是1024,头部大小为3KB,加上偏移的1KB,一共是4KB,因此在sd卡中bin文件的起始地址为4096,IVT大小为32B/4=8条
+	
+	IVT结构        数据                                    描述
+	header         0X402000D1 						根据IMX6ULL参考手册的图8-22. IVT header format分析可以知道
+													第一个字节 Tag 为0XD1，第二三这两个字节为 IVT 大小，为大端模
+													式，所以 IVT 大小为 0X20=32 字节第四个字节为 0X40。完全符合
+													参考手册的图8-22中的格式
+													
+	entry          0X87800000					    入口地址，也就是镜像第一行指令所在的位置。0X87800000 就是我们的链接地址。
+	
+	reserved1      0X00000000                       未使用，保留。
+	
+	dcd            0X877FF42C                       DCD 地址，镜像地址为 0X87800000， IVT+Boot
+													Data+DCD 整个大小为 3KByte。因此 load.imx 的起
+													始地址就是 0X87800000-0XC00=0X877FF400。因
+													此 DCD 起始地址相对于 load.imx 起始地址的偏移
+													就是0X877FF42C-0X877FF400=0X2C，也就是说从
+													图 9.4.1.4 中的 0X2C 这个地址开始就是 DCD 数据了
+													
+	boot data      0X877FF420                       boot 地址， header 里面已经设置了 IVT 大小是 32个 字 节 
+													所 以 boot data 的地址就是0X877FF400+32=0X877FF420。
+													
+	self		   0X877FF400						IVT 复制到 DDR 中以后的首地址。
+
+	csf            0X00000000                       CSF 地址
+	
+	reserved2      0X00000000                       保留，未使用
+													
+													
+	Boot Data结构         数据               描述												
+	start                 0X877FF000         整个 load.imx 的起始地址，包括前面 1KByte 的地址偏移。
+	
+	length                0X00200000		 镜像大小，这里设置 2MByte。镜像大小不能超过2MByte。												
+													
+	plugin                0X00000000         插件。												
+													
+													
+3:DCD数据(Device configuration data):就是配置6ULL内部寄存器初始化外设	.
+	首先,将CCGR0-CCGR6全部写为0xFFFFFFFF,表示打开所有外设时钟,然后就是设置DDR控制器,初始化DDR参数
+	
+4:其他的数据
+	检查命令,NOP命令,解锁命令,其实也属于DCD
+	
+
+
+
+imx文件结构
+
+
+IVT      32Byte
+
+Boot Data   12Byte
+
+DCD     最大1768Byte
+
+bin
+
+
+

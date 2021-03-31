@@ -19,6 +19,12 @@ dpkg -i file.deb	安装deb文件
 安装gcc、c++编译器以及内核文件
 yum -y install gcc gcc-c++ kernel-devel
 
+设置环境变量(在/etc/profile新建环境变量重启不生效问题)
+vi ~/.bashrc 
+然后最后一行添加 source /etc/profile
+
+
+
 创建文件夹
 mkdir aaa     这是相对路径的写法 
 mkdir  /data    这是绝对路径的写法
